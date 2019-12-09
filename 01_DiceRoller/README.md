@@ -25,3 +25,15 @@
     ```
         Toast.makeText(this, "button clicked", Toast.LENGTH_SHORT).show()
     ```
+## 5. Activities
+ - MainActivity는 AppCompatActivity의 subclass이며, Activity의 하위 클래스이기도 하다.
+ - Activity는 앱 UI를 그리고, input 이벤트를 수신하는 핵심 Android 클래스이다.
+ - 모든 layout file은 activity들과 관련이 있다.
+ - setContentView() 메소드는 activity가 create 될 때 layout을 inflate 시키는 메소드이다
+ - layout inflation은 xml 레이아웃 파일에 정의된 뷰가 kotlin 메모리의 뷰 객체로 변환되는 프로세스이다
+
+## 6. Views
+ - app layout 안에 모든 UI 요소들은 View 클래스의 하위 클래스들이다. views라고도 불린다.
+ - TextView, Button은 views의 한 예다
+ - View 요소들은 ViewGroup으로 묶일 수 있는데, 뷰 그룹은 뷰 또는 다른 뷰 그룹 내의 컨테이너 역할을 한다.
+ - LinearLayout은 뷰를 선형으로 배열하는 뷰 그룹의 예이다.
