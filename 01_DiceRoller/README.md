@@ -1,4 +1,4 @@
-# 01_DicreRoller
+# 01_DiceRoller
 
 ## 1. Examine MainActivity
 #### 1. AppCompatActivity
