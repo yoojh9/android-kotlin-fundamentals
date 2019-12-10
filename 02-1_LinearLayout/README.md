@@ -11,7 +11,6 @@
  - 하나 이상의 view를 scroll 하고 싶을 경우, LinearLayout과 같은 ViewGroup을 만들어 ScrollView 추가한다.
  
   <img src="./images/5c9c27aa92cc7531.png"  width="300" height="300">
- ![LinearLayout view group](./images/5c9c27aa92cc7531.png)
  
 
 ## 2. Style your TextView
