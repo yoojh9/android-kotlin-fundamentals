@@ -2,7 +2,7 @@
 ### 1. Learn to help yourself
  - [https://github.com/android/sunflower](https://github.com/android/sunflower) 코드 참고
 
-### 2. Chnage the launcher icon
+### 2. Change the launcher icon
  1. proejct > Android 창에서 res 폴더를 오른쪽 클릭한다. New > Image Asset을 선택한다
  2. Icon Type 필드에서 Launcher Icons (Adaptive & Lagacy) 선택 후 Foreground Layer 탭을 선택한다
  3. Asset Type에서 Clip Art 선택
