@@ -14,7 +14,7 @@
 
 ## 2. Style your TextView
 #### 1. Padding versus Margin
- ![Padding vs Margin](./images/2bdc13271b6448f8.png)
+ ![Padding vs Margin](./images/2bdc13271b6448f8.png){: width="200" height="200"}
  
  - Padding은 뷰 또는 요소의 경계 내부 공간. 위의 그림과 같이 뷰의 가장자리와 뷰의 내용 사이의 공간이다.
  
@@ -50,9 +50,9 @@
  - style은 view의 포맷과 모양을 지정하는 속성의 모음이다.
  - style은 font color, font size, background color, padding, margin, 기타 일반적인 속성이 포함될 수 있다
  - 서식을 스타일로 추출하고 앱의 여러 view에서 스타일을 재사용 할 수도 있다
-    1. activity_main.xml의 Design 탭에서 Component Tree 안에 있는 TextView를 오른쪽 클릭한다. Refactor > Extract Style을 선택한다.
-    2. Extract Android Style 다이얼로그에서 layout_width와 layout_height, textAlighment의 체크박스를 해제한다.
-    3. style 역시 resource이므로 res/values/style.xml에 저장된다.
+    - activity_main.xml의 Design 탭에서 Component Tree 안에 있는 TextView를 오른쪽 클릭한다. Refactor > Extract Style을 선택한다.
+    - Extract Android Style 다이얼로그에서 layout_width와 layout_height, textAlighment의 체크박스를 해제한다.
+    - style 역시 resource이므로 res/values/style.xml에 저장된다.
     
 ## 3. Add an ImageView
  - ImageView는 이미지 리소스를 나타내는 뷰이다.
