@@ -5,7 +5,7 @@
 
 |#|UI description|code reference|
 |------|---|---|
-|1|status bar.  안드로이드 시스템이 제공하고 제어한다 |템플릿 코드에서는 보이지 않지만 activity에서 status bar를 access 할 수 있다. 예를 들어 MainActivity.kt 에서 status bar를 hide 시키는 코드를 추가할 수 있다.|
+|1|status bar. <br>s 안드로이드 시스템이 제공하고 제어한다 |템플릿 코드에서는 보이지 않지만 activity에서 status bar를 access 할 수 있다. 예를 들어 MainActivity.kt 에서 status bar를 hide 시키는 코드를 추가할 수 있다.|
 |2|app bar.  action bar 라고 불리기도 한다 | activity_main.xml에서 AppBarLayout 요소 내에서 Toolbar를 확인할 수 있다. 이전 버전과의 호환성을 위해 템플릿의 AppBarLayout에는 ActionBar와 동일한 기능을 가진 Toolbar가 있다 |
 |3|app name.  초기 값은 package name 이지만 변경할 수 있다 | AndroidMenifest.xml의 android:label="@string/app_name"을 참고. app_name은 strings.xml에 정의되어 있다 |
 |4|options-menu overflow button.  액티비티에 대한 메뉴 항목이며 앱의 검색 및 설정과 같은 메뉴 옵션도 있다. | MainActivity.kt에서 onOptionsItemSelected() 메소드를 구현하면 된다. basicActivity 템플릿에서는 res/menu/menu_main.xml을 이용하여 메뉴를 inflicate 시켰다.|
