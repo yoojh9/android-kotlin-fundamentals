@@ -9,6 +9,8 @@
  
  - ScrollView를 사용하면 이미지의 집합이나 화면에 긴 내용을 표현해야 할 경우 사용한다. ScrollView는 오로지 하나의 child view만 포함한다.
  - 하나 이상의 view를 scroll 하고 싶을 경우, LinearLayout과 같은 ViewGroup을 만들어 ScrollView 추가한다.
+ 
+  <img src="../images/5c9c27aa92cc7531.png"  width="300" height="300">
  ![LinearLayout view group](./images/5c9c27aa92cc7531.png)
  
 
