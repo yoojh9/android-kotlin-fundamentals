@@ -14,7 +14,7 @@
 
 ## 2. Style your TextView
 #### 1. Padding versus Margin
- <img src="./images/2bdc13271b6448f8.png"  width="200" height="200">
+ <img src="./images/2bdc13271b6448f8.png"  width="300" height="300">
  
  - Padding은 뷰 또는 요소의 경계 내부 공간. 위의 그림과 같이 뷰의 가장자리와 뷰의 내용 사이의 공간이다.
  
