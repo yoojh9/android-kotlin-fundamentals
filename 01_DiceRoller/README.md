@@ -125,4 +125,4 @@
         // app 네임스페이스는 사용자 지정 코드나 android framework가 아닌 라이브러리에서 제공되는 속성을 위한 네임스페이스이다.
         android:src -> app:srcCompat 으로 변경
         
-    ``` 
+    ```
