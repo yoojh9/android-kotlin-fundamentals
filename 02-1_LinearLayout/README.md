@@ -9,12 +9,12 @@
  
  - ScrollView를 사용하면 이미지의 집합이나 화면에 긴 내용을 표현해야 할 경우 사용한다. ScrollView는 오로지 하나의 child view만 포함한다.
  - 하나 이상의 view를 scroll 하고 싶을 경우, LinearLayout과 같은 ViewGroup을 만들어 ScrollView 추가한다.
- ![LinearLayout view group](/images/5c9c27aa92cc7531.png)
+ ![LinearLayout view group](./images/5c9c27aa92cc7531.png)
  
 
 ## 2. Style your TextView
 #### 1. Padding versus Margin
- ![Padding vs Margin](/images/2bdc13271b6448f8.png){:height="50%" width="50%"}
+ ![Padding vs Margin](./images/2bdc13271b6448f8.png){:height="50%" width="50%"}
  
  - Padding은 뷰 또는 요소의 경계 내부 공간. 위의 그림과 같이 뷰의 가장자리와 뷰의 내용 사이의 공간이다.
  
