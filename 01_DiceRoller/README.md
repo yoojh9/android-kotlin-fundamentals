@@ -46,18 +46,19 @@
 ## 4. Understanding API levels and compatibility
 #### 1. Explore API levels
 
-    ```
-        android {
-            compileSdkVersion 29
-            defaultConfig {
-                applicationId "com.example.kotlin.a01_diceroller"
-                minSdkVersion 19
-                targetSdkVersion 29
-                versionCode 1
-                versionName "1.0"
-                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-            }
-    ```
+``` 
+    android {
+        compileSdkVersion 29
+        defaultConfig {
+            applicationId "com.example.kotlin.a01_diceroller"
+            minSdkVersion 19
+            targetSdkVersion 29
+            versionCode 1
+            versionName "1.0"
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        }
+```
+
 
  - compileSdkVersion은 gradle이 app을 컴파일 하는 데 사용하는 android API 레벨을 지정한다.
  
