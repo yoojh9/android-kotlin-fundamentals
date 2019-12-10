@@ -1,4 +1,4 @@
-package com.example.kotlin.a021_linearlayout
+package com.example.kotlin.a02_1_linearlayout
 
 import org.junit.Test
 
