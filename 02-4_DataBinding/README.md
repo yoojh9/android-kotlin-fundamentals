@@ -68,7 +68,8 @@
  - 예를 들어 done_button은 doneButton, nickname_edit은 nicknameEdit이 된다.
  
  #### 1. findViewById() -> 바인딩 객체에서 button을 참조하는 코드로 변경한다.
-    - findViewById<Button>(R.id.done_button) -> binding.doneButton
+ 
+  - findViewById<Button>(R.id.done_button) -> binding.doneButton
     
  ```
     // MainActivity.kt
