@@ -69,6 +69,7 @@
  
  #### 1. findViewById() -> 바인딩 객체에서 button을 참조하는 코드로 변경한다.
     - findViewById<Button>(R.id.done_button) -> binding.doneButton
+    
  ```
     // MainActivity.kt
      override fun onCreate(savedInstanceState: Bundle?) {
