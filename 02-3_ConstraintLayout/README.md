@@ -1,9 +1,10 @@
-# 02-3_Constraint
+# 02-3_ConstraintLayout
 
 ## 1. ConstraintLayout
  - ConstraintLayout은 유연한 방식으로 하위 뷰를 배치하고 크기를 지정할 수 있는 ViewGroup이다
  - ConstraintLayout에서는 하나 이상의 수평 및 수직 제약 조건에 의해 뷰의 위치를 지정한다.
-
+ - ConstraintLayout 내에 각 뷰들은 적어도 하나 이상의 horizontal 제약과 vertical 제약 조건을 설정해야 한다.
+ 
 ![constraintLayout](./images/870408a055b5d04a.png)
 
 ## 2. Adjust constraints
@@ -65,3 +66,27 @@
     // Horizontal packed chain
     app:layout_constraintHorizontal_chainStyle="packed"
   ```
+  
+## 4. Baseline constraint
+ - baseline constraint는 어떠한 뷰의 텍스트 기준선을 다른 뷰의 텍스트 기준선에 정렬시키는 제약이다.
+ - 특히 폰트 크기가 다른 경우 텍스트가 포함된 뷰를 정렬하기 어려울 수 있다. 이 때 사용할 수 있는 것이 baseline constraint이다
+ - layout_constraintBasetline_toBaselineOf 속성으로 지정할 수 있다.
+ 
+ ![baseline_constraint](./images/baseline_constraint.png)
+ 
+  ```
+    <Button
+        android:id="@+id/buttonB"
+        ...
+        android:text="B"
+        app:layout_constraintBaseline_toBaselineOf="@+id/buttonA"/>
+  ```
+  
+## 5. Design-time attributes
+ - Design-time attribute 속성은 runtime이 아닌 layout design 시점에만 적용된다. 앱을 실행시킬 때 design-time 속성들은 무시된다
+ - Design-time attribute는 tools 네임스페이스 시작된다. (tools:layout_editor_absoluteY, tools:text)
+ - constraintLayout의 모든 뷰들은 가로 세로 제약이 필요하다. 그렇지 않으면 앱을 실행할 때 뷰가 부모의 가장자리로 이동하게 된다.
+ - 그렇기 때문에 수평 제약 조건이 없으면, layout Editor에서 임의로 tools:layout_editor_absoulteX 속성을 부여한다.
+ - design time 속성을 사용하여 텍스트뷰나 이미지 뷰에 미리보기 데이터를 추가할 수도 있다.
+ 
+ 
