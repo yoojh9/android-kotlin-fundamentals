@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
      * done_button 버튼 클릭 이벤트
       - view 파라미터는 Done button의 인스턴스가 된다
       - done 버튼이 눌린 후에 keyboard hide 시키는 코드가 추가되어야 함
-
      */
     private fun addNickname(view: View) {
         val editText = findViewById<EditText>(R.id.nickname_edit)
