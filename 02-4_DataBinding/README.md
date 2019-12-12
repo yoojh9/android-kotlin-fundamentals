@@ -14,6 +14,8 @@
     - 데이터와 뷰가 명확하게 분리된다.
     - 안드로이드 시스템은 뷰 계층 구조를 한번만 탐색하여 각 뷰를 가져오며 사용자가 앱과 상호작용 하는 runtime 때가 아닌 앱 시작 중에 발생한다
     - type safety를 얻을 수 있다. (type safety는 컴파일러가 컴파일 하는 동안 type의 유효성을 검사하고 변수에 잘못된 타입을 할당하려고 하면 오류를 발생시킨다.)
+
+<br><br>
     
 ### 1. 데이터 바인딩 활성화
  - data binding을 사용하기 위해서는 Gradle 파일에 데이터 바인딩을 활성화 시켜야 된다.
@@ -29,10 +31,14 @@
     }
  ```
 
+<br><br>
+
 ### 2. 데이터 바인딩을 사용할 수 있도록 layout 파일 변경
  - data binding을 사용하기 위해서는 XML 레이아웃 파일을 <layout>으로 감싸야 한다.
  - 루트 클래스는 더이상 ViewGroup이 아닌 view와 view group들을 포함하는 layout이 루트 클래스가 된다.
  - layout 태그로 감싸면 바인딩 객체가 레이아웃과 그 안에 있는 뷰에 대해 알 수 있다.
+
+<br><br>
 
 ### 3. main activity에 binding 객체 생성
  
@@ -62,6 +68,8 @@
        binding = DataBindingUtil.setContentView(this, R.layout_activity_main)
     }    
   ```
+
+<br><br>
   
 ### 4. findViewById()를 호출하는 모든 코드를 binding object를 사용하여 변경
  - binding 객체가 생성되면 컴파일러는 layout 내에 있는 뷰의 ID로부터 camel case binding 객체의 뷰 네임을 생성한다.로
@@ -87,6 +95,9 @@
         }    
      }
  ```
+ 
+<br><br><br>
+
 
 ## 2. Use data biding to display data
  - 데이터 바인딩을 활용하여 data class를 뷰에 직접 사용할 수도 있다. 이 기술은 코드를 단순화하며 더 복잡한 경우를 처리하는 데 매우 유용하다
@@ -97,6 +108,8 @@
    ```
     data class MyName(var name: String = "", var nickname: String = "")
    ```
+   
+ <br>
    
  ### 2. Add data to the layout
    - activity_main.xml을 열어 <layout>과 <LinearLayout> 태그 사이에 <data></data> 태그를 추가한다
@@ -112,7 +125,8 @@
    - **@={}** 은 중괄호 안에서 참조되는 데이터를 가져오는 지시문이다.
    - TextView의 text를 android:text="@string/name" 에서 android:text="@={myName.name}"으로 변경한다
    
-   
+ <br>
+  
  ### 3. Create the data
    - MainActivity.kt를 열어 onCreate() 위에 private 변수로 myName을 만든다. 
    - onCreate()에서는 레이아웃 파일의 myName 변수값을 방금 선언한 myName 변수값으로 설정한다.
@@ -126,7 +140,8 @@
         binding.myName = myName   
      }
    ```
-   
+ <br>
+ 
  ### 4. Use the data class for the nickname in the TextView
   - activity_main.xml을 열어서 nickname_text 텍스트 뷰의 text 프로퍼티를 다음과 같이 변경한다
   
@@ -178,7 +193,8 @@
    
       findViewById<Button>(R.id.done_button) => binding.doneButton
 
-   
+  <br>
+  
   ### 2. 뷰에 데이터 바인딩시키기
    ##### 1. data class를 작성한다
    
