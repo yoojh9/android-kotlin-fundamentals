@@ -183,10 +183,10 @@
   - 사용자가 **Next Match** 또는 **Try Again** 버튼을 눌렀을 경우 GameFragment 화면으로 연결시킨다.
   - 이동한 GameFragment 화면에서는 백 버튼 선택 시 GameWon이나 GameOver 화면이 아닌 TitleFragment 화면으로 이동해야 한다.
   
-  ##### 1) navigation.xml에서 gameOverFragment에서 gameFragment로 연결하는 action을 추가한다.
-  ##### 2) Attributes 창에서 Pop To 속성을 titleFragment로 설정하고, Inclusive 체크를 해제한다. (titleFragment 까지의 모든 것을 백스택에서 제거한다)
+    ##### 1) navigation.xml에서 gameOverFragment에서 gameFragment로 연결하는 action을 추가한다.
+    ##### 2) Attributes 창에서 Pop To 속성을 titleFragment로 설정하고, Inclusive 체크를 해제한다. (titleFragment 까지의 모든 것을 백스택에서 제거한다)
   
-  <img src="./images/pop_behavior_2.png"  width="50%" height="50%">
+    <img src="./images/pop_behavior_2.png"  width="50%" height="50%">
   
-  ##### 3) navigaion.xml에서 gameWonFragment와 gameFragment를 연결하는 action을 추가한다.
-  ##### 4) 2)번의 작업을 반복한다.
+    ##### 3) navigaion.xml에서 gameWonFragment와 gameFragment를 연결하는 action을 추가한다.
+    ##### 4) 2)번의 작업을 반복한다.
