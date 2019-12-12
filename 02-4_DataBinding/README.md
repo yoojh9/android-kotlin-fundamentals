@@ -183,6 +183,7 @@
    ##### 2. \<layout\> 태그 안에 \<data\> 태그 블럭을 추가한다
    
    ##### 3. data class 유형으로 \<variable\>을 정의한다
+   
     ```
       <data>
         <variable
@@ -192,16 +193,19 @@
     ```
    
    ##### 4. MainActivity에서 data class의 인스턴스로 변수를 만든다
+   
     ```
        private val myName: MyName = MyName("Aleks Haeck")
     ```
    
    ##### 5. binding 객체에 변수를 방금 작성한 변수로 설정한다
+   
     ```
        binding.myName = myName
     ```
    
    ##### 6. XML에서 뷰의 내용을 \<data\> 블록에서 정의한 변수로 설정한다. 점 표기법을 사용하여 data class 내부의 데이터에 접근할 수 있다
+   
     ```
        android:text="@={myName.name}"g
     ```
