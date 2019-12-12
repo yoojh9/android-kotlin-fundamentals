@@ -1,5 +1,5 @@
 
-# 1. Fragment
+# 03-1. Fragment
 
 ## 1. Add a Fragment
  - Fragment는 Activity에서 사용자 인터페이스(UI)의 일부를 나타낸다
@@ -8,7 +8,7 @@
     - fragment는 자체 생명 주기가 있으며 자체 input event를 수신한다
     - 액티비티가 실행되는 동안 fragment를 추가 삭제 할 수 있다
 
-<br><br>
+<br>
 
 #### 1) Create a binding object
   - 프래그먼트를 컴파일 하려면 binding object를 생성하고 fragment의 뷰를 inflicate 시켜야 한다 (activity의 setContentView()와 동일)
