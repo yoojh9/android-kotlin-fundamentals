@@ -65,8 +65,8 @@
   
   ##### 4) preview 화면에서 title fragment의 pointer를 game fragment preview에 연결한다. 이 때 두 프래그먼트를 연결하는 action이 만들어진다.
   
-  ![connetc_fragment_preview](./images/connect_fragment.png)
-  
+   <img src="./images/connect_fragment.png"  width="600" height="400">
+   
  <br>
   
  ### Step 2: Add a click handler to the play button
@@ -98,16 +98,17 @@
  ### Step 1: Add GameWonFragment and GameOverFragment to the navigation graph
  
   - navigation.xml 파일을 열고 New Destination 버튼을 클릭한 후 fragment_game_over와 fragment_game_won 을 추가한다
- 
- ![conditional_navigation](./images/conditional_navigation.png)
+
+ <img src="./images/conditional_navigation.png"  width="600" height="400">
  
  <br>
  
  ### Step 2: Connect the game fragment to the game-result fragment
  
  - Layout Editor의 preview 영역에서 GameFragment를 GameOverFragment와 GameWonFragment에 각각 연결시킨다.
-   
- ![connect_conditional_navigation](./images/connect_conditional_navigation.png)
+ 
+  <img src="./images/connect_conditional_navigation.png"  width="600" height="400">
+ 
 
   <br>
  
@@ -166,6 +167,9 @@
     ##### 2) Attributes 창에서 **Pop To**를 gameFragment로 설정하고, **inclusive** 체크박스를 선택한다.
  
     ![pop_behavior_1](./images/pop_behavior_1.png)
+    
+    <img src="./images/pop_behavior_1.png"  width="300" height="150">
+      
     
      - 이 속성은 navigation component에 백 스택에서 GameFragment를 포함한 fragment를 제거하도록 지시한다.
      - 이 동작은 **Pop To** 필드에 titleFragment를 설정하고 **Inclusive** 체크박스를 해제하는 것과 같다
