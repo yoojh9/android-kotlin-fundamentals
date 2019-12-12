@@ -219,4 +219,4 @@
    
    ##### 6. XML에서 뷰의 내용을 \<data\> 블록에서 정의한 변수로 설정한다. 점 표기법을 사용하여 data class 내부의 데이터에 접근할 수 있다
    
-       android:text="@={myName.name}"g
+       android:text="@={myName.name}"
