@@ -155,7 +155,9 @@
         ...
      }
   ```
-  
+
+<br><br><br>
+
 ## 3. Summary
  ### 1. findViewById() 대신 data binding을 사용해라
    ##### 1. build.gradle 파일의 android 영역 내에 dataBinding { enable = true } 추가
@@ -163,19 +165,19 @@
    ##### 2. \<layout\> 을 XML 레이아웃의 root view로 사용한다
    
    ##### 3. binding 변수를 정의한다
-    ```
+
       private lateinit var binding: ActivityMainBinding
-    ```
+
     
    ##### 4. setContentView를 아래와 같이 대체하여 binding 객체를 생성한다
-    ```
+
       bidnding = dataBindingUtil.setContentView(this, R.layout.activity_main)
-    ```
+
     
    ##### 5. findViewById()에 대한 호출을 binding object의 참조로 사용한다
-    ```
+   
       findViewById<Button>(R.id.done_button) => binding.doneButton
-    ```
+
    
   ### 2. 뷰에 데이터 바인딩시키기
    ##### 1. data class를 작성한다
@@ -184,28 +186,21 @@
    
    ##### 3. data class 유형으로 \<variable\>을 정의한다
    
-    ```
       <data>
         <variable
             name="myName"
             type="com.example.android.abountMe.myName"/>
       </data>
-    ```
+      
    
    ##### 4. MainActivity에서 data class의 인스턴스로 변수를 만든다
    
-    ```
        private val myName: MyName = MyName("Aleks Haeck")
-    ```
    
    ##### 5. binding 객체에 변수를 방금 작성한 변수로 설정한다
    
-    ```
        binding.myName = myName
-    ```
    
    ##### 6. XML에서 뷰의 내용을 \<data\> 블록에서 정의한 변수로 설정한다. 점 표기법을 사용하여 data class 내부의 데이터에 접근할 수 있다
    
-    ```
        android:text="@={myName.name}"g
-    ```
