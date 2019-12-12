@@ -200,7 +200,7 @@
    
    ##### 2. \<layout\> 태그 안에 \<data\> 태그 블럭을 추가한다
    
-   ##### 3. data class 유형으로 \<variable\>을 정의한다
+   ##### 3. data class 유형으로 \<variable\>을 정l의한다
    
       <data>
         <variable
