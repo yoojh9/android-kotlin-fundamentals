@@ -65,7 +65,7 @@
   
   ##### 4) preview 화면에서 title fragment의 pointer를 game fragment preview에 연결한다. 이 때 두 프래그먼트를 연결하는 action이 만들어진다.
   
-   <img src="./images/connect_fragment.png"  width="600" height="400">
+   <img src="./images/connect_fragment.png"  width="60%" height="60%">
    
  <br>
   
@@ -86,7 +86,7 @@
    }
  ```
 
-<br><bR>
+<br><br>
 
 ## 5. Add conditional navigation
  - 특정 조건에 따라 화면에 다르게 보이는 navigation도 만들 수 있다.
@@ -99,7 +99,7 @@
  
   - navigation.xml 파일을 열고 New Destination 버튼을 클릭한 후 fragment_game_over와 fragment_game_won 을 추가한다
 
- <img src="./images/conditional_navigation.png"  width="600" height="400">
+ <img src="./images/conditional_navigation.png"  width="60%" height="60%">
  
  <br>
  
@@ -107,7 +107,7 @@
  
  - Layout Editor의 preview 영역에서 GameFragment를 GameOverFragment와 GameWonFragment에 각각 연결시킨다.
  
-  <img src="./images/connect_conditional_navigation.png"  width="600" height="400">
+  <img src="./images/connect_conditional_navigation.png"  width="60%" height="60%">
  
 
   <br>
