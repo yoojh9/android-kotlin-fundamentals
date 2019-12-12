@@ -5,17 +5,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
+import androidx.databinding.DataBindingUtil
 import com.example.kotlin.a02_4_databinding.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val myName: MyName = MyName("Aleks Haecky")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
 //        findViewById<Button>(R.id.done_button).setOnClickListener {
 //            addNickname(it)
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 //        findViewById<TextView>(R.id.nickname_text).setOnClickListener {
 //            updateNickName(it)
 //        }
+
+        binding.myName = myName
 
         binding.doneButton.setOnClickListener{
             addNickname(it)
@@ -56,10 +59,14 @@ class MainActivity : AppCompatActivity() {
         */
 
         binding.apply {
-            nicknameText.text = nicknameEdit.text.toString()
+            // nicknameText.text = nicknameEdit.text.toString()
+            myName?.nickname = nicknameEdit.text.toString()
+
             nicknameEdit.visibility = View.GONE
             doneButton.visibility = View.GONE
             nicknameText.visibility = View.VISIBLE
+
+            invalidateAll()
         }
 
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -67,12 +74,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateNickName(view: View) {
-        val editText = findViewById<EditText>(R.id.nickname_edit)
-        val doneButton = findViewById<Button>(R.id.done_button)
+        // val editText = findViewById<EditText>(R.id.nickname_edit)
+        // val doneButton = findViewById<Button>(R.id.done_button)
 
-        editText.visibility = View.VISIBLE
-        doneButton.visibility = View.VISIBLE
-        view.visibility = View.GONE
+        val editText = binding.nicknameEdit
+        val doneButton = binding.doneButton
+
+        /*
+            editText.visibility = View.VISIBLE
+            doneButton.visibility = View.VISIBLE
+            view.visibility = View.GONE
+        */
+
+        binding.apply {
+            editText.visibility = View.VISIBLE
+            doneButton.visibility = View.VISIBLE
+            nicknameText.visibility = View.GONE
+        }
 
         editText.requestFocus()
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

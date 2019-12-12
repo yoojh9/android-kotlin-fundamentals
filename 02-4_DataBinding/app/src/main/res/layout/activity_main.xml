@@ -3,6 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+            name="myName"
+            type="com.example.kotlin.a02_4_databinding.MyName"/>
+    </data>
+
     <LinearLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -18,7 +24,7 @@
             style="@style/NameStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/name"
+            android:text="@={myName.name}"
             android:textAlignment="center" />
 
         <EditText
@@ -47,7 +53,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:paddingBottom="@dimen/small_padding"
-            android:text=""
+            android:text="@={myName.nickname}"
             android:textAlignment="center"
             android:visibility="gone" />
 

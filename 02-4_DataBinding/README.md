@@ -67,6 +67,7 @@
  - binding 객체가 생성되면 컴파일러는 layout 내에 있는 뷰의 ID로부터 camel case binding 객체의 뷰 네임을 생성한다.로
  - 예를 들어 done_button은 doneButton, nickname_edit은 nicknameEdit이 된다.
  
+ 
  #### 1. findViewById() -> 바인딩 객체에서 button을 참조하는 코드로 변경한다.
  
   - findViewById<Button>(R.id.done_button) -> binding.doneButton
@@ -75,7 +76,7 @@
     // MainActivity.kt
      override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout_activity_main)
     
     //  findViewById<Button>(R.id.done_button).setOnClickListener {
     //      addNickname(it)
@@ -86,3 +87,121 @@
         }    
      }
  ```
+
+### 5. Use data biding to display data
+ - 데이터 바인딩을 활용하여 data class를 뷰에 직접 사용할 수도 있다. 이 기술은 코드를 단순화하며 더 복잡한 경우를 처리하는 데 매우 유용하다
+ 
+ #### 1. Create the MyName data class
+   - MyName data class 생성
+   
+   ```
+    data class MyName(var name: String = "", var nickname: String = "")
+   ```
+   
+ #### 2. Add data to the layout
+   - activity_main.xml을 열어 <layout>과 <LinearLayout> 태그 사이에 <data></data> 태그를 추가한다
+   - <data> 태그 안에 <variable> 태그를 추가한다
+   ```
+    <data>
+        <variable
+            name="myName"
+            type="com.example.kotlin.a02_4_databinding.MyName"/>
+    </data>
+    
+   ```
+   - **@={}** 은 중괄호 안에서 참조되는 데이터를 가져오는 지시문이다.
+   - TextView의 text를 android:text="@string/name" 에서 android:text="@={myName.name}"으로 변경한다
+   
+   
+ #### 3. Create the data
+   - MainActivity.kt를 열어 onCreate() 위에 private 변수로 myName을 만든다. 
+   - onCreate()에서는 레이아웃 파일의 myName 변수값을 방금 선언한 myName 변수값으로 설정한다.
+   
+   ```
+    private val myName: MyName = MyName("Aleks Haecky")
+    
+     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.myName = myName   
+     }
+   ```
+   
+ #### 4. Use the data class for the nickname in the TextView
+  - activity_main.xml을 열어서 nickname_text 텍스트 뷰의 text 프로퍼티를 다음과 같이 변경한다
+  
+  ```        
+   <TextView
+        android:id="@+id/name_text"
+        android:text="@={myName.nickname}"
+        ..
+    />
+  ```
+  
+  - MainActivity.kt의 nicknameText.text = nicknameEdit.text.toString() 코드를 아래와 같이 변경한다
+  
+  ```
+    myName?.nickname = nicknameEdit.text.toString()
+  ```
+  
+  - nickname 값이 설정되고 나면 코드에서 새 데이터로 UI를 업데이트 하려고 한다. 이렇게 하려면 올바른 데이터로 다시 recreate 하기 위해 바인딩 표현들을 모두 invalidate 시켜야 된다.
+  - invalidateAll() : Invalidates all binding expressions and requests a new rebind to refresh UI.
+  - 수정된 binding 객체로 UI를 갱신하기 위해 nickname 값 설정 후 invalidateAll() 함수를 추가한다.
+  
+  ```
+    binding.apply {
+        myName?.nickname = nicknameEdit.text.toString()
+        invalidate()
+        ...
+     }
+  ```
+  
+### 6. Summary
+ #### 1. findViewById() 대신 data binding을 사용해라
+   ###### 1. build.gradle 파일의 android 영역 내에 dataBinding { enable = true } 추가
+   
+   ###### 2. <layout>을 XML 레이아웃의 root view로 사용한다
+   
+   ###### 3. binding 변수를 정의한다
+    ```
+      private lateinit var binding: ActivityMainBinding
+    ```
+    
+   ###### 4. setContentView를 아래와 같이 대체하여 binding 객체를 생성한다
+    ```
+      bidnding = dataBindingUtil.setContentView(this, R.layout.activity_main)
+    ```
+    
+   ###### 5. findViewById()에 대한 호출을 binding object의 참조로 사용한다
+    ```
+      findViewById<Button>(R.id.done_button) => binding.doneButton
+    ```
+   
+  #### 2. 뷰에 데이터 바인딩시키기
+   ##### 1. data class를 작성한다
+   
+   ##### 2. <layout> 태그 안에 <data> 태그 블럭을 추가한다
+   
+   ##### 3. data class 유형으로 <variable>을 정의한다
+    ```
+      <data>
+        <variable
+            name="myName"
+            type="com.example.android.abountMe.myName"/>
+      </data>
+    ```
+   
+   ##### 4. MainActivity에서 data class의 인스턴스로 변수를 만든다
+    ```
+       private val myName: MyName = MyName("Aleks Haeck")
+    ```
+   
+   ##### 5. binding 객체에 변수를 방금 작성한 변수로 설정한다
+    ```
+       binding.myName = myName
+    ```
+   
+   ##### 6. XML에서 뷰의 내용을 <data> 블록에서 정의한 변수로 설정한다. 점 표기법을 사용하여 data class 내부의 데이터에 접근할 수 있다
+    ```
+       android:text="@={myName.name}"g
+    ```
