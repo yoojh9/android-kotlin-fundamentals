@@ -88,17 +88,17 @@
      }
  ```
 
-### 5. Use data biding to display data
+## 2. Use data biding to display data
  - 데이터 바인딩을 활용하여 data class를 뷰에 직접 사용할 수도 있다. 이 기술은 코드를 단순화하며 더 복잡한 경우를 처리하는 데 매우 유용하다
  
- #### 1. Create the MyName data class
+ ### 1. Create the MyName data class
    - MyName data class 생성
    
    ```
     data class MyName(var name: String = "", var nickname: String = "")
    ```
    
- #### 2. Add data to the layout
+ ### 2. Add data to the layout
    - activity_main.xml을 열어 <layout>과 <LinearLayout> 태그 사이에 <data></data> 태그를 추가한다
    - <data> 태그 안에 <variable> 태그를 추가한다
    ```
@@ -113,7 +113,7 @@
    - TextView의 text를 android:text="@string/name" 에서 android:text="@={myName.name}"으로 변경한다
    
    
- #### 3. Create the data
+ ### 3. Create the data
    - MainActivity.kt를 열어 onCreate() 위에 private 변수로 myName을 만든다. 
    - onCreate()에서는 레이아웃 파일의 myName 변수값을 방금 선언한 myName 변수값으로 설정한다.
    
@@ -127,7 +127,7 @@
      }
    ```
    
- #### 4. Use the data class for the nickname in the TextView
+ ### 4. Use the data class for the nickname in the TextView
   - activity_main.xml을 열어서 nickname_text 텍스트 뷰의 text 프로퍼티를 다음과 같이 변경한다
   
   ```        
@@ -156,8 +156,8 @@
      }
   ```
   
-### 6. Summary
- #### 1. findViewById() 대신 data binding을 사용해라
+## 3. Summary
+ ### 1. findViewById() 대신 data binding을 사용해라
    ###### 1. build.gradle 파일의 android 영역 내에 dataBinding { enable = true } 추가
    
    ###### 2. <layout>을 XML 레이아웃의 root view로 사용한다
@@ -177,7 +177,7 @@
       findViewById<Button>(R.id.done_button) => binding.doneButton
     ```
    
-  #### 2. 뷰에 데이터 바인딩시키기
+  ### 2. 뷰에 데이터 바인딩시키기
    ##### 1. data class를 작성한다
    
    ##### 2. <layout> 태그 안에 <data> 태그 블럭을 추가한다
