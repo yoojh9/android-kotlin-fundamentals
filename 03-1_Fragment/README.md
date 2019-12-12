@@ -15,9 +15,9 @@
   
  <br>
  
-    ##### (1) TitleFragment.kr의 onCreateView() 메소드에서 binding 변수를 생성한다
+ ##### (1) TitleFragment.kr의 onCreateView() 메소드에서 binding 변수를 생성한다
  
-    ##### (2) fragment 뷰를 inflicate 하기 위해, DataBindingUtil.inflicate() 메소드를 호출한다 
+ ##### (2) fragment 뷰를 inflicate 하기 위해, DataBindingUtil.inflicate() 메소드를 호출한다 
  
   - 메소드에 다음 4가지 파라미터를 넘긴다
     
