@@ -26,30 +26,32 @@
   
    ##### 1) 프로젝트 레벨 build.gradle 파일을 열어서 navigation-safe-args-gradle-plugin 디펜던시를 추가한다
    
-      ```
+   
         // project-level build.gradle
         dependencies {
             ...
             classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         }
-      ```
+      
+      
    ##### 2) app 레벨 build.gradle에 apply plugin 문장을 추가한다
     
-    ```
+   
         apply plugin: 'androidx.navigation.safeargs'
-    ```    
+    
       
    ##### 3) 프로젝트를 reBuild 하면 앱 프로젝트에는 이제 생성된 NavDirection 클래스가 포함된다
     
-    - Safe Args 플러그인은 각 fragment에 대해 NavDirection 클래스를 생성한다
-    - NavDirection 클래스는 앱의 모든 action에 대해 navigation을 나타낸다
-    - 예를 들어 GameFragment는 GameFragmentDirection 클래스가 생성되고, GameFragmentDirection 클래스로 type-safe한 argument를 game fragment에서 다른 fragment에 전달할 수 있다
-    - generated 된 파일을 보려면 **generatedJava** 폴더를 참고한다.
+   - Safe Args 플러그인은 각 fragment에 대해 NavDirection 클래스를 생성한다
+   - NavDirection 클래스는 앱의 모든 action에 대해 navigation을 나타낸다
+   - 예를 들어 GameFragment는 GameFragmentDirection 클래스가 생성되고, GameFragmentDirection 클래스로 type-safe한 argument를 game fragment에서 다른 fragment에 전달할 수 있다
+   - generated 된 파일을 보려면 **generatedJava** 폴더를 참고한다.
    
   <br>
    
   #### Step 2: Add a NavDirection class to the game fragment
    
+ 
    ##### 1) GameFragment.kt를 열어서 onCreateView() 메소드 내에 NavController.navigate() 메소드의 파라미터를 변경한다.
    
    ##### 2) gameWonFragment의 action ID를 GameFragmentDirections 클래스의 actionGameFragmentToGameWonFragment() 메소드를 사용하는 action ID로 바꾼다
@@ -70,7 +72,10 @@
 <br><br>
 
 ## 2. Add and pass arguments
+
  - gameWonFragment에서 gameFragmentDirection의 메소드로 argument를 전달한다.
+
+<br>
  
  ### Step 1: Add arguments to the game-won fragment
  
@@ -81,10 +86,10 @@
     
    - 이 상태에서 app을 빌드할 경우 compile error가 난다.
     
-    ```
+
        No value passed for parameter 'numQuestions'
        No value passed for parameter 'numCorrect'
-    ```
+
     
   
   ### Step 2: Pass the arguments
