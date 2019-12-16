@@ -243,7 +243,7 @@
     - Back button은 시스템의 네비게이션 바 또는 디바이스 자체의 버튼이다.
     - Back button은 사용자가 최근에 작업 한 화면(백스택)을 기준으로 이동한다
     
-    <img src="./images/backbutton_vs_upbutton.png"  width="50%" height="50%"/>
+   <img src="./images/backbutton_vs_upbutton.png"  width="40%" height="40%"/>
  
  <br>
  
