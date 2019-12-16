@@ -421,7 +421,7 @@
     NavigationUI.setupWithNavController(binding.navView, navController)
   ```
   
-    ###### 앱을 싫행하면 왼쪽에서 오른쪽으로 swipe 할 때 navigation drawer가 나타난다. 하지만 app bar의 drawer 버튼을 탭 했을 때의 액션은 아직 추가되어 있지 않다
+   - 앱을 실행하면 왼쪽에서 오른쪽으로 swipe 할 때 navigation drawer가 나타난다. 하지만 app bar의 drawer 버튼을 탭 했을 때의 액션은 아직 추가되어 있지 않다
  
  <br> 
     
@@ -449,7 +449,7 @@
  
   ##### 4) onSupportNavigateUp() 메소드에서 NavController.navigateUp() 코드 대신  NavigationUI.navigationUp()을 리턴하는 코드로 변경한다.
     
-    ###### navigationUp()은 navigation controller와 drawer layout을 전달한다.
+   - navigationUp()은 navigation controller와 drawer layout을 전달한다.
     
   ```
     override fun onSupportNavigateUp(): Boolean {
