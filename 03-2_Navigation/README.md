@@ -147,9 +147,13 @@
 
 ## 6. Change the Back button's destination
  - 안드로이드 시스템은 사용자의 화면 이동을 추적한다
+ 
  - 사용자가 새로운 destination에 도달할 때 마다 Android는 해당 destination을 back stack에 추가한다
+ 
  - 사용자가 back 버튼을 누르면 백 스택의 맨 위에 있는 대상으로 이동한다
+ 
  - 보통 기본적으로 백 스택의 상단은 사용자가 마지막으로 본 화면이다
+ 
  - 하지만 현재 예제 앱에서는 GameOverFragment나 GameWonFragment 화면에서 백 버튼을 눌렀을 경우 GameFragment로 이동하는데, 더 나은 동작을 위해서는 GameFragment가 아닌 TitleFragment로 이동해야 한다.
  
  ### Step 1: Set the pop behavior for the navigation actions
@@ -160,6 +164,8 @@
     - **popUpToInclusive = false** : popUpToInclusive 속성이 false 이거나 설정되지 않으면 popUpTo는 지정된 destination까지 모든 destination을 지운다. 그러나 지정된 destination은 백 스택에 남겨둔다
     - **popUpToInclusive = true** : popUpToInclusive 속성이 true이면 popUpTo 속성은 백스택에 주어진 destination까지 포함하여 지운다
     - popUpToInclusive가 true이고 popUpTo가 앱의 시작 화면으로 설정된 경우에는 앱의 백스택에 있는 모든 destination을 지우므로, 백 버튼은 사용자를 앱에서 완전히 빠져 나오게 한다.
+ 
+ <br>
  
  - 레이아웃 편집기에서 속성들 중 **Pop To** 필드를 사용하여 PopUpTo 속성을 설정할 수 있다
     
@@ -190,6 +196,8 @@
   
     ##### 3) navigation.xml에서 gameWonFragment와 gameFragment를 연결하는 action을 추가한다.
     ##### 4) 2)번의 작업을 반복한다.
+   
+  <br>  
     
   - **Try Again** 과 **Next Match** 버튼을 눌렀을 때 GameFragment로 이동하는 기능을 추가한다
   
