@@ -282,7 +282,7 @@
  - Android에는 옵션 메뉴를 포함하여 다양한 메뉴들이 있다.
  - 이번 과정에서는 옵션 메뉴에 **About** 메뉴를 추가하여 AboutFragment로 이동시키는 기능을 만든다
  
- ### Step 1) Add the AboutFragment to the navigation graph
+ ### Step 1: Add the AboutFragment to the navigation graph
    
    ##### 1) navigation.xml 파일을 열어 Design 탭을 선택한다
    
@@ -290,7 +290,7 @@
  
  <br>
  
- ### Step 2) Add the options-menu resource 
+ ### Step 2: Add the options-menu resource 
    
    ##### 1) res 폴더를 오른쪽 클릭하여 New > Android Resource File을 선택한다
    
@@ -306,7 +306,7 @@
    
   <br>
   
-  ### Step 3) Add an onClick handler
+  ### Step 3: Add an onClick handler
    - About 메뉴에 사용자가 탭 했을 때의 동작을 구현하는 코드를 추가한다
    
    ##### 1) TitleFragment.kt를 열어서 onCreateView() 메소드 내 return 문장 전에 setHasOptionsMenu() 메소드를 호출하고 true를 전달한다
@@ -338,3 +338,124 @@
             || super.onOptiosItemSelected(item)
     }
    ```
+   
+<br><br>
+
+## 9. Add an Navigation drawer
+ - navigation drawer는 화면 가장자리에서 미끄러져 내려오는 창이다.
+ 
+ - drawer에는 일반적으로 헤더와 메뉴가 있다.
+ 
+ - 핸드폰 사이즈의 디바이스에서는 navigation drawer는 사용하지 않을 때 가려져 있다. 사용자의 action에 따라 navigation drawwer를 나타나게 하는 두가지 방식이 있다.
+    - 사용자가 왼쪽에서 오른쪽으로 스와이프 했을 때 나타난다
+    - app bar 내의 drawer icon을 탭 했을 때 나타난다. drawer icon은 nav drawer buggon 또는 hamburger icon으로 불린다.
+ 
+ - 이번 예제에서는 navigation drawer에 'about' 메뉴와 'rules' 메뉴를 추가한다.
+
+<br> 
+
+ ### Step 1: Add the Material library to your project
+ 
+ ```
+    // app-level gradle build file에 Material libarary dependency 추가
+    dependencies {
+        ...
+        implementation "com.google.android.material:material:$supportlibVersion"
+        ...
+    }
+ ```
+ 
+ ### Step 2: Make sure the destination fragments have IDs
+  - navigation graph 내에서 두가지 destination 모두 ID 를 가지고 있는지 확인한다.
+  
+  
+ ### Step 3: Create the drawer menu and the drawer layout
+  - navigation drawer을 만드려면 먼저 navigation menu를 생성하고 view를 DrawerLayout 안에 넣어야 한다.
+  
+  ##### 1) res 폴더에서 오른쪽 클릭하여 New Resource File을 선택하여 resource type은 Menu로 설정 후 생성한다
+  
+  ##### 2) res > menu > navdrawer_menu.xml의 Design 탭에서 menu item 2개를 추가한다.
+  
+  ##### 3) 첫번째 메뉴는 id: ruleFragment, title: @string/rules, icon: @drawable/rules로 설정한다
+  
+  ##### 4) 두번째 메뉴는 id: abountFragment, title: @string/abount, icon: @drawable/about_android_trivia로 설정한다
+  
+  ##### 5) activity_main.xml 에서 DrawerLayout 안에 drawer를 추가한
+ 
+  ```
+    <layout xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto">
+       <androidx.drawerlayout.widget.DrawerLayout
+           android:id="@+id/drawerLayout"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent">
+    
+           <LinearLayout
+            . . .
+           </LinearLayout>
+       </androidx.drawerlayout.widget.DrawerLayout>
+    </layout>
+  ```
+  
+  ##### 6) \<\/LinearLayout\> 요소 이후에 navdrawer_menu를 사용하는 NavigationView를 추가한다
+  
+  ```
+  <com.google.android.material.navigation.NavigationView
+     android:id="@+id/navView"
+     android:layout_width="wrap_content"
+     android:layout_height="match_parent"
+     android:layout_gravity="start"
+     app:headerLayout="@layout/nav_header"
+     app:menu="@menu/navdrawer_menu" />
+  ```
+  
+ <br>
+  
+ ### Step 4: Display the navigation drawer
+  - 위에서 만든 navigation drawer와 navigation controller를 연결해야한다.
+  
+  ##### 1) MainActivity.kt의 onCreate() 메소드에서 navigation drawer를 사용할 수 있는 코드를 추가한다. 
+ 
+  
+  ```
+    NavigationUI.setupWithNavController(binding.navView, navController)
+  ```
+  
+    ###### 앱을 싫행하면 왼쪽에서 오른쪽으로 swipe 할 때 navigation drawer가 나타난다. 하지만 app bar의 drawer 버튼을 탭 했을 때의 액션은 아직 추가되어 있지 않다
+ 
+ <br> 
+    
+ ### Step 5: Display the navigation drawer from the drawer button
+  
+  ##### 1) MainActivity.kt에 lateinit drawerLayout을 추가한다.
+  
+  ```
+    private lateinit var drawerLayout: DrawerLayout
+  ```
+  
+  ##### 2) onCreate() 메소드에서 binding 변수가 초기화 된 후 drawerLayout을 초기화 시키는 코드를 추가한다.
+  
+  ```
+    val binding = DataBindingUtil.setContentView<AcitivyMainBinding>(this, R.layout.activity_main)
+    
+    drawerLayout = binding.drawerLayout
+  ```
+  
+  ##### 3) 기존에 만들었던 setupActionBarWithNavController()에 3번째 파라미터로 drawerLayout을 전달한다.
+  
+  ```
+    NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout)
+  ```
+ 
+  ##### 4) onSupportNavigateUp() 메소드에서 NavController.navigateUp() 코드 대신  NavigationUI.navigationUp()을 리턴하는 코드로 변경한다.
+    
+    ###### navigationUp()은 navigation controller와 drawer layout을 전달한다.
+    
+  ```
+    override fun onSupportNavigateUp(): Boolean {
+       val navController = this.findNavController(R.id.myNavHostFragment)
+       return NavigationUI.navigateUp(navController, drawerLayout)
+    }
+  ```
+  
+  ##### 5) 앱을 실행시킨 후 왼쪽에서 오른쪽으로 스와이프 하거나, drawer button을 눌러 drawer menu가 나오는지 확인한다.
