@@ -167,14 +167,14 @@
     ##### 2) Attributes 창에서 **Pop To**를 gameFragment로 설정하고, **inclusive** 체크박스를 선택한다.
  
     
-    <img src="./images/pop_behavior_1.png"  width="50%" height="50%">
+        <img src="./images/pop_behavior_1.png"  width="50%" height="50%"/>
       
     
-     - 이 속성은 navigation component에 백 스택에서 GameFragment를 포함한 fragment를 제거하도록 지시한다.
-     - 이 동작은 **Pop To** 필드에 titleFragment를 설정하고 **Inclusive** 체크박스를 해제하는 것과 같다
+    - 이 속성은 navigation component에 백 스택에서 GameFragment를 포함한 fragment를 제거하도록 지시한다.
+    - 이 동작은 **Pop To** 필드에 titleFragment를 설정하고 **Inclusive** 체크박스를 해제하는 것과 같다
+    
     
     ##### 3) gameFragment와 gameWonFragment를 연결하는 action을 선택한다
-    
     ##### 4) **Pop To**에 gameFragment를 설정하고 **inclusive** 체크박스를 선택한다.
  
  <br>
@@ -188,5 +188,35 @@
   
     <img src="./images/pop_behavior_2.png"  width="50%" height="50%">
   
-    ##### 3) navigaion.xml에서 gameWonFragment와 gameFragment를 연결하는 action을 추가한다.
+    ##### 3) navigation.xml에서 gameWonFragment와 gameFragment를 연결하는 action을 추가한다.
     ##### 4) 2)번의 작업을 반복한다.
+    
+  - **Try Again** 과 **Next Match** 버튼을 눌렀을 때 GameFragment로 이동하는 기능을 추가한다
+  
+    ##### 1) GameOverFragment.kt 파일에서 onCreateView() 메소드 끝에 return문 직전에 아래 코드를 추가한다.
+  
+  
+     ```
+     // Add onClick Handler for Try Again button
+        binding.tryAgainButton.setOnClickListner { view: View -> 
+                view.findNavController()
+                    .naigate(R.id.action_gameOverFragment_to_gameFragment) }
+     ```
+     
+     
+    ##### 2) GameWonFragment.kt 파일을 열어서  onCreateView() 메소드 끝에 return문장 전에 아래 코드를 추가한다
+    
+    ```
+    // Add OnClick Handler for Next Match button
+            binding.nextMatchButton.setOnClickListener{view: View->
+                view.findNavController()
+                        .navigate(R.id.action_gameWonFragment_to_gameFragment)}
+                        
+    ```
+    
+    ##### 3) 앱을 실행시키면 Next Match와 Try Again 버튼을 눌렀을 때 game을 다시 할 수 있는 game screen으로 이동하는 것을 확인할 수 있다
+    ##### 4) Next Match와 Try Again 버튼을 누른 후 시스템 백 버튼을 누르면, 이전 화면이 아닌 titleFragment로 이동하는 것을 확인할 수 있다.
+    
+  
+    
+  
