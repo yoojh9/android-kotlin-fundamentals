@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='04-2_Complex_Lifecycle'
