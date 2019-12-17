@@ -207,3 +207,120 @@
    - onDestroy() 메소드는 activity가 완전히 종료될 수 있으 가비지 컬렉터에 의해 수집될 수 있음을 의미한다
    - 액티비티는 코드에서 finish()를 호출하거나 사용자가 앱을 끌 경우 완전히 종료된다.
    - 또한 앱이 오랫동안 화면에 표시되지 않을 경우 android 시스템에서 activity를 자체적으로 종료할 수도 있다. 안드로이드에서는 배터리를 보호하고 다른 앱에서 앱 리소스를 사용할 수 있도록 이 작업을 수행한다.
+   
+  ##### 4. 다시 앱으로 돌아가면 다음과 같은 logcat을 볼 수 있다
+  
+   - activity가 다시 create 되면서 Desserts Sold 숫자도 0으로 초기화 되었다.
+   
+  ```
+  2019-12-17 17:52:50.323 3256-3256/com.example.android.lifecycles I/MainActivity: onPause Called
+  2019-12-17 17:52:51.243 3256-3256/com.example.android.lifecycles I/MainActivity: onStop Called
+  2019-12-17 17:52:51.263 3256-3256/com.example.android.lifecycles I/MainActivity: onDestroy Called
+  
+  2019-12-17 17:52:54.964 3256-3256/com.example.android.lifecycles I/MainActivity: onCreate called
+  2019-12-17 17:52:55.027 3256-3256/com.example.android.lifecycles I/MainActivity: onStart Called
+  2019-12-17 17:52:55.029 3256-3256/com.example.android.lifecycles I/MainActivity: onResume Called
+  
+  ```
+  
+  - 이전 단계에서 액티비티가 destroy 되었다. 앱으로 다시 돌아오면 안드로이드는 새로운 activity를 시작하고 onCreate(), onStart(), onResume() 메소드를 호출한다
+  - 중요한 포인트는 하나의 액티비티 인스턴스의 lifetime 주기에서 onCreate()와 onDestroy()는 한번만 호출된다는 것이다
+  - onCreate()는 초기에 앱을 초기화 시키기 위해 사용되며 onDestroy()는 앱에서 사용하는 리소스를 정리하기 위해 사용된다
+  - onCreate()에서 변수를 초기화하거나 inflate 함으로써 레이아웃을 설정한다. 
+ 
+ 
+<br><br>
+
+ ### Use case 2: Navigating away from and back to the activity
+  - 사용자가 안드로이드 기기와 상호작용 함에 따라 앱 간 전환하거나 홈으로 돌아오거나 새로운 앱을 시작하고, 전화 통화와 같은 다른 액티비티로 인한 인터럽트도 처리해야 한다.
+  - 사용자가 activity에서 벗어날 때마다 액티비티가 매번 완전히 종료되지는 않는다
+    - 액티비티가 화면에 더이상 표시되지 않으면 액티비티를 background에 놓는다 (이와 반대되는 경우는 액티비티가 foreground 또는 화면에 있을 경우이다)
+    - 사용자가 앱으로 돌아오면 동일한 activity가 restart 되고 다시 보여지는데 수명주기의 이 부분을 앱의 visible lifecycle이라고 부른다
+    
+  - 앱이 백그라운드에 있을 경우 시스템 리소스와 배터리 수명 보존을 위해 앱이 실행되고 있으면 안된다
+  - 액티비티의 생명주기 및 해당 콜백을 사용하여 앱이 백그라운드에 언제 들어가는 지 알고 진행 중인 작업을 일시 중지 할 수 있다
+  - 앱이 foreground로 나오면 작업을 다시 시작한다
+  
+  - 이번 단계에서는 앱이 백그라운드에서 포그라운드로 이동할 때의 lifecycle을 살펴본다
+  
+  <br>
+  
+  ##### 1. 앱을 실행시키고, 컵케이크를 몇번 누른다
+  
+  <br>
+  
+  ##### 2. 홈 버튼을 누르고 홈 화면으로 돌아가면 앱을 완전히 종료하지 않고 백그라운드에 둔다. onPause(), onStop() 메소드는 호출되지만 onDestroy() 메소드는 호출되지 않는다
+   - onPause()가 호출되면 앱은 더이상 focus를 가지고 있지 않는다
+   - onStop() 후에는 앱이 더이상 화면에 표시되지 않는다
+   - activity가 중지 되었지만 activity 객체는 아직 백그라운드, 메모리 상에 존재한다
+   - 액티비티는 destory 되지 않았다. 
+   - 사용자가 다시 앱으로 돌아올 수 있으므로 안드로이드는 activity의 리소스를 유지한다.
+  
+  <br>
+  
+  ##### 3. 다시 앱으로 돌아오면 logcat에서 onRestart(), onStart(), onResume()이 호출된 것을 확인할 수 있다
+   - 액티비티가 foreground로 돌아와도 onCreate() 메소드는 다시 호출되지 않는다
+   - onCreate() 대신 onRestart()이 호출된다
+   - activity가 foreground로 나오면서 Desserts Sold 숫자도 유지된다
+   
+   
+   ```
+   2019-12-17 18:24:33.020 3256-3256/com.example.android.lifecycles I/MainActivity: onPause Called
+   2019-12-17 18:24:33.098 3256-3256/com.example.android.lifecycles I/MainActivity: onStop Called
+   
+   2019-12-17 18:24:37.791 3256-3256/com.example.android.lifecycles I/MainActivity: onRestart Called
+   2019-12-17 18:24:37.792 3256-3256/com.example.android.lifecycles I/MainActivity: onStart Called
+   2019-12-17 18:24:37.804 3256-3256/com.example.android.lifecycles I/MainActivity: onResume Called
+   ```
+   
+   - onPause()와 onStop()은 앱이 background로 들어갈 때 호출되고, onRestart()와 onStart(), onResume()은 앱이 foreground로 나올 때 호출된다
+   
+   - 중요한 점은 사용자가 액티비티를 이동할 때 onStart(), onStop()이 여러번 호출된다는 점이다
+
+
+<br><br>
+
+ ### Use case 3: Partially hide the activity
+  - onStart()가 호출되면 앱이 스크린에서 보여지고(visible), onResume()이 호출되면 앱은 user focus를 얻는다.
+  - 앱이 온전히 screen 위에 있고 user focus를 가지고 있으면 이 떄의 lifecycle을 interactive lifecycle이라고 한다
+  - 앱이 백그라운드로 이동하면 onPause() 후에 포커스가 사라지고 onStop() 후에는 화면에 더이상 앱이 표시되지 않는다
+  - 앱이 user focus 없이도 스크린에 부분적으로 보여지는 것이 가능하므로 focus와 visibility의 차이를 아는 것은 중요하다
+
+  <br>
+  
+  ##### 1. 앱을 실행시키고, 오른쪽 상단이 share 아이콘을 클릭한다
+   - sharing activity가 화면의 절반에 나타나지만 케이크 activity는 여전히 위쪽 절반에 표시되고 있다
+   
+  <br>
+  
+  ##### 2. logcat에서 onPause()만 호출된 것을 확인할 수 있다
+   - 액티비티가 부분적으로 보여지고 있기 때문에 onStop()은 호출되지 않았다. 
+   - 그러나 user focus는 없으므로 사용자와 interact 할 수는 없다.
+   - onPause() 코드를 가볍게 유지하는 것이 중요하디. 예를 들어 onPause()가 무거우면 걸려오는 전화 알림을 지연시킬 수도 있다
+  
+  <br>
+  
+  ##### 3. sharing 다이얼로그를 나오면 onResume()이 호출되는 것을 확인할 수 있다
+   - onResume()과 onPause()는 모두 focus와 관계가 있다
+   - onResume()은 액티비티가 focus를 얻을 때 호출되고 onPause()는 액티비티가 포커스를 잃을 때 호출된다
+   
+<br><br>
+
+## 3. Explore the fragment lifecycle
+ - onAttach(): fragment과 activity와 연관될 때 호출된다
+ - onCreate(): activity의 onCreate()와 유사하게 fragment의 onCreate()는 fragment 생성자를 초기화하게 위해 사용된다(레이아웃 제외)
+ - onCreateView(): fragment layou이 inflate 될 때 호출된다
+ - onActivityCreated(): 액티비티의 onCreate()가 완료될 때 호출된다. 프래그먼트는 이 메소드가 호출될 때 까지 activity에 접근할 수 없다
+ - onStart(): 프래그먼트가 visible 될 때 호출된다 (activity의 onStart()와 병행)
+ - onResume(): 프래그먼트가 focus를 얻을 때 호출된다(activity의 onResume()과 병행)
+ 
+ - onPause(): 프래그먼트가 focus를 잃을 때 호출된다(activity onPause()와 동시에)
+ - onStop(): 프래그먼트가 더이상 화면에서 보이지 않을 때 호출된다(activity의 onStop()와 동시에)
+ - onDestroyView(): 프래그먼트 뷰가 더이상 필요하지 않을 때 호출된다. 뷰와 관련된 리소를 정리하기 위해 호출한다.
+ 
+ <br>
+ 
+ - fragment가 이미 존재하고 activity에 이미 attach 되어 있으면 프래그먼트를 나갔다 들어와도 onAttach()와 onCreate()는 호출되지 않을 수 있다. 이럴 경우 onCreateView()가 호출된다
+ - activity와 동일하게 홈버튼을 눌러 나가면 onPause()와 onStop()이 호출되고, 다시 되돌아오면 onStart()와 onResume()이 호출된다
+   
+   
