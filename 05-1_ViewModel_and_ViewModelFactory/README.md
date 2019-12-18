@@ -4,7 +4,6 @@
  - App architecture는 app 클래스들과 클래스들 사이의 관계를 디자인 하는 방법이다
  - 이번 단계에서는 GuessTheWord 앱을 Android app architecture 가이드라인에 따르게 만들고, Android Architecture Component를 사용한다
  - Android app architecture는 MVVM(model-view-viewmodel) 패턴과 유사하다다
- 
  - GuessTheWord 앱은 관심사 분리([separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)) 디자인 패턴을 따르며 클래스로 나눠진다. 각 클래스는 별도의 관심사를 다룬다.
  - 가장 처음 다룰 클래스는 UI 컨트롤러, ViewModel, ViewModelFactory이다
  
