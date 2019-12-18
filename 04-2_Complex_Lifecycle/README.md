@@ -181,11 +181,9 @@
  <br>
  
  ##### 6) 판매된 디저트 수와 시간도 bundle 객체에 저장한다
- 
-     ```
-         outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
-         outState.putInt(KEY_TIMER_SECONDS, dessertTimer.secondsCount)
-     ```
+
+       outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
+       outState.putInt(KEY_TIMER_SECONDS, dessertTimer.secondsCount)
      
 <br>
 
