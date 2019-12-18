@@ -24,7 +24,7 @@
   - ViewModel은 ViewModel과 연관된 activity나 fragment에 표시할 데이터를 가지고 있다.
   - ViewModel은 UI controller 표시할 데이터를 준비하기 위해 데이터에 대한 간단한 계산 및 변환을 수행한다
   - 이 아키텍처에서 ViewModel은 의사 결정을 수행한다
-  - GameViewModel은 화면에 데이터를 뿌리기 위 점수 값, 단어 목록, 현재 단어와 같은 데이터를 보유한다.
+  - GameViewModel은 화면에 데이터를 뿌리기 위해 점수 값, 단어 목록, 현재 단어와 같은 데이터를 보유한다.
   - GameViewModel에는 데이터의 현재 상태를 결정하기 위해 간단한 계산을 수행하는 비즈니스 로직도 포함되어 있다
   
  <br>
