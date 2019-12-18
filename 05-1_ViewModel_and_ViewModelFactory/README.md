@@ -180,9 +180,9 @@
    ##### 2) nextWord() 메소드를 viewModel로 옮겼기 떄문에 gameFragment에서는 더이상 접근할수 없다
    
    - GameFragment에서 onSkip()과 onCorrect() 메소드 안의 nextWord()를 updateScoreText()와 updateWordText()를 호출하는 코드로 변경한다
-   - 이 메소드느 화면에 데이터를 보여준다
+   - 이 메소드는 화면에 데이터를 보여준다
      
-    ```
+   ```
     private fun onSkip() {
        viewModel.onSkip()
        updateWordText()
@@ -193,7 +193,7 @@
        updateScoreText()
        updateWordText()
     }
-    ```
+   ```
    
    <br>
    
