@@ -131,4 +131,172 @@
  
  <img src="./images/activity_lifecycle.png"  width="40%" height="40%"/>
  
+ - 액티비티가 포그라운드에서 나올 때 소량의 정보를 번들에 저장할 수 있다
+ 
+ ##### 1) MainActivity의 onSaveInstanceState()를 콜백을 오버라이드 하고 Timber 로그를 추가한다
+ ```
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Timeber.i("onSaveInstanceState Called")
+    }
+ ```
+ 
+ 
+ <br>
+ 
+ ##### 2) 앱을 실행시키고 홈 버튼을 눌러 백그라운드로 보낸다. onSaveInstanceState()가 onPause()와 onStop() 이후에 호출되는 것을 확인한다
+ ```
+ 2019-12-18 09:18:57.488 2527-2527/com.example.android.lifecycles I/MainActivity: onPause Called
+ 2019-12-18 09:18:57.515 2527-2527/com.example.android.lifecycles I/MainActivity: onStop Called
+ 2019-12-18 09:18:57.519 2527-2527/com.example.android.lifecycles I/MainActivity: onSaveInstanceState Called
+ ```
+ 
+ <br>
+ 
+ ##### 3) MainActivity 파일 상단 클래스 선언 전에 다음 constants를 추가한다
+  - 이 키를 사용하여 인스턴스 상태 번들로부터 데이터를 저장하고 얻을 수 있다
+  
+     ```
+     const val KEY_REVENUE = "revenue_key"
+     const val KEY_DESSERT_SOLD = "dessert_sold_key"
+     const val KEY_TIMER_SECONDS = "timer_seconds_key"
+     ```
+ 
+ <br>
+  
+ ##### 4) onSaveInstanceState() 메소드의 outState 파라미터의 타입이 Bundle인 것을 확인한다
+  - 번들은 키가 항상 문자열인 key-value 쌍의 모음이다
+  - int 및 boolean과 같은 기본 값을 번들에 넣을 수 있다
+  - 시스템이 번들을 RAM에 보관하므로 번들의 데이터를 작게 유지하는 것이 가장 좋다
+  - 번들의 크기는 제한되어 있지만 크기는 장치마다 다르다. 일반적으로 100k 미만으로 저장해야 하는데 초과할 경우 TransactionTooLargeException 오류로 앱이 종료될 수 있다
+  
+ <br>
+ 
+ ##### 5) onSaveInstanceState()에서 putInt() 메소드를 사용하여 revenue 값을 넣는다
+  - putInt() 메소드 및 putFloat(), putString()과 같은 Bundle 클래스 메소드는 key와 value 두가지 argument를 받는
+  
+     ```
+        outState.putInt(KEY_REVENUE, revenue)
+     ```
+ <br>
+ 
+ ##### 6) 판매된 디저트 수와 시간도 bundle 객체에 저장한다
+ 
+     ```
+         outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
+         outState.putInt(KEY_TIMER_SECONDS, dessertTimer.secondsCount)
+     ```
+     
+<br>
+
+ ### Step 3: onCreate() 메소드에서 bundle 데이터 복원
+  ##### 1) onCreate()는 다음과 같이 생겼다
+  ```
+    override fun onCreate(savedInstanceState: Bundle) {
+  ```
+  
+   - onCreate()는 호출될 때 마다 Bundle 객체를 얻는다. 프로세스 셧다운으로 인해 액티비티를 재시작 할 때 onCreate()에 저장한 bundle 객체를 넘겨준다
+   - activity가 새로 시작될 때 bundle 객체는 onCreate()에서 null이다
+   - 만약 bundle이 null이 아니라면 activity가 re-creating 된 것이다
+   - 액티비티가 re-create될 때  콜백은 onStart()가 호출된 후에 onRestoreInstanceState()이 호출된다. 대부분의 경우 onCreate()에서 액티비티 상태가 복원되지만 onCreate()가 호출된 후에 복원되기를 원하는 값이 있을 경우 onRestoreInstanceState()를 사용한다
    
+  <br>
+  
+  ##### 2) onCreate()에 DessertTimer 객체가 생성되고 난 이후에 아래 코드를 추가하여 번들에 저장한 데이터를 복원한다
+  ```
+   if(savedInstanceState != null) {
+    revenue = savedInstanceState.getInt(KEY_REVENUE, 0)
+   }
+  ```
+  
+  - 번들이 null인지 번들에 데이터가 있는지 확인하여 앱이 새로 시작되었는지 혹은 종료 후 다시 생성되었는지 알려준다
+  
+  <br>
+  
+  ##### 3) getInt() 메소드를 사용하여 디저트 판매 수와 시간도 복원한다
+  ```
+  if (savedInstanceState != null) {
+     revenue = savedInstanceState.getInt(KEY_REVENUE, 0)
+     dessertsSold = savedInstanceState.getInt(KEY_DESSERT_SOLD, 0)
+     dessertTimer.secondsCount = savedInstanceState.getInt(KEY_TIMER_SECONDS, 0)
+  }
+  ```
+  
+  <br>
+  
+  ##### 4) 앱을 실해시키고 도넛으로 바뀔 때 까지 컵 케이크를 적어도 5번 누른다. Home 버튼을 눌러 background로 앱이 들어가도록 한다
+  
+  ##### 5) 안드로이드 스튜디오에서 Terminal 탭을 열어 adb로 앱 프로세스를 shut down 시킨다
+  ```
+  adb shell am kill com.example.android.lifecycles
+  ```
+  
+  ##### 6) recents screen을 이용하여 앱으로 돌아온다. 이번에는 앱이 정확한 디저트 판매 수와 판매 수익을 번들로부터 가져온다. 그러나 디저트가 도넛이 아닌 컵케이크인 것을 확인할 수 있다
+  
+  ##### 7) MainActivity()에서 showCurrentDessert() 메소드를 찾는다. 이 메소드는 activity에 표시할 디저트 이미지를 결정한다
+   - 이 메소드는 판매한 디저트 수에 따라 디저트 이미지를 결정하므로 bundle에 디저트 이미지 정보를 굳이 추가하지 않아도 된다.
+   
+  ```
+  for (dessert in allDesserts) {
+     if (dessertsSold >= dessert.startProductionAmount) {
+         newDessert = dessert
+     }
+      else break
+  }
+  ```
+  
+  <br>
+  
+  ##### 8) onCreate()에서 showCurrentDesert() 메소드를 호출한다
+  ```
+  if (savedInstanceState != null) {
+     revenue = savedInstanceState.getInt(KEY_REVENUE, 0)
+     dessertsSold = savedInstanceState.getInt(KEY_DESSERT_SOLD, 0)
+     dessertTimer.secondsCount = savedInstanceState.getInt(KEY_TIMER_SECONDS, 0)
+     showCurrentDessert()                   
+  }
+  ```
+  
+  <br>
+  
+  ##### 9) 다시 앱을 실행시키고 백그라운드로 보낸 후 adb 를 이용해 프로세스를 shut down 시킨 후 recents screen에서 앱으로 돌아온다. dessert sold, total revenue, dessert image 값이 정확히 복원되는지 확인한다.
+
+<br><br>
+
+## 3. Explore configuration changes
+ - activity와 fragment lifecycle을 관리하는데 이해해야 할 중요한 한가지 케이스가 더 있다. configuration이 변화할 때 activity와 fragment의 lifecycle에 어떤 영향을 미치는지 아는 것이 중요하다
+ - configuration change는 장치 상태가 급격히 변화할 때 변화를 처리하는 가장 쉬운 방법은 activity를 완전히 종료하고 다시 rebuild 하는 것이다
+ - 예를 들어 사용자가 장치 언어를 변경하면 다른 텍스트를 가져오도록 전체 레이아웃이 변경되어야 한다
+ - 장치를 세로에서 가로로 또는 반대 방향으로 회전할 경우 장치 방향이 변경되면 새 orientation에 맞게 레이아웃을 변경해야 한다
+ 
+<br>
+ 
+ ### Step 1: Explore device rotation and the lifecycle callbacks
+  ##### 1. 앱을 실행시키고 Logcat을 연다
+  
+  ##### 2. 디바이스나 애뮬레이터를 가로 모드로 회전시킨다. 
+  
+  ##### 3. logcat의 로그를 살펴본다
+  ```
+  2019-12-18 11:31:26.827 5519-5519/com.example.android.lifecycles I/MainActivity: onCreate called
+  2019-12-18 11:31:26.999 5519-5519/com.example.android.lifecycles I/MainActivity: onStart Called
+  2019-12-18 11:31:27.001 5519-5519/com.example.android.lifecycles I/MainActivity: onResume Called
+  2019-12-18 11:31:40.348 5519-5519/com.example.android.lifecycles I/MainActivity: onPause Called
+  2019-12-18 11:31:40.355 5519-5519/com.example.android.lifecycles I/MainActivity: onStop Called
+  2019-12-18 11:31:40.359 5519-5519/com.example.android.lifecycles I/MainActivity: onSaveInstanceState Called
+  2019-12-18 11:31:40.360 5519-5519/com.example.android.lifecycles I/MainActivity: onDestroy Called
+  2019-12-18 11:31:40.405 5519-5519/com.example.android.lifecycles I/MainActivity: onCreate called
+  2019-12-18 11:31:40.475 5519-5519/com.example.android.lifecycles I/MainActivity: onStart Called
+  2019-12-18 11:31:40.476 5519-5519/com.example.android.lifecycles I/MainActivity: onResume Called
+  ```
+ 
+  - 디바이스나 에뮬레이터 화면이 회전되면 시스템은 activity를 종료시키는 lifecycle callback들을 호출한다. 그 다음에 액티비티가 다시 re-create되면 시스템은 모든 lifecycle callback을 호출하여 activity를 시작한다
+  
+  ##### 4. MainActivity에서 모든 onSaveInstanceState() 메소드를 주석 처리해본다
+  
+  ##### 5. 앱을 시작하고 컵 케이크를 몇번 누른 후 화면을 회전시킨다. 화면이 회전되면 액티비티는 shut down 되고 re-create한다. 액티비티는 bundle에 저장된 값이 아닌 기본값으로 시작된다
+   
+   - 설정(configuration)이 변하면 안드로이드는 앱의 상태를 저장하고 복원하기 위해 instance state bundle을 사용한다. 
+   - 프로세스가 shutdown되면 onSaveInstance() 메소드를 이용하여 bundle에 앱의 데이터를 저장하고 그런 다음 데이터가 손실되지 않도록 onCreate()에서 데이터를 복원한다
+   
+  ##### 6. MainActivity에서 onSaveInstance() 메소드 주석을 풀고 앱을 실행시킨다. dessert 데이터가 activity가 회전하는 동안 유지되는 것을 볼 수 있다.
