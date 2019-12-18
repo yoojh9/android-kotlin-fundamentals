@@ -143,7 +143,7 @@
     - 화면에 표시할 데이터와 데이터를 처리할 코드를 viewModel에 넣는다
     - activity, fragment, view는 configuration이 변할 때 살아남지 못하므로 viewModel에 activity, fragment, view의 레퍼런스는 넣지 않는다
     
-  <img src="./images/gameViewModel.png"  width="40%" height="40%"/>
+  <img src="./images/gameViewModel.png"  width="70%" height="70%"/>
   
   - 비교를 위해 viewModel을 추가하기 전과 viewModel을 추가한 후 앱에서 데이터를 처리하는 방법은 다음과 같다
     - ViewModel 추가 전: screen 회전과 같은 configuration 변화가 발생하면 game fragment는 destroy 되고 re-create 된다. 데이터는 잃게된다
