@@ -32,7 +32,7 @@
  ### 3) ViewModelFactory
   - ViewModelFactory 생성자는 매개변수를 사용하거나 사용하지 않고 viewModel 객체를 인스턴스화 시킨다
  
-   <img src="./images/viewModelFactory.png"  width="40%" height="40%"/>
+   <img src="./images/viewModelFactory.png"  width="70%" height="70%"/>
   
 <br><br>
 
