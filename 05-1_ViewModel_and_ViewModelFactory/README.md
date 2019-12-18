@@ -288,6 +288,8 @@
   }
   ```
   
+  <br>
+  
   ##### 4) score 패키지 아래에 ScoreViewModelFactory라는 새로운 클래스를 만든다. 이 클래스는 ScoreViewModel 객체를 인스턴스화 시키는 역할을 한다
   
   ##### 5) ScoreViewModelFactory클래스는 ViewModelProvider.Factory 클래스를 상속받는다.
@@ -297,5 +299,28 @@
   }
   ```
   
-  ##### 6) 
+  <br>
   
+  ##### 6) 5)번의 작업을 진행하면 안드로이드 스튜디오에서 unimplemented abstract method 에러가 나온다. 에러를 해결하기 위해 create() 메소드를 오버라이드 하고 create() 메소드에서 새로 생성된 scoreViewModel 객체를 리턴한다
+  
+  ```
+  override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+     if (modelClass.isAssignableFrom(ScoreViewModel::class.java)) {
+         return ScoreViewModel(finalScore) as T
+     }
+     throw IllegalArgumentException("Unknown ViewModel class")
+  }
+  ```
+  
+  <br>
+  
+  ##### 7) ScoreFragment에서 ScoreViewModel과 ScoreViewModelFactory 클래스의 변수를 생성한다
+  
+  ```
+  private lateinit var viewModel: ScoreViewModel
+  private lateinit var viewModelFactory: ScoreViewModelFactory
+  ```
+  
+  <br>
+  
+  ##### 8) ScoreFragment의 onCreateView() 안에서 binding 변수를 초기화 한 후 viewModelFactory를 초기화한다.
