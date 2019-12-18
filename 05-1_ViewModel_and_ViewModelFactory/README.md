@@ -4,7 +4,6 @@
  - App architecture는 app 클래스들과 클래스들 사이의 관계를 디자인 하는 방법이다
  - 이번 단계에서는 GuessTheWord 앱을 Android app architecture 가이드라인에 따르게 만들고, Android Architecture Component를 사용한다
  - Android app architecture는 MVVM(model-view-viewmodel) 패턴과 유사하다다
- 
  - GuessTheWord 앱은 관심사 분리([separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)) 디자인 패턴을 따르며 클래스로 나눠진다. 각 클래스는 별도의 관심사를 다룬다.
  - 가장 처음 다룰 클래스는 UI 컨트롤러, ViewModel, ViewModelFactory이다
  
@@ -25,7 +24,7 @@
   - ViewModel은 ViewModel과 연관된 activity나 fragment에 표시할 데이터를 가지고 있다.
   - ViewModel은 UI controller 표시할 데이터를 준비하기 위해 데이터에 대한 간단한 계산 및 변환을 수행한다
   - 이 아키텍처에서 ViewModel은 의사 결정을 수행한다
-  - GameViewModel은 화면에 데이터를 뿌리기 위 점수 값, 단어 목록, 현재 단어와 같은 데이터를 보유한다.
+  - GameViewModel은 화면에 데이터를 뿌리기 위해 점수 값, 단어 목록, 현재 단어와 같은 데이터를 보유한다.
   - GameViewModel에는 데이터의 현재 상태를 결정하기 위해 간단한 계산을 수행하는 비즈니스 로직도 포함되어 있다
   
  <br>
@@ -33,7 +32,7 @@
  ### 3) ViewModelFactory
   - ViewModelFactory 생성자는 매개변수를 사용하거나 사용하지 않고 viewModel 객체를 인스턴스화 시킨다
  
-   <img src="./images/viewModelFactory.png"  width="40%" height="40%"/>
+   <img src="./images/viewModelFactory.png"  width="70%" height="70%"/>
   
 <br><br>
 
@@ -144,7 +143,7 @@
     - 화면에 표시할 데이터와 데이터를 처리할 코드를 viewModel에 넣는다
     - activity, fragment, view는 configuration이 변할 때 살아남지 못하므로 viewModel에 activity, fragment, view의 레퍼런스는 넣지 않는다
     
-  <img src="./images/gameViewModel.png"  width="40%" height="40%"/>
+  <img src="./images/gameViewModel.png"  width="70%" height="70%"/>
   
   - 비교를 위해 viewModel을 추가하기 전과 viewModel을 추가한 후 앱에서 데이터를 처리하는 방법은 다음과 같다
     - ViewModel 추가 전: screen 회전과 같은 configuration 변화가 발생하면 game fragment는 destroy 되고 re-create 된다. 데이터는 잃게된다
@@ -181,9 +180,9 @@
    ##### 2) nextWord() 메소드를 viewModel로 옮겼기 떄문에 gameFragment에서는 더이상 접근할수 없다
    
    - GameFragment에서 onSkip()과 onCorrect() 메소드 안의 nextWord()를 updateScoreText()와 updateWordText()를 호출하는 코드로 변경한다
-   - 이 메소드느 화면에 데이터를 보여준다
+   - 이 메소드는 화면에 데이터를 보여준다
      
-    ```
+   ```
     private fun onSkip() {
        viewModel.onSkip()
        updateWordText()
@@ -194,7 +193,7 @@
        updateScoreText()
        updateWordText()
     }
-    ```
+   ```
    
    <br>
    
@@ -299,6 +298,7 @@
   }
   ```
   
+
   <br>
   
   ##### 6) 5)번의 작업을 진행하면 안드로이드 스튜디오에서 unimplemented abstract method 에러가 나온다. 에러를 해결하기 위해 create() 메소드를 오버라이드 하고 create() 메소드에서 새로 생성된 scoreViewModel 객체를 리턴한다
@@ -324,3 +324,5 @@
   <br>
   
   ##### 8) ScoreFragment의 onCreateView() 안에서 binding 변수를 초기화 한 후 viewModelFactory를 초기화한다.
+
+  
