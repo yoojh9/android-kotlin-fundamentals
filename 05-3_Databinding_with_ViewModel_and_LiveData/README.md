@@ -228,6 +228,19 @@
   
   
  ### Step 2: Add score LiveData to the score_fragment.xml file
+ 이번 단계에서는 score fragment의 text view에 LiveData score를 바인딩한다
+ 
+ #### 1) socre_fragment.xml의 socre text view에 android:text 속성을 추가한다. ScoreViewModel.score를 text 속성에 할당한다. score는 integer이므로 String.valueOf()를 써서 string으로 변환한다
+ 
+ ```
+ <TextView
+   android:id="@+id/score_text"
+   ...
+   android:text="@{String.valueOf(scoreViewModel.score)}"
+   ... />
+ ```
+ 
+ <br>
  
  
   
