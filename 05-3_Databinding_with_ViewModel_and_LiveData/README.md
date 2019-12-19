@@ -1,0 +1,160 @@
+# 05-3 Databinding with ViewModel and LiveData
+ - 이전 단계에서 뷰에 액세스하는 안전한 형식으로 데이터 바인딩을 사용했다.
+ - 그러나 data binding의 진정한 힘은 이름이 의미하는 대로 데이터를 앱의 뷰 객체에 직접 바인딩하는 것이다
+ 
+ ### current app architecture
+  앱에서 뷰는 XML 레이아웃으로 정의되며 해당 뷰의 데이터는 ViewModel 객체에 보관된다. 각 뷰와 해당 viewModel 사이에는 UI 컨트롤러가 있으며 이들 사이에 릴레이 역할을 한다
+  
+  <img src="./images/current_app_architecture.png"  width="70%" height="70%"/>
+ 
+   - Got It 버튼은 game_fragment.xml 레이아웃 파일에 Button view로 정의되어 있다
+   - Got it 버튼을 사용자가 탭하면 GameFragment의 클릭 리스너가 GameViewModel의 해당 클릭 리스너를 호출한다
+   - score는 GameViewModel에서 업데이트 된다
+ 
+  Button 뷰와 GameViewModel은 직접적으로 커뮤니케이션 하지 않는다. 단지 GameFragment에 있는 클릭 리스너만 필요하다
+  
+ <br>
+ 
+ ### ViewModel passed into the data binding
+  UI 컨트롤러를 매개체로 사용하지 않고 레이아웃의 뷰가 viewModel 객체의 데이터와 직접 통신하는 것이 더 간단하다
+  
+  <img src="./images/databinding.png"  width="70%" height="70%"/>
+  
+  ViewModel 객체는 앱의 모든 UI 데이터를 보유한다. ViewModel 객체를 데이터 바인딩으로 전달하면 뷰와 ViewModel 객체 간의 일부 통신을 자동화 할 수 있다
+  
+  이번 단계에서는 GameViewModel 및 ScoreViewModel 클래스를 해당 xml 레이아웃과 연결하고 클릭벤트를 처리할 리스너 바인딩도 설정한다
+  
+ <br><br>
+ 
+ ### Step 1: Add data binding for the GameViewModel
+ 
+ Step 1에서는 GameViewModel과 game_fragment.xml을 연결한다
+ 
+ <br>
+ 
+ #### 1) game_fragment.xml에 GameViewModel 타입 data-binding 의변수를 추가한다.
+ 
+ ```
+ <layout ...>
+ 
+    <data>
+ 
+        <variable
+            name="gameViewModel"
+            type="com.example.android.guesstheword.screens.game.GameViewModel" />
+    </data>
+   
+    <androidx.constraintlayout...
+ ```
+ 
+ <br>
+ 
+ #### 2) GameFragment 파일에서 GameViewModel을 data binding에 넘긴다
+ ```
+ // Set the viewmodel for databinding - this allows the bound layout access 
+ // to all the data in the ViewModel
+ 
+ binding.gameViewModel = viewModel
+ ```
+ 
+ <br><br>
+ 
+ ### Step 2: Use listener bindings for event handling
+  - Listener binding은 onClick(), onZoomIn(), onZoomOut()과 같은 이벤트가 트리거 될 때 실행되는 바인딩 표현식이다
+  - Listener binding은 람다 식으로 작성된다
+  
+  - 데이터 바인딩은 리스너를 작성하고 뷰에서 리스너를 설정한다 
+  - Listener binding은 그래들 플러그인 버전 2.0 이상부터 작용한다
+  
+  이번 단계에서는 GameFragment에 있는 click listener를 game_fragment.xml 파일의 listener binding으로 변경한다
+  
+  ##### 1) game_fragment.xml을 열어서 skip_button에 onClick 속성을 추가한다. 
+   - binding 표현식을 정의하고 GameViewModel의 onSkip() 메소드를 호출한다. 이 바인딩 표현식을 리스너 바인딩이라고 한다
+   
+   ```
+   <Button
+      android:id="@+id/skip_button"
+      ...
+      android:onClick="@{() -> gameViewModel.onSkip()}"
+      ... />
+   ```
+   
+   <br>
+   
+   #### 2) 유사하게 correct_button에도 GameViewModel의 onCorrect() 이벤트를 연결한다
+   
+   ```
+   <Button
+      android:id="@+id/correct_button"
+      ...
+      android:onClick="@{() -> gameViewModel.onCorrect()}"
+      ... />
+   ```
+   
+   <br>
+   
+   #### 3) end_game_button 역시 GameViewModel의 onGameFinish()와 연결한다
+   
+   ```
+   <Button
+      android:id="@+id/end_game_button"
+      ...
+      android:onClick="@{() -> gameViewModel.onGameFinish()}"
+      ... />
+   ```
+   
+   <br>
+   
+   #### 4) GameFragment에서 setOnClickListner를 제거하고 클릭 리스너를 호출하는 기능을 제거한다.
+   - 기존 UI 컨트롤러에서 하던 작업은 뷰에서 data binding을 통해 처리하므로 아래 코드는 모두 제거한다.
+   
+   ```
+   binding.correctButton.setOnClickListener { onCorrect() }
+   binding.skipButton.setOnClickListener { onSkip() }
+   binding.endGameButton.setOnClickListener { onEndGame() }
+   
+   /** Methods for buttons presses **/
+   private fun onSkip() {
+      viewModel.onSkip()
+   }
+   private fun onCorrect() {
+      viewModel.onCorrect()
+   }
+   private fun onEndGame() {
+      gameFinished()
+   }
+   ```
+   
+ <br><br>
+ 
+ ### Step 3: Add data binding for the ScoreViewModel
+ 이번 단계에서는 ScoreViewModel을 score_fragment.xml과 연결시킨다
+ 
+   #### 1) score_fragment.xml 안에 ScoreViewModel 타입의 바인딩 변수를 추가한다. 이 단계는 위에서 진행했 GameViewModel던과 동일하다
+   
+   ```
+   <layout ...>
+      <data>
+          <variable
+              name="scoreViewModel"
+              type="com.example.android.guesstheword.screens.score.ScoreViewModel" />
+      </data>
+      <androidx.constraintlayout.widget.ConstraintLayout
+   ```
+   
+   <br>
+   
+   #### 2) score_fragment.xml에서 play_again_button에 onClick 속성을 추가한다. 리스너 바인딩은 ScoreViewMode의 onPlayAgain()으로 정의한다
+   
+   ```
+   <Button
+      android:id="@+id/play_again_button"
+      ...
+      android:onClick="@{() -> scoreViewModel.onPlayAgain()}"
+      ... />
+   ```
+   
+   <br>
+   
+   #### 3) ScoreFragment의 onCreateView()에서 viewModel을 초기화하고 binding.scoreViewModel에 초기화한 viewModel을 넣는다
+   
