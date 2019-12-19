@@ -53,10 +53,6 @@ class GameFragment : Fragment() {
         Log.i("GameFragment", "Called ViewModelProviders.of")
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        viewModel.score.observe(this, Observer { newScore ->
-            binding.scoreText.text = newScore.toString()
-        })
-
         viewModel.eventGameFinish.observe(this, Observer<Boolean> { hasFinished ->
             if(hasFinished) gameFinished()
         })

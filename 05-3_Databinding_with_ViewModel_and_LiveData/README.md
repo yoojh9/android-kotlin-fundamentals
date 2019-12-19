@@ -226,7 +226,6 @@
   
   <br><br>
   
-  
  ### Step 2: Add score LiveData to the score_fragment.xml file
  이번 단계에서는 score fragment의 text view에 LiveData score를 바인딩한다
  
@@ -242,6 +241,83 @@
  
  <br>
  
+ #### 2) scoreFragment에서 ScoreViewModel을 초기화 한 코드 다음에 현재 activity를 바인딩 변수의 lifeCycleOwner로 설정한다
  
+ ```
+ binding.scoreViewModel = ...
+ // Specify the current activity as the lifecycle owner of the binding.
+ // This is used so that the binding can observe LiveData updates
+ binding.lifecycleOwner = this
+ ```
+ 
+ <br>
+ 
+ #### 3) ScoreFragment에서 score 값을 observer하는 코드를 제거한다
+  - 아래 코드는 제거한다
+  
+ ```
+ // Add observer for score
+ viewModel.score.observe(this, Observer { newScore ->
+    binding.scoreText.text = newScore.toString()
+ })
+ ```
+ 
+ <br>
+ 
+ #### 4) 앱을 실행시켜서 ScoreFragment의 score가 나오는지 확인한다
+ 
+  <br><br>
   
   
+ ### Step 3: Add string formatting with data binding
+ 레이아웃에서 data binding과 함께 string formatter도 추가할 수 있다. 
+ 이 단계에서는 current word를 큰 따옴표를 붙인 형식으로 변경해보고 점수에 'current score'라는 접두사를 추가해본다
+ 
+ <br>
+ 
+ #### 1) string.xml에 아래와 같이 문자열을 추가한다
+ 
+ ```
+ <string name="quote_format">\"%s\"</string>
+ <string name="score_format">Current Score: %d</string>
+ ```
+ 
+ <br>
+ 
+ #### 2) game_fragment.xml에서 word_text 텍스트 뷰의 text 속성을 string.xml의 quote_format을 사용하도록 변경한다. gameModelView.word를 인자로 넘기면 string formatting도 진행된다
+
+  ```
+  <TextView
+     android:id="@+id/word_text"
+     ...
+     android:text="@{@string/quote_format(gameViewModel.word)}"
+     ... />
+
+  ```
+  
+  <br>
+  
+ #### 3) score_text 텍스트 뷰의 text도 score_format formatting을 적용한 score 값으로 변경한다
+ 
+ ```
+<TextView
+   android:id="@+id/score_text"
+   ...
+   android:text="@{@string/score_format(gameViewModel.score)}"
+   ... /> 
+ ```
+ 
+ <br>
+ 
+ #### 4) GameFragment의 onCreateView() 에서 score를 observe하는 코드를 지운다
+  - 아래 코드를 제거한다
+ 
+ ```
+ viewModel.score.observe(this, Observer { newScore ->
+    binding.scoreText.text = newScore.toString()
+ })
+ ```
+ 
+ <br>
+ 
+ #### 5) 앱을 실행시켜서 formatting이 잘 적용되었는지 확인한다
