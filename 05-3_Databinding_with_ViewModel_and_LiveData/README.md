@@ -185,3 +185,50 @@
   Step 1에서는 current word 텍스트 뷰를 viewModel에 있는 LiveData 객체에 직접 바인딩한다.
   
   #### 1) game_fragment.xml 열어서 word_text 텍스트 뷰에 android:text 속성을 추가한다
+  
+  ```
+  <TextView
+     android:id="@+id/word_text"
+     ...
+     android:text="@{gameViewModel.word}"
+     ... />
+  ```
+  
+  word.value를 사용할 필요는 없고 대신 실제 LiveData 객체를 사용한다. LiveData 객체는 word의 실제 값을 표시하고 만약 word가 null이면 LiveData 개체는 빈 문자열을 표시한다
+  
+  <br>
+  
+  #### 2) GameFragment의 onCreateView()에서 gameViewModel 초기화 코드 이후에 binding 변수의 lifecycle 소유자로 현재 activity를 설정한다
+  
+  - 이는 위의 LiveData 객체의 범위를 정의하여 객체가 game_fragment.xml의 뷰를 자동으로 업데이트 할 수 있도록 한다
+  
+  ```
+  binding.gameViewModel = ...
+  // Specify the current activity as the lifecycle owner of the binding.
+  // This is used so that the binding can observe LiveData updates
+  binding.lifecycleOwner = this
+  ```
+  
+  <br>
+  
+  #### 3) GameFragment에서 LiveData word의 observer를 제거한다
+  
+  - 삭제해야 할 코드는 아래와 같다
+  
+  ```
+  /** Setting up LiveData observation relationship **/
+  viewModel.word.observe(this, Observer { newWord ->
+     binding.wordText.text = newWord
+  })
+  ```
+  
+  #### 4) 앱을 실행시켜 게임을 실행한다. UI 컨트롤러 내에 observer 메소드 없이도 current word가 업데이트 되는 것을 확인할 수 있다
+  
+  <br><br>
+  
+  
+ ### Step 2: Add score LiveData to the score_fragment.xml file
+ 
+ 
+  
+  
