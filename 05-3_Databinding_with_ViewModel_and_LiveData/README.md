@@ -1,4 +1,7 @@
 # 05-3 Databinding with ViewModel and LiveData
+
+## 1. Add ViewModel data binding
+
  - 이전 단계에서 뷰에 액세스하는 안전한 형식으로 데이터 바인딩을 사용했다.
  - 그러나 data binding의 진정한 힘은 이름이 의미하는 대로 데이터를 앱의 뷰 객체에 직접 바인딩하는 것이다
  
@@ -130,7 +133,7 @@
  ### Step 3: Add data binding for the ScoreViewModel
  이번 단계에서는 ScoreViewModel을 score_fragment.xml과 연결시킨다
  
-   #### 1) score_fragment.xml 안에 ScoreViewModel 타입의 바인딩 변수를 추가한다. 이 단계는 위에서 진행했 GameViewModel던과 동일하다
+   #### 1) score_fragment.xml 안에 ScoreViewModel 타입의 바인딩 변수를 추가한다. 이 단계는 위에서 진행했던 GameViewModel과 동일하다
    
    ```
    <layout ...>
@@ -144,7 +147,7 @@
    
    <br>
    
-   #### 2) score_fragment.xml에서 play_again_button에 onClick 속성을 추가한다. 리스너 바인딩은 ScoreViewMode의 onPlayAgain()으로 정의한다
+   #### 2) score_fragment.xml에서 play_again_button에 onClick 속성을 추가한다. 리스너 바인딩은 ScoreViewModel의 onPlayAgain()으로 정의한다
    
    ```
    <Button
@@ -157,4 +160,28 @@
    <br>
    
    #### 3) ScoreFragment의 onCreateView()에서 viewModel을 초기화하고 binding.scoreViewModel에 초기화한 viewModel을 넣는다
+    
+   ```
+   viewModel = ...
+   binding.scoreViewModel = viewModel
+   ```
    
+   #### 4) 아래 코드르 삭제한다
+   
+   ```
+   binding.playAgainButton.setOnClickListener { viewModel.onPlayAgain() }
+   ```
+   
+   #### 5) 앱을 실행하면 앱은 이전과 같이 작동하지만 버튼 뷰가 직접 viewModel 객체와 통신한다
+   - 더이상 ScoreFragment에서 버튼 클릭 핸들러를 통해 뷰와 통신하지 않는다.
+   
+  <br><br>
+
+## 2. Add LiveData to data binding
+  - 데이터 바인딩은 viewModel 객체와 함께 사용되는 LiveData와도 잘 동작한다.
+  - 이번 단계에서는 LiveData의 observer 메소드를 사용하지 않고 LiveData를 데이터 바인딩 소스로 사용하여 UI에 데이터 바인딩 변경 사항을 알리도록 수정한다
+  
+  ### Step 1: Add word LiveData to the game_fragment.xml file
+  Step 1에서는 current word 텍스트 뷰를 viewModel에 있는 LiveData 객체에 직접 바인딩한다.
+  
+  #### 1) game_fragment.xml 열어서 word_text 텍스트 뷰에 android:text 속성을 추가한다
