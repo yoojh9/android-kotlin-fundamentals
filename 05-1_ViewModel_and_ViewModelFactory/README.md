@@ -323,6 +323,35 @@
   
   <br>
   
-  ##### 8) ScoreFragment의 onCreateView() 안에서 binding 변수를 초기화 한 후 viewModelFactory를 초기화한다.
-
+  ##### 8) ScoreFragment의 onCreateView() 안에서 binding 변수를 초기화 한 후 ScoreViewModelFactory를 사용하여 viewModelFactory를 초기화한다.
+   - argument bundle에 있는 final score를 ScoreViewModelFactory()에 생성자 파라미터로 넘겨준다
+   
+   ```
+    viewModelFactory = ScoreViewModelFactory(ScoreFragmentArgs.fromBundle(arguments!!).score)
+   ```
+   
+  <br>
+  
+  ##### 9) onCreateView()에 viewModelFactory 초기화하고 난 후 viewModel 객체를 초기화한다. 
+   - ViewModelProvider.of() 메소드를 호출하여 연결된 scoreFragment context와 viewModelFactory를 넘긴다
+   - ViewModelFactory 클래스에 정의된 팩토리 메소드를 이용하여 ScoreViewModel 객체를 생성한다
+  
+  ```
+   viewModel = viewModelProvider.of(this, viewModelFactory)
+                .get(ScoreViewModel::class.java)
+  ```
+  
+  <br>
+  
+  ##### 10) onCreate()에서 viewModel을 초기화 한 후에 scoreText 뷰의 텍스트를 ScoreViewModel에 있는 final score로 설정한다
+  ```
+   binding.scoreText.text = viewModel.score.toString()
+  ```
+  
+  <br>
+  
+  ##### 11) 앱을 실행시키고 End Game을 누르면 score fragment에 최종 점수가 뜨는 것을 확인할 수 있다
+   
+   
+    
   
