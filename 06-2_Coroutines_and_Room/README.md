@@ -172,7 +172,8 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
 
 **코루틴은 suspend 함수를 사용하여 비동기 코드를 순차 코드로 만들 수 있다**
  - 코루틴에서 suspend로 표시된 함수를 실행하면, 보통의 함수처럼 함수가 리턴될 때 까지 blocking 되지 않고 결과가 준비될 때 까지 실행을 일시 중단한다
- - 그런 다음 코루틴이 중돤된 부분부터 재시작되어 결과가 나타난다
+ - suspend는 모든 로컬 변수를 저장하여 현재 코루틴 실행을 정지한다
+ - resume은 정지된 위치부터 정지된 코루틴을 계속 실행합니다
  - 코루틴은 일시 중단되어 결과를 기다리는 동안에 실행 중인 thread는 block 되지 않는다. 그래서 다른 코드나 코루틴이 실행될 수 있다
  - suspend 키워드는 코드가 실행되는 스레드를 지정하지 않습니다. suspend 함수는 백그라운드 스레드 또는 메인 스레드에서 실행될 수 있다.
  - blocking과 suspend의 차이점은 스레드는 block되면 다른 작업이 발생하지 않는다는 점이다. 스레드가 suspend된 경우에는 결과를 사용할 수 있을 때 까지 다른 작업이 수행된다
@@ -187,6 +188,16 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
  - A scope
 
 <br>
+
+**Job**: 기본적으로 job은 취소할 수 있다. 모든 코루틴은 job을 가지고 있고 코루틴을 취소하기 위해 job을 사용할 수 있다. job은 부모-자식 계층 구조로 배열될 수 있으며 부모 job을 취소하면 일일이 수동으로 취소하지 않아도 모든 자식 job은 알아서 취소된다. 
+
+**Dispatcher**: 디스패처는 다양한 스레드에서 실행하기 위해 코루틴을 보낸다. 
+    - Dispatcher.Main: main에서 코루틴을 시작한다. 이 디스패처는 UI와 상호 작용하고 빠른 작업을 수행하기 위해서만 사용해야 한다. 예를 들어 suspend 함수를 호출하고, Android UI 프레임워크 작업을 실행하고, LiveData 객체를 업데이트한다
+    - Dispatcher.IO: 이 디스패처는 기본 스레드 외부에서 디스크 또는 네트워크 I/O를 수행하도록 최적화되어 있다. 예를 들어 파일을 읽거나 네트워킹 작업을 수행한다
+    - Dispatcher.Default: 이 디스패처는 CPU를 많이 사용하는 작업을 기본 스레드 외부에서 수행하도록 최적화되어 있다. 목록을 정렬하고 JSON을 파싱하는 등의 작업을 수행한다
+
+**Scope**: 코루틴의 scope는 코루틴이 실행되는 context의 범위를 정의한다. scope는 코루틴의 job과 Dispatcher에 대한 정보를 결합한다. scope는 코루틴을 추적한다. 코루틴을 시작하면 scope 안에 있는데, 즉 코루틴이 추적할 scope를 나타낸다.
+
 
 
  
