@@ -8,18 +8,13 @@
  
  #### 1) Gradle 파일을 살펴보자
  
- **The project Gradle file**
- project-level build.gradle 파일은 특정 라이브러리 version을 명시한다. 
- 
- <br>
- 
- **The module Gradle file**
- Room을 포함한 모든 Android Jetpack 라이브러리 및 코루틴에 대한 디펜던시를 확인할 수 있다
+  - **The project Gradle file** : project-level build.gradle 파일은 특정 라이브러리 version을 명시한다. 
+  - **The module Gradle file** : Room을 포함한 모든 Android Jetpack 라이브러리 및 코루틴에 대한 디펜던시를 확인할 수 있다
  
  #### 2) packages와 UI를 살펴본다
  
- **The database package**에는 Room 데이터베이스와 관련된 코드들이 있다
- **The sleepquality and sleeptracker package**에는 fragment, view model, view model factory가 각각의 스크린마다 존재한다
+  - **The database package**에는 Room 데이터베이스와 관련된 코드들이 있다
+  - **The sleepquality and sleeptracker package**에는 fragment, view model, view model factory가 각각의 스크린마다 존재한다
  
  #### 3) Util.kt 파일을 살펴보자. sleep-quality 데이터를 표시하는데 필요한 함수들을 포함하고 있다
  
@@ -111,7 +106,7 @@
  <br>
  
  ### Step 1: Create the SleepDatabase DAO
-  #### 1) database 패키지에서 SleepDatabaseDao.kt를 ㅇ녀다
+  #### 1) database 패키지에서 SleepDatabaseDao.kt를 
   
   #### 2) SleepDatabaseDao 인터페이스에 @Dao 어노테이션이 붙어있는 것을 확인한다. 모든 DAO는 @Dao 어노테이션 키워드가 필요하다
   
