@@ -1,25 +1,20 @@
 # 06-1 Create a Room database
  Room은 Android Jetpack의 데이터베이스 라이브러리이다. Room은 데이터베이스를 설정하고 구성하는 많은 일을 처리하며, 앱이 일반적인 함수 호출을 사용하여 데이터베이스와 상호 작용 할 수 있도록 해준다.
  
- <image src="./images/room_database.png" width="70&" height="70%"/>
+ <image src="./images/room_database.png" width="40%" height="40%"/>
  
 ## 1. Inspect the starter app
  ### Step1: Inspect the starter app
  
  #### 1) Gradle 파일을 살펴보자
  
- **The project Gradle file**
- project-level build.gradle 파일은 특정 라이브러리 version을 명시한다. 
- 
- <br>
- 
- **The module Gradle file**
- Room을 포함한 모든 Android Jetpack 라이브러리 및 코루틴에 대한 디펜던시를 확인할 수 있다
+  - **The project Gradle file** : project-level build.gradle 파일은 특정 라이브러리 version을 명시한다. 
+  - **The module Gradle file** : Room을 포함한 모든 Android Jetpack 라이브러리 및 코루틴에 대한 디펜던시를 확인할 수 있다
  
  #### 2) packages와 UI를 살펴본다
  
- **The database package**에는 Room 데이터베이스와 관련된 코드들이 있다
- **The sleepquality and sleeptracker package**에는 fragment, view model, view model factory가 각각의 스크린마다 존재한다
+  - **The database package**에는 Room 데이터베이스와 관련된 코드들이 있다
+  - **The sleepquality and sleeptracker package**에는 fragment, view model, view model factory가 각각의 스크린마다 존재한다
  
  #### 3) Util.kt 파일을 살펴보자. sleep-quality 데이터를 표시하는데 필요한 함수들을 포함하고 있다
  
@@ -93,7 +88,7 @@
 ## 3. Create the DAO
  이번 단계에서는 DAO(data access object)를 정의한다. 안드로이드에서 DAO는 데이터베이스 추가, 삭제 및 업데이트를 위한 편리한 방법을 제공한다
  
- Room 데이버테이스를 사용하면 코드에서 kotlin 함수를 정의하고 호출하여 데이터베이스를 query한다. 이 코틀린 함수는 SQL 쿼리에 매핑된다. 어노테이션을 사용하여 DAO에서 이런 매핑을 정의하면 Room에서 필요한 코드를 생성한다
+ Room 데이터베이스를 사용하면 코드에서 kotlin 함수를 정의하고 호출하여 데이터베이스를 query한다. 이 코틀린 함수는 SQL 쿼리에 매핑된다. 어노테이션을 사용하여 DAO에서 이런 매핑을 정의하면 Room에서 필요한 코드를 생성한다
  
  DAO를 데이터베이스에 액세스 하기 위한 사용자 인터페이스를 정의하는 것으로 생각해라. 일반적인 데이터베이스 작업을 위해 Room 라이브러리는 @Insert, @Delete, @update와 같은 편리한 어노테이션을 제공한다
  그 밖에 SQLite 기반의 쿼리를 작성할 수 있는 @Query 어노테이션이 있다.
@@ -111,7 +106,7 @@
  <br>
  
  ### Step 1: Create the SleepDatabase DAO
-  #### 1) database 패키지에서 SleepDatabaseDao.kt를 ㅇ녀다
+  #### 1) database 패키지에서 SleepDatabaseDao.kt를 
   
   #### 2) SleepDatabaseDao 인터페이스에 @Dao 어노테이션이 붙어있는 것을 확인한다. 모든 DAO는 @Dao 어노테이션 키워드가 필요하다
   
