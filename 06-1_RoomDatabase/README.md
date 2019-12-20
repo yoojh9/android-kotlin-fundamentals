@@ -1,7 +1,7 @@
 # 06-1 Create a Room database
  Room은 Android Jetpack의 데이터베이스 라이브러리이다. Room은 데이터베이스를 설정하고 구성하는 많은 일을 처리하며, 앱이 일반적인 함수 호출을 사용하여 데이터베이스와 상호 작용 할 수 있도록 해준다.
  
- <image src="./images/room_database.png" width="70&" height="70%"/>
+ <image src="./images/room_database.png" width="70%" height="70%"/>
  
 ## 1. Inspect the starter app
  ### Step1: Inspect the starter app
