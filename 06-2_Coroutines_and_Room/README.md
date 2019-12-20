@@ -155,7 +155,7 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
 순차적으로 작성된 코드는 일반적으로 읽기 쉽고 예외와 같은 언어 기능을 사용할 수도 있다.
 결국 코루틴과 콜백은 동일한 작업을 수행합니다. 장기 실행 작업에서 결과를 사용할 수 있을 때까지 계속 기다렸다가 실행한다.
 
-<image src="./image/coroutine.png" width="70%", height="70%"/>
+<image src="./image/coroutine.png" width="70%" height="70%"/>
 
 코루틴은 다음 속성을 가지고 있다
  - 코루틴은 비동기이며 non-blocking이다
@@ -178,7 +178,7 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
  - suspend 키워드는 코드가 실행되는 스레드를 지정하지 않습니다. suspend 함수는 백그라운드 스레드 또는 메인 스레드에서 실행될 수 있다.
  - blocking과 suspend의 차이점은 스레드는 block되면 다른 작업이 발생하지 않는다는 점이다. 스레드가 suspend된 경우에는 결과를 사용할 수 있을 때 까지 다른 작업이 수행된다
  
- <image src="./images/block_vs_suspend.png" width="70%", height="70%"/>
+ <image src="./images/block_vs_suspend.png" width="70%" height="70%"/>
  
 <br>
 
