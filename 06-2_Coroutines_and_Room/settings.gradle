@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='06-2_Coroutines_and_Room'
