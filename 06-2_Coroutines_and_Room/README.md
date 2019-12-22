@@ -154,8 +154,7 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
 코틀린에서 코루틴은 장기 실행 작업을 우아하고 효율적으로 처리하는 방법이다. Kotlin 코루틴을 사용하면 콜백 기반 코드를 순차 코드로 변환 할 수 있다
 순차적으로 작성된 코드는 일반적으로 읽기 쉽고 예외와 같은 언어 기능을 사용할 수도 있다.
 결국 코루틴과 콜백은 동일한 작업을 수행합니다. 장기 실행 작업에서 결과를 사용할 수 있을 때까지 계속 기다렸다가 실행한다.
-
-<image src="./images/coroutine.png" width="70%" height="70%"/>
+<image src="./images/coroutine.png" width="50%" height="50%"/>
 
 코루틴은 다음 속성을 가지고 있다
  - 코루틴은 비동기이며 non-blocking이다
@@ -177,10 +176,9 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
  - 코루틴은 일시 중단되어 결과를 기다리는 동안에 실행 중인 thread는 block 되지 않는다. 그래서 다른 코드나 코루틴이 실행될 수 있다
  - suspend 키워드는 코드가 실행되는 스레드를 지정하지 않습니다. suspend 함수는 백그라운드 스레드 또는 메인 스레드에서 실행될 수 있다.
  - blocking과 suspend의 차이점은 스레드는 block되면 다른 작업이 발생하지 않는다는 점이다. 스레드가 suspend된 경우에는 결과를 사용할 수 있을 때 까지 다른 작업이 수행된다
- 
+
  <image src="./images/block_vs_suspend.png" width="50%" height="50%"/>
  
-<br>
 
 코루틴을 코틀린에서 사용하려면 3가지가 필요하다
  - A job
@@ -192,12 +190,208 @@ binding.sleepTrackerViewModel = sleepTrackerViewModel
 **Job**: 기본적으로 job은 취소할 수 있다. 모든 코루틴은 job을 가지고 있고 코루틴을 취소하기 위해 job을 사용할 수 있다. job은 부모-자식 계층 구조로 배열될 수 있으며 부모 job을 취소하면 일일이 수동으로 취소하지 않아도 모든 자식 job은 알아서 취소된다. 
 
 **Dispatcher**: 디스패처는 다양한 스레드에서 실행하기 위해 코루틴을 보낸다. 
-    - Dispatcher.Main: main에서 코루틴을 시작한다. 이 디스패처는 UI와 상호 작용하고 빠른 작업을 수행하기 위해서만 사용해야 한다. 예를 들어 suspend 함수를 호출하고, Android UI 프레임워크 작업을 실행하고, LiveData 객체를 업데이트한다
-    - Dispatcher.IO: 이 디스패처는 기본 스레드 외부에서 디스크 또는 네트워크 I/O를 수행하도록 최적화되어 있다. 예를 들어 파일을 읽거나 네트워킹 작업을 수행한다
-    - Dispatcher.Default: 이 디스패처는 CPU를 많이 사용하는 작업을 기본 스레드 외부에서 수행하도록 최적화되어 있다. 목록을 정렬하고 JSON을 파싱하는 등의 작업을 수행한다
+
+   - Dispatcher.Main: main에서 코루틴을 시작한다. 이 디스패처는 UI와 상호 작용하고 빠른 작업을 수행하기 위해서만 사용해야 한다. 예를 들어 suspend 함수를 호출하고, Android UI 프레임워크 작업을 실행하고, LiveData 객체를 업데이트한다
+   - Dispatcher.IO: 이 디스패처는 기본 스레드 외부에서 디스크 또는 네트워크 I/O를 수행하도록 최적화되어 있다. 예를 들어 파일을 읽거나 네트워킹 작업을 수행한다
+   - Dispatcher.Default: 이 디스패처는 CPU를 많이 사용하는 작업을 기본 스레드 외부에서 수행하도록 최적화되어 있다. 목록을 정렬하고 JSON을 파싱하는 등의 작업을 수행한다
 
 **Scope**: 코루틴의 scope는 코루틴이 실행되는 context의 범위를 정의한다. scope는 코루틴의 job과 Dispatcher에 대한 정보를 결합한다. scope는 코루틴을 추적한다. 코루틴을 시작하면 scope 안에 있는데, 즉 코루틴이 추적할 scope를 나타낸다.
 
+<br><br>
 
+## 3. Collect and display the data
+다음과 같은 방식으로 사용자가 sleep data와 상호작용 하기를 원한다
+ - 사용자가 start 버튼을 누르면 앱은 새로운 sleep night를 생성하고 데이터베이스에 sleep night을 저장한다
+ - 사용자가 stop 버튼을 누르면 앱은 sleep night의 end time을 갱신한다
+ - 사용자가 clear 버튼을 누르면 데이터베이스에 있는 데이터를 지운다
+이러한 데이터베이스 작업은 오래 걸릴 수 있으므로 별도의 스레드에서 실행해야 한다
 
+<br>
+
+### Step 1: 데이터베이스 작업을 위한 코루틴 설정
+Sleep Tracker 앱의 시작 버튼을 누르면 SleepTrackerViewModel에서 함수를 호출하여 SleepNight의 새 인스턴스를 만들고 데이터베이스에 인스턴스를 저장하려고 한다. 
+
+버튼을 누르면 SleepNight 생성 또는 업데이트와 같은 데이터베이스 작업이 트리거된다. 이러한 이유로 인해 코루틴을 사용하여 앱 버튼의 클릭 핸들러를 구현한다.
+
+#### 1) app-level의 build.gradle 파일을 열고 코루틴에 대한 dependency를 찾는다. 코루틴을 사용하려면 아래와 같은 디펜던시가 필요하다
+```
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+```
+
+<br>
+
+#### 2) SleepTrackerViewModel 파일을 연다. 
+
+#### 3) 클래스의 body에 viewModelJob을 정의하 Job의 인스턴스를 할당한다. 이 viewModelJob을 사용하면 뷰 모델이 더 이상 사용되지 않고 파괴 될 때, 이 뷰 모델로 시작된 모든 코루틴을 취소 할 수 있다.
+
+```
+private var viewModelJob = Job()
+```
+
+<br>
+
+#### 4) 클래스의 끝에서 onCleared() 메소드를 재정의하고 모든 코루틴을 취소해라. ViewModel이 소멸되면 onCleared()가 호출된다.
+
+```
+override fun onCleared() {
+   super.onCleared()
+   viewModelJob.cancel()
+}
+```
+
+<br>
+
+#### 5) viewModelJob 정의 바로 아래에 코루틴에 대한 uiScope를 정의한다. 이 scope는 코루틴이 실행될 스레드를 결정하며 scope는 job에 대해서도 알아야 한다. scope를 얻으려면 CoroutineScope의 인스턴스를 요청하고 dispatcher 및 job을 전달해라.
+ - Dispatchers.Main을 사용하는 것은 uiScope에서 실행 된 코루틴이 기본 스레드(Main thread)에서 실행됨을 의미한다.
+ - 코루틴이 일부 처리를 수행한 후 UI가 업데이트 되기 때문에 viewModel에 의해 시작된 코루틴에 사용하기에 적합하다.
+```
+private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+``` 
+
+<br>
+
+#### 6) uiScope 정의 아래에 current night을 유지하기 위해 tonight이라는 변수를 선언한다. 데이터를 observe하고 update하기 위해 MutableLiveData 타입으로 선언한다.
+
+```
+private var tonight = MutableLiveData<SleepNight?>()
+```
+
+<br>
+
+#### 7) init 블럭에서 tonight 변수를 초기화하기 위해 initializeTonight() 함수를 호출한다. initializeTonight()는 다음 단계에서 구현한다
+
+```
+init {
+   initializeTonight()
+}
+
+```
+
+<br>
+
+#### 8) init 블럭 아래에 initializeTonight()을 구현한다. uiScope 범위에서 coroutine을 launch 시킨다. uiScope 내부에서 getTonightFromDatabase()를 호출하여 데이터베이스에서 tonight의 값을 가져와 tonight.value에 할당한다
+
+```
+private fun initializeTonight() {
+   uiScope.launch {
+       tonight.value = getTonightFromDatabase()
+   }
+}
+```
+
+<br>
+
+#### 9) getTonightFromDatabase()를 구현한다. nullable한 SleepNight 객체를 리턴하는 private suspend 함수를 리턴한다
+
+```
+private suspend fun getTonightFromDatabase(): SleepNight? { }
+```
+
+<br>
+
+#### 10) getTonightFromDatabase() 함수 본문 내에서 Dispatchers.IO 컨텍스트에서 실행되는 코루틴으로부터 결과를 리턴한다. 데이터베이스에서 데이터를 가져오는 것은 I/O 조작이며 UI와 관련이 없으므로 I/O 디스패처를 사용한다.
+
+```
+return withContext(Dispatchers.IO) {}
+```  
+
+<br>
+
+#### 11) return 블록 내에서 코루틴이 데이터베이스에서 tonight을 가져오게 한다. 시작 시간과 종료 시간이 동일하지 않으면 이미 시간이 측정 완료된 것으로 간주하고 null을 반환한다
+
+```
+   var night = database.getTonight()
+   if (night?.endTimeMilli != night?.startTimeMilli) {
+       night = null
+   }
+   night
+```
  
+<br>
+
+#### 12) 완료된 suspend getTonightFromDatabase() 함수는 아래와 같다
+
+```
+private suspend fun getTonightFromDatabase(): SleepNight? {
+   return withContext(Dispatchers.IO) {
+       var night = database.getTonight()
+       if (night?.endTimeMilli != night?.startTimeMilli) {
+           night = null
+       }
+       night
+   }
+}
+```
+
+<br>
+
+### Step 2: Add the click handler for the Start button
+이제 start button의 클릭 핸들러인 onStartTracking()을 구현할 수 있다. 새로운 SleepNight을 생성하여 데이터베이스에 저장한 다음 tonight에 할당해야 한다. onStartTracking()는 initializeTonight()과 비슷해질 것이다
+
+<br>
+
+#### 1) SleepTrackerViewModel.kt 파일에서 onStartTracking()을 선언한다
+
+```
+fun onStartTracking() {}
+```
+
+<br>
+
+#### 2) onStartTracking() 메소드에서 UI를 계속 업데이트 하려면 결과가 필요하므로 uiScope 내에서 코루틴은 launch한다
+
+```
+uiScope.launch {}
+```
+
+<br>
+
+#### 3) coroutine launch 블럭 안에 현재시간을 시작 시간으로 가지고 있는 새로운 SleepNight() 객체를 만든다.
+
+```
+val newNight = SleepNight()
+```
+
+<br>
+
+#### 4) coroutine launch 안에서 insert()를 호출하여 데이터베이스에 newNight을 추가한다. 지금은 suspend insert() 메소드가 없어 에러가 날 것이다.
+
+```
+insert(newNight)
+```
+
+<br>
+
+#### 5) tonight 값을 가져와서 업데이트한다.
+
+```
+tonight.value = getTonightFromDatabase()
+```
+
+<br>
+
+#### 6) onStartTracking() 안에 SleepNight을 인자로 갖는 private suspend insert() 함수를 정의한다
+
+```
+private suspend fun insert(night: SleepNight) {}
+```
+
+<br>
+
+#### 7) insert() 함수 내에서 I/O context로 코루틴을 시작하고 DAO에서 insert()를 호출하여 데이터베이스에 추가한다
+
+```
+withContext(Dispatchers.IO) {
+   database.insert(night)
+}
+```
+
+<br>
+
+#### 8) fragment_sleep_tracker.xml 레이아웃 파일에서 앞에서 설정한 데이터 바인딩을 사용하여 start button에 클릭 핸들러로 onStartTracking()를 추가한다
+
+```
+android:onClick="@{() -> sleepTrackerViewModel.onStartTracking()}"
+```
+
