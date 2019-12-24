@@ -395,3 +395,150 @@ withContext(Dispatchers.IO) {
 android:onClick="@{() -> sleepTrackerViewModel.onStartTracking()}"
 ```
 
+<br>
+
+#### 9) 앱을 빌드하고 Start 버튼을 누른다. 이 액션은 data를 생성하지만 아무것도 볼 수는 없다. 다음 단계에서 이 문제를 수정하자
+
+<br>
+
+```
+이제 패턴을 확인할 수 있다
+
+1. 결과가 UI에 영향을 주기 때문에 코루틴을 main thread 또는 UI thread로 실행시킨다. 
+2. 오래 걸리는 작업은 결과를 기다리는 동안 UI thread를 block하지 않기 위해 suspend function을 사용하여 호출한다
+3. 오래 걸리는 작업은 UI와 관련이 없다. I/O 컨텍스트로 변하여 이러한 종류의 작업에 최적화 되고 설정된 스레드 풀에서 실행될 수 있도록 한다
+4. 그런 다음 데이터베이스 기능을 호출하여 작업을 수행한다
+
+패턴은 아래와 같다
+
+fun someWorkNeedsToBeDone {
+    uiScope.launch {
+        suspendFunction()
+    }
+}
+
+suspend fun suspendFunction() {
+    withContext(Dispatchers.IO){
+        longrunningWork()
+    }
+}
+```
+
+<br>
+
+### Step 3: Display the data
+ - DAO의 getAllNights ()가 LiveData를 반환하므로 SleepTrackerViewModel에서 nights 변수는 LiveData를 참조한다.
+ - 데이터베이스의 데이터가 변경될 떄 마다 LiveData nights가 최신 데이터를 표시하도록 업데이트 되는게 Room 기능 중 하나이다. Room은 데이터베이스와 일치하도록 데이터를 업데이트 하므로 LiveData를 명시적으로 set하거나 update할 필요가 없다
+ - 텍스트 뷰에 night를 표시하면 객체 참조값이 표시되는데, 객체의 내용을 보기 위해서는 형식화된 문자열로 변환해야 한다. 데이터베이스에서 새로운 데이터를 가져올 때 transformation map을 실행시켜 보자
+ 
+ #### 1) Util.kt 파일을 열어 formatNight() 메소드 주석을 해제하고 import를 추가한다
+ 
+ #### 2) formatNights()의 리턴 타입이 HTML 형식 문자열인 Spanned 인 것을 확인한다
+ 
+ #### 3) strings.xml을 열어서 CDATA를 사용하여 sleep data를 표시하기 위해 문자열 리소스 포맷을 사용한다
+ 
+ #### 4) SleepTrackerViewMOdel 파일을 열어서 nights라는 변수를 정의한다. nights에는 데이터베이스에서 모든 nights의 값을 가져와 할당시킨다.
+ 
+ ```
+ private val nights = database.getAllNights()
+ ```
+ 
+ <br>
+ 
+ #### 5) nights 선언 바로 아래에 nights를 nightsString으로 변환하는 코드를 넣는다. Util.kt의 foramtNights() 함수를 사용한다. nights를 Transformations 클래스의 map() 함수에 전달한다.
+  - 문자얼 리소스에 액세스 하기 위해 nights와 Resource를 매개변수로 하는 formatNights() 함수를 호출한다
+  
+  ```
+  val nightsString = Transformations.map(nights) { nights ->
+     formatNights(nights, application.resources)
+  }
+  ```
+ 
+ <br>
+ 
+ #### 6) fragment_sleep_tracker.xml 레이아웃을 열어서 TextView에 anroid:text 속성을 추가하여 nightsString에 대한 참조로 바꿀 수 있다
+ 
+ ```
+ "@{sleepTrackerViewModel.nightsString}"
+ ```
+ 
+ <br>
+ 
+ #### 7) 앱을 빌드하고 실행시킨다. 모든 sleep data의 start time이 화면에 나타난다. start button을 한번 더 눌러서 데이터가 추가되는지 확인해본다.
+ 
+ 다음 단계에서는 Stop 버튼을 구현한다
+ 
+ <br>
+ 
+ ### Step 4: Add the click handler for the Stop button
+ 이전 단계에서 진행했던 같은 패턴을 사용하여 SleepTrackerViewModel의 Stop button 클릭 핸들러를 구현한다
+ 
+ #### 1) viewModel에 onStopTracking()을 추가하고, 코루틴을 uiScope에서 실행시킨다. end time이 아직 저장되지 않았다면 endTimeMilli에 현재 시간을 넣고 night data로 update()를 호출한다
+  - 코틀린에서는 return@label 문법을 이용해서 여러 중첩 함수 중 이 명령이 리턴하는 함수를 지정할 수 있다
+  
+  ```
+  fun onStopTracking() {
+     uiScope.launch {
+         val oldNight = tonight.value ?: return@launch
+         oldNight.endTimeMilli = System.currentTimeMillis()
+         update(oldNight)
+     }
+  }
+  ```
+  
+  <br>
+  
+ #### 2) insert()를 구현했던 같은 패터을 사용하여 update()를 구현한다
+ ```
+ private suspend fun update(night: SleepNight) {
+    withContext(Dispatchers.IO) {
+        database.update(night)
+    }
+ }
+ ```
+ 
+ <br>
+ 
+ #### 3) fragment_sleep_tracker.xml 파일을 열어서 stop_button에 클릭 핸들러를 추가한다
+ ```
+ android:onClick="@{() -> sleepTrackerViewModel.onStopTracking()}"
+ ```
+ 
+ <br>
+ 
+ #### 4) 앱을 빌드시키고 실행시켜서 Start 버튼을 누르고 Stop 버튼을 누른다. 
+ 
+ <br>
+ 
+ ### Step 5: Add the click handler for the Stop button
+
+ #### 1) 유사하게 onCLear()와 clear()를 구현한다
+ 
+ ```
+ fun onClear() {
+    uiScope.launch {
+        clear()
+        tonight.value = null
+    }
+ }
+ 
+ suspend fun clear() {
+    withContext(Dispatchers.IO) {
+        database.clear()
+    }
+ }
+ ```
+ 
+ <br>
+ 
+ #### 2) fragment_sleep_tracker.xml을 열어서 clear_button 버튼에 클릭 핸들러를 연결한다
+ 
+ ```
+ android:onClick="@{() -> sleepTrackerViewModel.onClear()}"
+ ```
+ 
+ <br>
+ 
+ #### 3) 앱을 실행시켜서 Clear를 눌러 모든 데이터를 제거한다
+ 
+ 

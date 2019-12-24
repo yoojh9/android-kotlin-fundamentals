@@ -17,8 +17,9 @@
 package com.example.android.trackmysleepquality.sleeptracker
 
 import android.app.Application
-import android.provider.SyncStateContract.Helpers.insert
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
@@ -33,6 +34,10 @@ class SleepTrackerViewModel(
         val database: SleepDatabaseDao,
         application: Application) : AndroidViewModel(application) {
 
+        private val _navigateToSleepQuality = MutableLiveData<SleepNight>()
+        val navigateToSleepQuality: LiveData<SleepNight>
+                get() = _navigateToSleepQuality
+
         private var viewModelJob = Job()
         private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
         private var tonight = MutableLiveData<SleepNight?>()
@@ -44,6 +49,7 @@ class SleepTrackerViewModel(
 
         init {
                 initializeTonight()
+                Log.i("SeekTrackerViewModel", tonight.value.toString())
         }
 
         private fun initializeTonight() {
@@ -58,6 +64,7 @@ class SleepTrackerViewModel(
                         if (night?.endTimeMilli != night?.startTimeMilli) {
                                 night = null
                         }
+                        Log.i("SeekTrackerViewModel", night.toString())
                         night
                 }
         }
@@ -82,6 +89,8 @@ class SleepTrackerViewModel(
                         val oldNight = tonight.value ?: return@launch
                         oldNight.endTimeMilli = System.currentTimeMillis()
                         update(oldNight)
+
+                        _navigateToSleepQuality.value = oldNight
                 }
         }
 
@@ -104,6 +113,9 @@ class SleepTrackerViewModel(
                 }
         }
 
+        fun doneNavigating() {
+                _navigateToSleepQuality.value = null
+        }
 
         override fun onCleared() {
                 super.onCleared()
