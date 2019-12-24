@@ -71,3 +71,172 @@
  <br>
  
  #### 7) 앱을 실행시키고 Start 버튼을 누른 다음 Stop 버튼을 눌러서 SleepQualityFragment로 이동하는지 확인한다.
+ 
+ 
+ <br><br>
+ 
+## 2. Record the sleep quality
+ SleepQualityFragment를 업데이트 하기 위해 ViewModel과 ViewModelFactory를 만들어야 한다.
+ 
+ ### Step 1: Create a ViewModel and a ViewModelFactory
+ 
+ #### 1) sleepquality 패키지에서 SleepQualityViewModel.kt를 연다
+ 
+ #### 2) sleepNightKey와 database를 인자로 가지는 SleepQualityViewModel 클래스를 생성하고 SleepTrackerViewModel에서 했던 것처럼 factory로 database를 전달한다. 또한 navigation에서 sleepNightKey를 전달해야한다.
+ 
+ ```
+ class SleepQualityViewModel(
+    private val sleepNightKey: Long = 0L,
+    val database: SleepDatabaseDao) : ViewModel() {  
+ }
+ ```
+ 
+ <br>
+ 
+ #### 3) SleepQualityViewModel 클래스에서 Job과 UiScope를 정의하고 onCleared()를 오버라이드한다
+ 
+ ```
+ private val viewModelJob = Job()
+ private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+ 
+ override fun onCleared() {
+    super.onCleared()
+    viewModelJob.cancel()
+ }
+ ```
+ 
+ <br>
+ 
+ #### 4) SleepTrackerFragment로 돌아가기 위해 앞에서 했던 것과 같이 _navigateToSleepTracker를 선언하고 navigateToSleepTracker와 doneNavigating()을 구현한다
+ 
+ ```
+ private val _navigateToSleepTracker = MutableLiveData<Boolean?>()
+ 
+ val navigateToSleepTracker: LiveData<Boolean?>
+    get() = _navigateToSleepTracker
+   
+ fun doneNavigating() {
+    _navigateToSleepTracker.value = null
+ }
+ ```
+ 
+ <br>
+ 
+ #### 5) 모든 sleep-quality 이미지에서 사용하는 onSetSleepQuality()라는 click handler를 만든다. 이전 단계에서 했던 coroutine 패턴을 그대로 사용한다
+ 
+   - uiScope에서 coroutine을 실행하고 I/O dispatcher로 변경한다
+   - sleepNightKey를 사용하여 tonight 값을 얻는다
+   - sleep quality를 설정한다
+   - 데이터베이스를 업데이트 한다
+   - navigation을 트리거시킨다
+   
+ ```
+ fun onSetSleepQuality(quality: Int) {
+     uiScope.launch {
+         // IO is a thread pool for running operations that access the disk, such as
+         // our Room database.
+         withContext(Dispatchers.IO) {
+             val tonight = database.get(sleepNightKey) ?: return@withContext
+             tonight.sleepQuality = quality
+             database.update(tonight)
+         }
+
+         // Setting this state variable to true will alert the observer and trigger navigation.
+         _navigateToSleepTracker.value = true
+     }
+ }
+ ```
+   
+ <br>
+ 
+ #### 6) sleepquality 패키지에서 SleepQualityViewModelFactory.kt를 열어 SleepQualityViewModelFactory 클래스를 추가한다. 이 클래스는 이전에 본 것과 동일한 코드를 사용한다.
+ 
+ ```
+ class SleepQualityViewModelFactory(
+        private val sleepNightKey: Long,
+        private val dataSource: SleepDatabaseDao) : ViewModelProvider.Factory {
+    @Suppress("unchecked_cast")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SleepQualityViewModel::class.java)) {
+            return SleepQualityViewModel(sleepNightKey, dataSource) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+ }
+ ```
+ 
+ <br>
+ 
+ ### Step 2: Update the SleepQualityFragment
+ 
+ #### 1) SleepQualityFragment.kt를 열어서 onCreateView()에 navigation에서 전달한 argument를 가져와야한다. 이 argument는 SleepQualityFragmentArgs에 있고 bundle로부터 추출해야한다.
+ 
+ ```
+ val arguments = SleepQualityFragmentArgs.fromBundle(arguments!!)
+ ```
+ 
+ <br>
+ 
+ #### 2) dataSource 값을 얻는다.
+ 
+ ```
+ val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao
+ ```
+ 
+ <br>
+ 
+ #### 3) factory를 생성하고 dataSource와 SleepNightKey를 인자로 넘긴다.
+ 
+ ```
+ val viewModelFactory = SleepQualityViewModelFactory(arguments.sleepNightKey, dataSource)
+ ```
+ 
+ <br>
+ 
+ #### 4) ViewModel 레퍼런스를 얻는다
+ 
+ ```
+ val sleepQualityViewModel =
+    ViewModelProviders.of(
+        this, viewModelFactory).get(SleepQualityViewModel::class.java)
+ ```
+ 
+ <br>
+ 
+ #### 5) ViewModel에 binding 객체를 더한다.
+ ```
+ binding.sleepQualityViewModel = sleepQualityViewModel
+ ```
+ 
+ <br>
+ 
+ #### 6) observer를 추가한다.
+ 
+ ```
+ sleepQualityViewModel.navigateToSleepTracker.observe(this, Observer {
+    if (it == true) {
+        this.findNavController().navigate(SleepQualityFragmentDirections.actionSleepQualityFragmentToSleepTrackerFragment())
+        sleepQualityViewModel.doneNavigating()
+    }
+ })
+ ```
+
+ <br>
+ 
+ ### Step 3: Update the layout file and run the app
+ 
+ #### 1) fragment_sleep_quality.xml 레이아웃 파일을 열고 <data> 블럭 안에 SleepQualityViewModel 변수를 추가한다
+ 
+ ```
+    <data>
+        <variable
+            name="sleepQualityViewModel"
+            type="com.example.android.trackmysleepquality.sleepquality.SleepQualityViewModel" />
+    </data>
+ ```
+ 
+ <br>
+ 
+ #### 2) 6개의 sleep-quallity 이미지 각각에 아래와 같은 클릭 핸들러를 추가한다. 이미지에 quality 등급을 매칭시킨다.
+ 
+ 
