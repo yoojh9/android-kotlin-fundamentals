@@ -239,4 +239,109 @@
  
  #### 2) 6개의 sleep-quallity 이미지 각각에 아래와 같은 클릭 핸들러를 추가한다. 이미지에 quality 등급을 매칭시킨다.
  
+ ```
+ android:onClick="@{() -> sleepQualityViewModel.onSetSleepQuality(5)}"
+ ```
  
+ <br><br>
+ 
+## 4. Control button visibility and add a snackbar
+ - 이번 단계에서는 사용자가 옳은 선택만 할 수 있도록 transformation map을 사용하여 버튼의 visibility를 관리한다
+ 
+<br>
+
+ ### Step 1: Update button states
+ 처음에는 start 버튼만 클릭할 수 있도록 enable 시킨다. start 버튼을 누른 뒤에는 stop 버튼을 enable 시키고 start 버튼은 비활성화 한다. clear 버튼은 데이터베이스에 데이터가 있을 때만 활성화 되도록 한다
+  
+ #### 1) fragment_sleep_tracker.xml 레이아웃 파일을 열어서 각 버튼에 android:enabled 속성을 추가한다
+ 
+ ```
+ // start button
+ android:enabled="@{sleepTrackerViewModel.startButtonVisible}"
+ 
+ // stop button
+ android:enabled="@{sleepTrackerViewModel.stopButtonVisible}"
+ 
+ // clear button
+ android:enabled="@{sleepTrackerViewModel.clearButtonVisible}"
+ ``` 
+ 
+ <br>
+ 
+ #### 2) SleepTrackerViewModel을 열고 1)과 일치하는 변수를 추가한다. 각 변수에 아래와 같이 transformation.map을 할당한다.
+  - start 버튼은 tonight이 null일 때 enable 상태이어야 한다
+  - stop 버튼은 tonight이 null이 아닐 때 enable 상태이다
+  - clear 버튼은 nights가 존재할 때, 즉 데이터베이스에 데이터가 있을 때 enable 상태이어야 한다.
+  
+  ```
+  val startButtonVisible = Transformations.map(tonight) {
+     it == null
+  }
+  val stopButtonVisible = Transformations.map(tonight) {
+     it != null
+  }
+  val clearButtonVisible = Transformations.map(nights) {
+     it?.isNotEmpty()
+  }
+  ```
+  
+  <br>
+  
+  enabled 속성은 attribute 속성과 같지 않다. enabled 속성은 View의 visible 여부가 아니라 View의 활성화 여부만 결정한다. 
+  enable의 의미는 subcalss마다 다르다. EditText에서의 enable은 사용자가 text를 편집할 수 있지만 disabled에서는 편집할 수 없
+  또한 enable 버튼은 탭 할 수 있지만 disable 버튼은 탭 할 수 없다. 
+  
+  <br>
+ 
+ ### Step 2: Use a snackbar to notify the user
+ 사용자가 데이터베이스에서 데이터를 지우면 스낵바에 확인 메세지를 띄운다. 스낵바는 화면 하단의 메세지를 통해 작업에 대한 간단한 피드백을 제공한다. 스낵바는 어느정도 시간이 경과하면 사라지거나 스크린의 다른곳을 사용자가 터치하거나 사용자의 스와이프를 통해 사라진다.
+ 스낵바를 표시하는 것은 UI의 작업이며 fragment에서 발생해야 한다. 스낵바를 표시하기로 결정하는 것은 ViewModel에서 발생한다. 데이터가 지워질 때 스낵바를 설정하고 트리거하려면 네비게이션 트리거링과 같은 기술을 사용하면 된다. 
+ 
+ #### 1) SleepTrackerViewModel에서 캡슐화한 event 변수를 만든다
+ 
+ ```
+ private var _showSnackbarEvent = MutableLiveData<Boolean>()
+ 
+ val showSnackBarEvent: LiveData<Boolean>
+    get() = _showSnackbarEvent
+ ```
+ 
+ <br>
+ 
+ #### 2) doneShowingSnackbar() 함수를 구현한다
+ 
+ ```
+ fun doneShowingSnackbar() {
+    _showSnackbarEvent.value = false
+ }
+ ```
+ 
+ <br>
+ 
+ #### 3) SleepTrackerFragment의 onCreateView()에 observer를 추가한다
+ 
+ ```
+ sleepTrackerViewModel.showSnackBarEvent.observe(this, Observer { })
+ ```
+ 
+ <br>
+ 
+ #### 4) observer 블럭에서 snackbar를 표시하고 event를 즉시 reset한다
+ 
+ ```
+    if(it == true){
+        Snackbar.make(
+            activity!!.findViewById(android.R.id.content),
+            getString(R.string.cleared_message),
+            Snackbar.LENGTH_SHORT
+        ).show()
+        sleepTrackerViewModel.doneShowingSnackbar()
+    }
+ ```
+ 
+ <br>
+ 
+ #### 5) SleepTrackerViewModel의 onClear() 메소드에서 event를 트리거 시키기 위해 event의 value값을 launch 블럭 안에서 true로 변경한다
+ ```
+ _showSnackbarEvent.value = true
+ ```
