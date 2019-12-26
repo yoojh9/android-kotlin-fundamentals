@@ -345,5 +345,312 @@ return TextItemViewHolder(view)
  
  <br><br>
  
+ ## 3. Create a ViewHolder for all the sleep data
+  이번 단계에서는 이전에 만들었던 심플한 뷰 홀더를 더 많은 데이터를 표시할 수 있는 뷰홀더로 바꾼다. Util.kt에 추가했던 ViewHolder는 단순히 TextView를 wrap하고 있다.
+  
+  ```
+  class TextItemViewHolder(val textView: TextView): RecyclerView.ViewHolder(textView)
+  ```
+  
+  그렇다면 RecyclerView는 왜 TextView를 직접 사용하지 않을까? 
+  이 한줄의 코드는 많은 기능을 제공한다. ViewHolder는 item의 뷰와 RecyclerView에서의 위치에 대한 메타데이터를 설명한다.
+  RecyclerView는 이 기능을 사용하여 스크롤 될 때 뷰를 올바른 위치에 배치하고 어댑터에서 항목을 추가하거나 제거할 때 애니메이션과 뷰와 같은 흥미로운 작업을 수행할 수 있다
+  
+  만약 RecyclerView가 ViewHolder에 저장된 뷰에 액세스 해야 하는 경우, 뷰 홀더의 itemView 속성을 사용하여 액세스 할 수 있다.
+  RecyclerView는 스크린에 아이템을 바인딩하거나 테두리와 같이 뷰를 decoration 하거나 접근성을 구현할 때 itemView를 사용한다
+  
+  <br>
+  
+  ### Step 1: Create the item layout
+  이번 단계에서는 하나의 item에 대한 layout file을 만든다. layout은 ConstraintLayout와 sleep quality를 나타내는 ItemView, 수면 시간을 나타내는 TextView 그리고 수면의 질을 텍스트로 표현한 TextView로 구성되어 있다.
+  
+  #### 1) list_item_sleep_night 라는 이름으로 layout resource file을 생성한다
+  
+  ```
+  <?xml version="1.0" encoding="utf-8"?>
+  <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content">
+  
+     <ImageView
+         android:id="@+id/quality_image"
+         android:layout_width="@dimen/icon_size"
+         android:layout_height="60dp"
+         android:layout_marginStart="16dp"
+         android:layout_marginTop="8dp"
+         android:layout_marginBottom="8dp"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent"
+         tools:srcCompat="@drawable/ic_sleep_5" />
+  
+     <TextView
+         android:id="@+id/sleep_length"
+         android:layout_width="0dp"
+         android:layout_height="20dp"
+         android:layout_marginStart="8dp"
+         android:layout_marginTop="8dp"
+         android:layout_marginEnd="16dp"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintStart_toEndOf="@+id/quality_image"
+         app:layout_constraintTop_toTopOf="@+id/quality_image"
+         tools:text="Wednesday" />
+  
+     <TextView
+         android:id="@+id/quality_string"
+         android:layout_width="0dp"
+         android:layout_height="20dp"
+         android:layout_marginTop="8dp"
+         app:layout_constraintEnd_toEndOf="@+id/sleep_length"
+         app:layout_constraintHorizontal_bias="0.0"
+         app:layout_constraintStart_toStartOf="@+id/sleep_length"
+         app:layout_constraintTop_toBottomOf="@+id/sleep_length"
+         tools:text="Excellent!!!" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+  ```
+  
+  <br>
+  
+  ### Step 2: Create ViewHolder
+  
+  #### 1) SleepNightAdapter.kt를 열어서 SleepNightAdapter 안에 RecyclerView.ViewHolder를 상속한 ViewHolder 클래스를 생성한다
+  
+  ```
+  class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){}
+  ```
+  
+  <br>
+  
+  #### 2) ViewHolder 내부에서 뷰에 대한 참조를 가져온다. 이 ViewHolder를 바인딩 할 때마다 image와 두개의 text view에 액세스 해야한다. (나중에 이 코드는 데이터 바인딩을 사용하여 변경할 수 있다)
+  
+  ```
+  val sleepLength: TextView = itemView.findViewById(R.id.sleep_length)
+  val quality: TextView = itemView.findViewById(R.id.quality_string)
+  val qualityImage: ImageView = itemView.findViewById(R.id.quality_image)
+  ```
+  
+  <br>
+   
+  ### Step 3: Use the ViewHolder in SleepNightAdapter
+  
+  #### 1) SleepNightAdapter 정의에서 기존 TextItemViewHolder 대신에 SleepNightAdapter.ViewHolder를 사용하도록 변경한다.
+  
+  ```
+  class SleepNightAdapter: RecyclerView.Adapter<SleepNightAdapter.ViewHolder>() {
+  ```
+ 
+  <br>
+  
+  #### 2) onCreateViewHolder()를 업데이트한다
+  
+   ##### (1) onCreateViewHOlder()의 선언에서 리턴 타입을 ViewHolder로 변경한다.
+   
+   ##### (2)  layout inflator가 사용하고 있는 layout resource를 list_item_sleep_night으로 변경한다.
+   
+   ##### (3)  TextView로 캐스트 한 것을 지운다
+   
+   ##### (4)  TextItemViewHolder를 리턴하는 것 대신에 ViewHolder를 리턴한다
+   
+   ```
+       override fun onCreateViewHolder(
+               parent: ViewGroup, viewType: Int): ViewHolder {
+           val layoutInflater = 
+               LayoutInflater.from(parent.context)
+           val view = layoutInflater
+                   .inflate(R.layout.list_item_sleep_night, 
+                            parent, false)
+           return ViewHolder(view)
+       }
+   ```
+   
+  <br>
+  
+  #### 3) onBindViewHolder()를 업데이트한다
+  
+   ##### (1) onBindViewHolder()에서 holder 파라미터가 TextItemViewHolder 대신 ViewHolder가 되도록 변경한다
+   
+   ##### (2) onBindViewHolder() 코드에서 item 정의를 제외한 모든 코드를 지운다
+   
+   ##### (3) val res를 정의하고 이 뷰 resource의 참조값을 가지는 변수를 정의한다
+   
+   ```
+   val res = holder.itemView.context.resources
+   ```
+   
+   ##### (4) sleepLength text view의 텍스트를 설정한다
+   
+   ```
+   holder.sleepLength.text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, res)
+   ```
+   
+   ##### (5) 위의 코드를 붙여 넣으면 에러가 발생하는데 이는 convertDurationToFormatted()가 정의되어 있지 않기 때문이다. Util.kt를 열어서 주석을 해제한다.
+   
+   ##### (6) onBindViewHolder()로 돌아와서 quality를 정의하기 위해 convertNumericQualityToString()를 사용한다
+   
+   ```
+   holder.quality.text= convertNumericQualityToString(item.sleepQuality, res)
+
+   ```
+   
+   ##### (7) quality에 대한 올바른 이미지를 설정한다.
+   
+   ```
+   holder.qualityImage.setImageResource(when (item.sleepQuality) {
+      0 -> R.drawable.ic_sleep_0
+      1 -> R.drawable.ic_sleep_1
+      2 -> R.drawable.ic_sleep_2
+      3 -> R.drawable.ic_sleep_3
+      4 -> R.drawable.ic_sleep_4
+      5 -> R.drawable.ic_sleep_5
+      else -> R.drawable.ic_sleep_active
+   })
+   ```
+  
+  <br>
+  
+ #### 4) BindViewHolder()를 모두 업데이트 한 코드는 아래와 같으며, ViewHolder 내의 모든 데이터를 설정한다.
+ 
+ ```
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+         val item = data[position]
+         val res = holder.itemView.context.resources
+         holder.sleepLength.text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, res)
+         holder.quality.text= convertNumericQualityToString(item.sleepQuality, res)
+         holder.qualityImage.setImageResource(when (item.sleepQuality) {
+             0 -> R.drawable.ic_sleep_0
+             1 -> R.drawable.ic_sleep_1
+             2 -> R.drawable.ic_sleep_2
+             3 -> R.drawable.ic_sleep_3
+             4 -> R.drawable.ic_sleep_4
+             5 -> R.drawable.ic_sleep_5
+             else -> R.drawable.ic_sleep_active
+         })
+     }
+ ```
+ 
+ <br>
+ 
+ #### 5) 앱을 실행시키면 sleep-quality 아이콘과 수면 시간 수면 품질 등의 텍스트가 보여지는 것을 확인할 수 있다.
+ 
+ <br><br>
+  
+ ## 4. Improve your code
+ 지금 코드는 화면에 표시하기 위한 코드와 뷰 홀더를 관리하기 위한 코드가 혼재되어 있다. 그리고 onBindViewHolder()는 ViewHolder를 어떻게 업데이트 할지 세부 사항까지 알고 있다
+ 
+ 상용 앱에서는 아마 다수의 view holder가 존재할 것이며, 더 복잡한 어댑터가 있을 수 있다. 
+ 
+ 뷰 홀더와 관련된 것들만 뷰 홀더에 있도록 코드를 변경해보자
+ 
+ <br>
+ 
+ ### Step 1: Refactor onBindViewHolder()
+ 이 단계에서는 코드를 리팩토링 하고 모든 뷰 홀더 기능을 ViewHolder로 옮긴다. 이 리팩토링의 목적은 사용자에게 앱이 표시되는 방식을 변경하는 것이 아니라 개발자가 코드를 보다 쉽고 안전하게 작업할 수 있도록 해준다. 다행히 Android Studio에는 도움이 되는 도구가 있다.
+ 
+ #### 1) SleepNightAdapter의 onBindViewHolder()에서 item 변수 선언문을 제외한 모든 항목을 선택한다.
+ 
+ #### 2) 오른쪽 버튼을 클릭하고 Refactor > Extract > Function을 선택한다
+ 
+ #### 3) 함수의 이름은 bind로 설정하고 OK를 클릭한다
+  - bind() 함수가 onBindViewHolder() 밑에 위치한다
+  
+  ```
+    private fun bind(holder: ViewHolder, item: SleepNight) {
+        val res = holder.itemView.context.resources
+        holder.sleepLength.text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, res)
+        holder.quality.text = convertNumericQualityToString(item.sleepQuality, res)
+        holder.qualityImage.setImageResource(when (item.sleepQuality) {
+            0 -> R.drawable.ic_sleep_0
+            1 -> R.drawable.ic_sleep_1
+            2 -> R.drawable.ic_sleep_2
+            3 -> R.drawable.ic_sleep_3
+            4 -> R.drawable.ic_sleep_4
+            5 -> R.drawable.ic_sleep_5
+            else -> R.drawable.ic_sleep_active
+        })
+    }  
+  ```
+  
+  <br>
+  
+  #### 4) bind()의 holder 파라미터의 holder 단어에 커서를 두고 Alt + Enter (Option + Enter on a mac)을 눌러 intention menu를 연다. **Convert parameter to receiver**를 선택하여 아래와 같이 확장 함수로 만든다.
+  
+  ```
+  private fun ViewHolder.bind(item: SleepNight) {...}
+  ```
+  
+  <br>
+  
+  #### 5) bind() 함수를 잘라내서 ViewHolder로 이동시킨다.
+  
+  #### 6) bind()를 public으로 만든다
+  
+  #### 7) 이제 ViewHolder 클래스 안에서는 \'ViewHolder.\'을 지울 수 있다. ViewHolder 클래스의 최종 bind 함수는 아래와 같다
+  ```
+  fun bind(item: SleepNight) {
+     val res = itemView.context.resources
+     sleepLength.text = convertDurationToFormatted(
+             item.startTimeMilli, item.endTimeMilli, res)
+     quality.text = convertNumericQualityToString(
+             item.sleepQuality, res)
+     qualityImage.setImageResource(when (item.sleepQuality) {
+         0 -> R.drawable.ic_sleep_0
+         1 -> R.drawable.ic_sleep_1
+         2 -> R.drawable.ic_sleep_2
+         3 -> R.drawable.ic_sleep_3
+         4 -> R.drawable.ic_sleep_4
+         5 -> R.drawable.ic_sleep_5
+         else -> R.drawable.ic_sleep_active
+     })
+  }
+  ```
+  
+  <br><br>
+  
+ ### Step 2: Refactor onCreateViewHolder
+ 
+ 어댑터의 onCreateViewHolder() 메소드는 ViewHolder의 layout resource의 view를 inflate 시킨다. 그러나 인플레이션은 어댑터와 관련이 없고 ViewHolder와 관련이 있다. 인플레이션은 ViewHolder에서 일어나야한다
+ 
+ #### 1) onCreateViewHolder()의 body에 있는 모든 코드를 선택한다
+ 
+ #### 2) 오른쪽 클릭하여 Refactor > Extract > Function을 선택한다
+ 
+ #### 3) 함수의 이름은 from으로 하고 Ok를 클릭한다
+ 
+ #### 4) 커서를 from 함수의 이름에 두고 Alt + Enter (Option + Enter on a Mac)을 눌러서 intention menu를 연다
+ 
+ #### 5) **Move to companion object**를 선택한다. from()은 ViewHolder의 인스턴스가 아니라 ViewHolder의 클래스에서 호출되어야 하므로 companion object이어야 한다.
+ 
+ #### 6) companion object를 ViewHolder 클래스로 옮긴다.
+ 
+ #### 7) from()을 public으로 변경한다
+ 
+ #### 8) onCreateViewHolder()에서 리턴문을 return ViewHolder.from(parent)으로 변경한다
+ 
+ 완성된 onCreateViewHolder()와 from() 메소드는 아래와 같다.
+ 
+ ```
+     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+         return ViewHolder.from(parent)
+     }
+     
+     
+     companion object {
+        fun from(parent: ViewGroup): ViewHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val view = layoutInflater
+                    .inflate(R.layout.list_item_sleep_night, parent, false)
+            return ViewHolder(view)
+        }
+     }
+     
+ ```
+ 
+ #### 9) ViewHolder의 constructor를 private으로 선언한다. 왜냐하면 이제 from()이 새로운 ViewHolder 인스턴스를 리턴하는 메소드이므로 더이상 ViewHolder의 생성자를 호출할 필요가 없다
+ 
+ ```
+ class ViewHolder private constructor(itemView: View) : RecyclerView.ViewHolder(itemView){
+ ```
  
  
