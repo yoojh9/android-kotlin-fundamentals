@@ -213,3 +213,116 @@ val qualityImage: ImageView = binding.qualityImage
 
 #### 2) binding 뷰 객체는 굳이 선언하지 않고 바로 사요할 수 있다. 위의 선언을 지우고 bind()함수에서 binding.sleepLength.text와 같이 직접 사용한다
 
+
+<br><br>
+
+## 4. Create binding adapters
+이번 단계에서는 binding adapter와 함께 data binding을 사용하여 데이터를 설정하도록 앱을 업그레이드 한다.
+이전 단계에서는 transformations 클래스를 사용하여 LiveData를 가져와서 textView에 보여줄 포맷팅 된 문자열을 생성했다.
+그러나 다른 타입 또는 복합 타입을 바인드 해야 하는 경우 데이터 바인딩에서 해당 타입을 사용하는 데 도움이 되는 바인딩 어댑터를 제공할 수 있다.
+바인딩 어댑터는 데이터를 가져와서 데이터 또는 텍스트나 이미지와 같은 뷰를 바인딩 하는데 사용할 수 있는 데이터에 적용하는 어댑터이다.
+
+quality image, 그리고 각각의 text 필드에 binding adapter를 구현하려고 한다. 요약하자면 바인딩 어댑터를 선언하기 위해 항목과 뷰를 가져오는 메소드를 정의하고 @BindingAdapter를 어노테이션으로 달 수 있다
+메소드의 본문에서 transformation을 구현한다. 코틀린에서는 데이터를 수신하는 view 클래스에서 확장 함수로 binding adapter를 작성할 수 있다
+
+<br>
+
+### Step 1: Create binding adapters
+
+#### 1) SleepNightAdapter.kt 파일을 연다
+
+#### 2) binding.sleepLength, binding.quality, binding.qualityImage의 값을 계산하는 코드를 가져와서 대신 adapter 내부에서 사용한다.
+
+#### 3) sleeptracker 패키지에서 BindingUtils.kt 파일을 만든다
+
+#### 4) TextView에 setSleepDurationFormatted 확장함수를 선언하고 매개변수로 SleepNight을 넘긴다. 이 함수는 수면시간을 계산하고 포맷하기 위한 어댑터가 된다
+```
+fun TextView.setSleepDurationFormatted(item: SleepNight) {}
+```
+
+#### 5) ViewHolder.bind()에서 했던 것처럼 setSleepDurationFormatted 함수 내부에서 데이터를 뷰에 바인딩한다. convertDurationToFormatted()를 호출하고 TextView의 text에 포맷팅 된 텍스트를 넣는다
+TextView의 확장함수이므로 text 프로퍼티에 직접 접근할 수 있다
+
+```
+text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, context.resources)
+```
+
+#### 6) 바인딩 어댑터에 대한 데이터 바인딩을 알리려면 함수에 @BindingAdapter 어노테이션을 추가한다
+
+#### 7) 이 함수는 sleepDurationFormatted 속성의 어댑터이므로 sleepDurationFormatted를 @BindingAdapter에 인자로 전달한다
+
+```
+@BindingAdapter("sleepDurationFormatted")
+```
+
+#### 8) 두 번째 어댑터는 SleepNight 객체의 값에 따라 수면 품질을 설정한다. setSleepQualityString() 이라는 확장함수는 TextView에 만들고 SleepNight을 인자로 넘긴다
+
+#### 9) 함수에 body에 ViewHolder.bind()에서와 같이 데이터를 뷰에 바인딩한다. convertNumericQualityToString을 호출하고 text에 설정한다
+
+#### 10) 함수에 @BindingAdapter("sleepQualityString) 어노테이션을 추가한다
+
+```
+@BindingAdapter("sleepQualityString")
+fun TextView.setSleepQualityString(item: SleepNight) {
+   text = convertNumericQualityToString(item.sleepQuality, context.resources)
+}
+```
+
+#### 11) 세번쨰 binding adapter는 image view에 image를 설정한다. ImageView에 setSleepImage() 확장함수를 만들고 ViewHolder.bind()에 있던 코드를 사용하여 아래와 같이 만든다
+
+```
+@BindingAdapter("sleepImage")
+fun ImageView.setSleepImage(item: SleepNight) {
+   setImageResource(when (item.sleepQuality) {
+       0 -> R.drawable.ic_sleep_0
+       1 -> R.drawable.ic_sleep_1
+       2 -> R.drawable.ic_sleep_2
+       3 -> R.drawable.ic_sleep_3
+       4 -> R.drawable.ic_sleep_4
+       5 -> R.drawable.ic_sleep_5
+       else -> R.drawable.ic_sleep_active
+   })
+}
+```
+
+<br><br>
+
+### Step 2: Update SleepNightAdapter
+
+#### 1) SleepNightAdapter.kt를 연다
+
+#### 2) 데이터 바인딩과 새 어댑터를 사용하여 작업을 수행하기 위해 bind() 안에 있는 모든 코드를 지운다. 
+
+#### 3) bind() 내부에서 sleep에 item을 하당한다. 
+
+```
+binding.sleep = item
+```
+
+#### 4) 그 밑에 binding.executePendingBindings()를 추가한다. 이 함수는 즉시 바인딩을 실행해야 할 때 강제로 실행하기 위해 사용된다. RecyclerView에서 binding adapter를 사용할 때는 뷰 크기 조절 속도를 약간 높일 수 있으므로 항상 executePendingBinding()을 호출하는 것이 좋다
+```
+binding.executePendingBindings()
+```
+
+<br><br>
+
+### Step 3: Add bindings to XML layout
+
+#### 1) list_item_sleep_night.xml 파일을 연다
+
+#### 2) ImageView 안에 이미지를 설정하는 바인딩 어댑터와 이름이 같은 app 속성을 추가한다. 아래 코드와 같이 sleep 변수를 넘긴다. 이 속성은 adapter를 통해 view와 binding object 사이의 connection을 생성한다. sleepImage가 참조될 때마다 어댑터는 SleepNight으로부터 데이터를 적용시킨다.
+
+```
+app:sleepImage="@{sleep}
+``` 
+
+#### 3) slee_length와 quality_string TextView에도 같은 방식으로 적용한다. sleepDurationFormatted나 sleepQualityString을 참조할 때 마다 adapter가 SleepNight의 data를 적용시킨다
+
+```
+app:sleepDurationFormatted="@{sleep}"
+app:sleepQualityString="@{sleep}
+```
+
+#### 4) 
+
+ 
