@@ -146,6 +146,8 @@ android:onClick="@{() -> clickListener.onClick(sleep)}"
 ### Step 1: Navigate on click
 step 1에서는 단지 토스트를 보여주는 것 대신에 nightTrackerFragment.onCreateView()에서 click listener lambda를 변경하여 nightId를 SleepTrackerViewModel로 전달하고 SleepDetailFragment로 이동시키는 작업을 진행한다
 
+### Define the click handler function:
+
  #### 1) SleepTrackerViewModel.kt를 연다
  
  #### 2) SleepTrackerViewModel 내부에 onSleepNightClicked() 클릭 핸들러 함수를 정의한다.
@@ -163,3 +165,77 @@ step 1에서는 단지 토스트를 보여주는 것 대신에 nightTrackerFragm
     _navigateToSleepDetail.value = id
  }
  ```
+
+ #### 4) _navigateToSleepDetail을 구현하고 전에 했던 것처럼 네비게이션 상태에 대한 private MutableLiveData를 정의하고 public gettable val도 함께 정의한다
+ 
+ ```
+ private val _navigateToSleepDetail = MutableLiveData<Long>()
+ val navigateToSleepDetail
+    get() = _navigateToSleepDetail
+ ```
+ 
+ #### 5) navigating이 완료된 후 호출할 메소드를 정의한다. _navigateToSleepDetail 값을 null로 초기화하는 onSleepDetailNavigated 함수를 만든다
+ 
+ ```
+ fun onSleepDetailNavigated() {
+     _navigateToSleepDetail.value = null
+ }
+ ```
+ 
+ ### Add the code to call the click handler:
+ 
+ #### 6) toast 밑에 아래처럼 코드를 추가하여 항목을 누를 때 sleepTrackerViewModel에서 클릭 핸들러 onSleepNighClicked()를 호출한다. nightId를 전달하여 viewModel이 어느 sleepNight를 가지는지 알 수 있다.
+  - 아직 onSleepNightClicked()을 정의하지 않아서 오류가 발생한다. 
+ 
+ ```
+ val adapter = SleepNightAdapter(SleepNightListener { nightId ->
+    Toast.makeText(context, "${nightId}", Toast.LENGTH_LONG).show()
+    sleepTrackerViewModel.onSleepNightClicked(nightId)
+ })
+ ```
+ 
+ ### Add the code to observe clicks:
+ 
+ #### 7) SleepTrackerFragment.kt 파일을 연다
+ 
+ #### 8) onCreateView()에서 manager 선언 바로 위에 새로운 navigateToSleepDetail LiveData를 관찰하는 코드를 추가한다. navigateToSleepDetail이 변경되면 night를 전달하여 navigateToSleepDetail로 이동한다. 그 후 onSleepDetailNavigated()를 호출한다. 
+ 
+ ```
+ sleepTrackerViewModel.navigateToSleepDetail.observe(this, Observer { night ->
+     night?.let {
+       this.findNavController().navigate(
+                 SleepTrackerFragmentDirections
+                         .actionSleepTrackerFragmentToSleepDetailFragment(night))
+        sleepTrackerViewModel.onSleepDetailNavigated()
+     }
+ })
+ ``` 
+ 
+ #### 9) 앱을 실행시키고 item을 클릭하면 app이 crash가 난다.
+ 
+ 
+ ### Handle null values in the binding adapters:
+ 
+ #### 10) 항목을 탭하면 아래와 같은 스택 트레이스가 표시된다.
+ 
+ ```
+ Caused by: java.lang.IllegalArgumentException: Parameter specified as non-null is null: method kotlin.jvm.internal.Intrinsics.checkParameterIsNotNull, parameter item
+ ```
+ 
+ 불행히도 스택 트레이스로는 오류가 발생한 위치를 명확하게 알 수는 없다. 데이터 바인딩의 한 가지 단점은 코드 디버깅이 더 여려워 질 수 있다는 것이다.  
+ 항목을 클릭하면 앱이 중단되고 그 클릭을 처리하는 새롭게 추가된 유일한 코드가 있다.
+ 
+ 그러나 이 새로운 클릭 처리 메커니즘을 사용하면 바인딩 어댑터가 항목에 대해 널(NULL)값으로 호출될 수 있다. 특히 앱이 시작되면 LiveData가 null로 시작되므로 각 어댑터에 null 검사를 추가해야한다.
+ 
+ #### 11) BindingUtils.kt에서 각각의 binding adapter의 item 인자 타입을 nullable로 바꾸고 함수의 본문을 item?.let{...}과 같이 변경한다. 예를 들어 sleepQualityString 어댑터는 아래처럼 변경한다.
+ 
+ ```
+ @BindingAdapter("sleepQualityString")
+ fun TextView.setSleepQualityString(item: SleepNight?) {
+    item?.let {
+        text = convertNumericQualityToString(item.sleepQuality, context.resources)
+    }
+ }
+ ```
+ 
+ #### 12) 앱을 실행시키고 항목을 탭하여 detail view를 연다.
