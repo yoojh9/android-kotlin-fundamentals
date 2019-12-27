@@ -4,7 +4,7 @@
  데이터의 list와 grid를 표시하는 것은 안드로이드의 가장 일반적인 UI 작업 중 하나이다. 텍스트의 리스트는 쇼핑 리스트와 같은 간단한 데이터를 표시하거나 많은 세부 내용을 담고 있는 스크롤 그리드와 같은 복잡한 리스트를 구현할 수 있다
  이런 모든 usecase를 지원하기 위해 안드로이드는 RecyclerView 위젯을 제공한다
  
- <image src="./images/recyclerview.png" width="70%" height="70%"/>
+ <image src="./images/recyclerview.png" width="60%" height="60%"/>
  
  RecyclerView의 가장 큰 장점은 큰 목록에 매우 효율적이라는 점이다.
  
@@ -14,7 +14,7 @@
  
  아래에 표시된 이미지에서 하나의 뷰가 ABC 데이터로 채워져 있음을 알 수 있다. 해당 뷰가 화면에서 스크롤 된 후 RecyclerView는 새 데이터 XYZ에 대해 뷰를 재사용한다.
  
- <image src="./images/recyclerview_2.png" width="70%" height="70%"/>
+ <image src="./images/recyclerview_2.png" width="60%" height="60%"/>
  
 <br>
 
@@ -29,7 +29,7 @@ sleep-tracker 앱에서는 ViewModel을 변경하지 않고 adapter를 빌드하
 
 ### 2) Implementing a RecyclerView
 
- <image src="./images/recyclerview_3.png" width="70%" height="70%"/>
+ <image src="./images/recyclerview_3.png" width="60%" height="60%"/>
  
  RecyclerView에 데이터를 표시하기 위해 다음 단계가 필요하다
  
