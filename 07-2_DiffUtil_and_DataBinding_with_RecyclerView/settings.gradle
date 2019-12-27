@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='07-2_DiffUtil_and_DataBinding_with_RecyclerView'

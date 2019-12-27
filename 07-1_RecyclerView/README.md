@@ -329,7 +329,7 @@ return TextItemViewHolder(view)
  #### 3) 다음은 높은 숫자가 빨간색으로 표시될 때 까지 높은 등급의 수면 품질을 추가한다.
  - RecyclerView는 view holder를 재사용하기 때문에 red view holder 중 하나가 높은 수면 등급의 rating 항목을 표시할 수도 있다. 결국 높은 등급이 빨간색으로 잘못 표시될 수도 있다.
  
- <image src="./images/recyclerview_err.png" width="70%" height="70%"/>
+ <image src="./images/recyclerview_err.png" width="50%" height="50%"/>
  
  <br>
  
