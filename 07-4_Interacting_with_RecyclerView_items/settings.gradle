@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='07-4_Interacting_with_RecyclerView_items'
