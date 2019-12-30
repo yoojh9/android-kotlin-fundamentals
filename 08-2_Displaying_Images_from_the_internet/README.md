@@ -399,3 +399,126 @@ app:listData="@{viewModel.properties}"
 ```
 binding.photosGrid.adapter = PhotoGridAdapter()
 ```
+
+<br><br>
+
+## 3. Add error handling in RecyclerView
+MarsRealEstate 앱은 이미지를 가져올 수 없는 경우 깨진 이미지 아이콘을 표시한다. 그러나 네트워크가 없으면 앱에 빈 화면이 표시된다. 이것은 좋은 user experience가 아니다.
+이 단계에서는 기본적인 오류 처리 기능을 추가하여 사용자에게 발생한 상황에 대한 더 나은 아이디어를 제공한다. 인터넷을 사용할 수 없는 경우 앱에 연결 오류 아이콘이 표시된다. 
+
+
+### Step 1: Add status to the view model
+시작하려면 웹 request의 상태를 나타내기 위해 뷰 모델에서 LiveData를 만든다. 상태에는 loading, success, failure 3가지 상태가 있다. 
+loading 상태는 await() 호출에서 데이터를 기다리는 동안 발생한다
+
+
+#### 1) overview/OverviewViewModel.kt를 열어서 import 문 밑에, 클래스 선언 위에 가능한 상태값을 가지고 있는 enum 클래스를 생성한다
+
+```
+enum class MarsApiStatus { LOADING, ERROR, DONE }
+```
+
+#### 2) OverviewViewModel 클래스 전체에서 internal, external _response LiveData의 이름을 _status로 바꾼다. LiveData의 타입을 String에서 MarsApiStatus로 바꾼다
+
+```
+private val _status = MutableLiveData<MarsApiStatus>()
+
+val status: LiveData<MarsApiStatus>
+   get() = _status
+```
+
+#### 3) getMarsRealEstateProperties() 함수 내의 _response를 _status로 바꾼다. 기존 "success" 문장을 MarsApiStatus.DONE으로 바꾸고 "failure"를 MarsApiStatus.ERROR로 변경한다. 
+
+#### 4) MarsApiStatus.LOADING 상태값을 try 블럭에서 await() 호출 전에 추가한다. 이 값은 코루틴이 실행되고 데이터를 기다리는 동안의 초기 상태값이다.
+
+```
+try {
+    _status.value = MarsApiStatus.LOADING
+   var listResult = getPropertiesDeferred.await()
+   _status.value = MarsApiStatus.DONE
+   _properties.value = listResult
+} catch (e: Exception) {
+   _status.value = MarsApiStatus.ERROR
+}
+```
+
+#### 5) catch {} 에서 error 상태값 이후에 _properties LiveData에 empty list를 넣는다. 이것은 RecyclerView를 지운다
+```
+} catch (e: Exception) {
+   _status.value = MarsApiStatus.ERROR
+   _properties.value = ArrayList()
+}
+```
+
+<br>
+
+### Step 2: Add a binding adapter for the status ImageView
+이제 뷰 모델에 상태값이 있지만 아직까지는 상태값의 집합일 뿐이다. 앱 자체에 상태값을 어떻게 표시해야 될까? 이번 단계에서는 데이터 바인딩에 연결된 ImageView를 사용하여 로딩 및 에러 상태를 나타내는 아이콘을 표시한다
+앱이 로드 상태 또는 에러 상태일 때 ImageView가 보여야 하며 앱이 로드 되면 ImageView는 보이지 않아야 한다
+
+#### 1) BindingAdapters.kt를 열어서 bindStatus()라는 새로운 바인딩어댑터를 추가한다. 이 바인딩 어댑터는 ImageView와 MarsApiStatus를 인자로 가진다
+
+```
+@BindingAdapter("marsApiStatus")
+fun bindStatus(statusImageView: ImageView, 
+          status: MarsApiStatus?) {
+}
+```
+
+#### 2) bindStatus()에 when{}을 추가하여 상태값에 따라 전환시킨다
+
+```
+when (status) {
+
+}
+```
+
+#### 3) when 조건에 loading 상태를 추가한다. 이 상태값에서는 ImageView가 visible 이어야 하며 loading animation 이미지가 할당되어야 한다.
+
+```
+when (status) {
+   MarsApiStatus.LOADING -> {
+      statusImageView.visibility = View.VISIBLE
+      statusImageView.setImageResource(R.drawable.loading_animation)
+   }
+}
+```
+
+#### 4) error 상태일 때 조건도 추가한다. ImageView를 visible하게 하고 connection-error drawable을 할당한다
+
+```
+MarsApiStatus.ERROR -> {
+   statusImageView.visibility = View.VISIBLE
+   statusImageView.setImageResource(R.drawable.ic_connection_error)
+}
+```
+
+#### 5) done 상태도 추가한다. done 상태는 success response를 가지며 ImageView를 hide 시켜야 한다.
+
+```
+MarsApiStatus.DONE -> {
+   statusImageView.visibility = View.GONE
+}
+```
+
+<br>
+
+### Step 3: Add the status ImageView to the layout
+
+#### 1) res/layout/fragment_overview.xml을 열어서 RecyclerView 요소 아래 ImageView를 아래와 같이 추가한다
+이 ImageView는 RecyclerView와 동일한 제약 사항을 갖지만 너비와 높이를 wrap_content로 사용하여 이미지를 늘리기 보다는 이미지를 중앙에 배치한다.
+또한 뷰 모델의 상태 속성이 변경 될 때 뷰에서 BindingAdapter를 호출하는 app : marsApiStatus 속성도 추가했다
+
+```
+<ImageView
+   android:id="@+id/status_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:marsApiStatus="@{viewModel.status}" />
+```
+
+#### 2) 네트워크 연결 실패 상황을 테스트하기 위해 에뮬레이터나 디바이스에서 비행기 모드를 켜고 앱을 실행한다. error 이미지를 확인할 수 있다.
