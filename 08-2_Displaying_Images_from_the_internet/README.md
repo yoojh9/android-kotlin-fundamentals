@@ -175,3 +175,227 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
     }
 }
 ```
+
+<br><br>
+
+## 2. Display a grid of images with a RecyclerView
+
+### Step 1: Update the view model
+현재 ViewModel에는 하나의 MarsProperty 객체(웹 서비스 응답 목록에서 첫번째 객체)를 보유하는 _property LiveData가 있다. 이 단계에서는 LiveData가 MarsProperty 객체들의 전체 리스트를 보유하도록 변경한다
+
+#### 1) overview/OverviewViewModel.kt를 연다
+
+#### 2) private _property 변수를 _properties로 변경한다. 
+
+```
+private val _properties = MutableLiveData<List<MarsProperty>>()
+```
+
+#### 3) livedata property를 properties로 대체한다. 
+
+```
+ val properties: LiveData<List<MarsProperty>>
+        get() = _properties
+```
+
+#### 4) 스크롤을 내려서 getMarsRealEstateProperties() 함수의 try { } 블럭에서 기존 _property.value = listResult\[0\] 코드를 아래와 같이 변경한다.
+
+```
+_properties.value = listResult
+```
+
+전체 try / catch 블럭은 다음과 같다
+
+```
+try {
+   var listResult = getPropertiesDeferred.await()
+   _response.value = "Success: ${listResult.size} Mars properties retrieved"
+   _properties.value = listResult
+} catch (e: Exception) {
+   _response.value = "Failure: ${e.message}"
+}
+```
+
+<br>
+
+### Step 2: Update the layouts and fragments
+이번 단계에서는 single image view가 아닌 grid layout과 recyclerView를 사용하기 위하여 layout과 fragment를 변경한다
+
+#### 1) res/layout/grid_view_item.xml을 열고 데이터 바인딩을 OverviewViewModel에서 MarsProperty로 변경하고 변수 이름을 property로 바꾼다
+
+```
+<variable
+   name="property"
+   type="com.example.android.marsrealestate.network.MarsProperty" />
+```
+
+#### 2) <ImageView>의 app:imageUrl 속성을 MarsProperty의 imageSrcUrl로 변경한다
+
+```
+app:imageUrl="@{property.imgSrcUrl}"
+```
+
+#### 3) overview/OverviewFragment.kt를 열고 onCreateView()에서 FragmentOverviewBinding을 inflate 시키는 코드를 주석 해제한다. GridViewBinding을 inflate 하는 코드는 삭제하거나 주석 처리한다. 
+
+```
+val binding = FragmentOverviewBinding.inflate(inflater)
+ // val binding = GridViewItemBinding.inflate(inflater)
+```
+
+#### 4) res/layout/fragment_overview.xml를 열고 <TexView> 요소를 삭제한다
+
+#### 5) 대신에 GridLayoutManager와 grid_view_item을 레이아웃으로 사용하는 <RecyclerView> 요소를 추가한다. 
+
+```
+<androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/photos_grid"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="6dp"
+            android:clipToPadding="false"
+            app:layoutManager=
+               "androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:spanCount="2"
+            tools:itemCount="16"
+            tools:listitem="@layout/grid_view_item" />
+```
+
+<br>
+
+### Step 3: Add the photo grid adapter
+이 단계에서는 RecyclerView 어댑터를 통해 데이터를 RecyclerView에 바인딩한다
+
+#### 1) overview/PhotoGridAdapter.kt를 연다 
+
+#### 2) PhotoGridAdapter 클래스를 생성한다. 생성자 파라미터는 아래 보이는 것과 같다. PhotoGridAdatper는 생성자로 list item type과 view holder 및 DiffUtil.ItemCallback 구현이 필요한 ListAdpater를 상속한다.
+
+```
+class PhotoGridAdapter : ListAdapter<MarsProperty,
+        PhotoGridAdapter.MarsPropertyViewHolder>(DiffCallback) {
+
+}
+```
+
+#### 3) ListAdapter의 메소드인 onCreateViewHolder()과 onBindViewHolder()를 오버라이드 해라
+
+```
+override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoGridAdapter.MarsPropertyViewHolder {
+   TODO("not implemented") 
+}
+
+override fun onBindViewHolder(holder: PhotoGridAdapter.MarsPropertyViewHolder, position: Int) {
+   TODO("not implemented") 
+}
+```
+
+#### 4) PhotoGridAdapter 정의의 끝에서 DiffCallback에 대한 companion object를 추가한다. DiffCallback object는 DiffUtil.ItemCallback을 상속한다.
+
+```
+companion object DiffCallback : DiffUtil.ItemCallback<MarsProperty>() {
+}
+```
+
+#### 5) object 안에서 비교 메소드를 구현한다. 메소드는 areItemsTheSame()과 areContentsTheSame()이다
+
+```
+override fun areItemsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+   TODO("not implemented") 
+}
+
+override fun areContentsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+   TODO("not implemented") 
+}
+```
+
+#### 6) areItemsTheSame() 메소드에서 oldItem과 newItem에 대한 객체 참조가 동일한 경우 true를 반환하는 Kotlin의 참조 등식 연산자(===)를 사용하여 구현한다
+
+```
+override fun areItemsTheSame(oldItem: MarsProperty, 
+                  newItem: MarsProperty): Boolean {
+   return oldItem === newItem
+}
+```
+
+#### 7) areContentsTheSame() 메소드에서 동등성을 비교하기 위해 oldItem과 newItem의 ID를 비교하는 기능을 추가한다
+
+```
+override fun areContentsTheSame(oldItem: MarsProperty, 
+                  newItem: MarsProperty): Boolean {
+   return oldItem.id == newItem.id
+}
+```
+
+#### 8) PhotoGridAdapter의 companion object 아래에 MarsPropoertyViewHolder라는 이름의 inner class를 생성한다. 이 클래스는 RecyclerView.ViewHolder를 상속한다
+- MarsProperty를 레이아웃에 바인딩하려면 GridViewItemBinding 변수가 필요하므로 binding 변수를 MarsPropertyViewHolder에 전달한다.
+- base ViewHolder에는 생성자에 뷰가 필요하므로 binding.root 뷰를 전달한다
+
+```
+class MarsPropertyViewHolder(private var binding: 
+                   GridViewItemBinding):
+       RecyclerView.ViewHolder(binding.root) {
+
+}
+```
+
+#### 9) MarsPropertyViewHolder에서 bind() 메소드를 만든다. bind() 메소드는 property에 MarsProperty 객체를 저장한다. executePendingBindings()를 호출하여 즉시 반영되도록 한다
+
+```
+fun bind(marsProperty: MarsProperty) {
+   binding.property = marsProperty
+   binding.executePendingBindings()
+}
+```
+
+#### 10) onCreateViewHolder() 메소드는 GridViewItemBinding 레이아웃을 inflate하고 상위 ViewGroup context에서 정의된 LayoutInflater를 사용하여 생성된 MarsPropertyViewHolder를 리턴해야 한다.
+
+```
+return MarsPropertyViewHolder(GridViewItemBinding.inflate(
+  LayoutInflater.from(parent.context)))
+```
+
+#### 11) onBindViewHolder() 메소드에서 현재 RecyclerView position과 관련된 MarsProperty를 가져오는 getItem()을 호출하고, MarsPropertyViewHolder의 bind() 메소드에 그 프로퍼티를 전달한다
+
+```
+val marsProperty = getItem(position)
+holder.bind(marsProperty)
+```
+
+<br>
+
+### Step 4: Add the binding adapter and connect the parts
+마지막으로 BindingAdapter를 이용하여 PhotoGridAdapter를 MarsProperty 객체의 리스트로 초기화한다. BindingAdapter를 사용하여 RecyclerView의 데이터를 설정하면 데이터 바인딩에서 MarsProperty 개체 목록의 LiveData를 자동으로 관찰한다.
+그런 다음 MarsProperty 목록이 변경되면 바인딩 어댑터가 자동으로 호출된다. 
+
+#### 1) BindingAdapters.kt를 연다
+
+#### 2) 파일의 끝에 bindRecyclerView() 메소드를 추가하고 인자 값으로 RecyclerView와 MarsProperty 객체 리스트를 넘긴다. @BindingAdapter 어노테이션도 추가한다.
+
+```
+@BindingAdapter("listData")
+fun bindRecyclerView(recyclerView: RecyclerView, 
+    data: List<MarsProperty>?) {
+}
+```
+
+#### 3) bindRecyclerView() 함수 내에서 recyclerView.adapter를 PhotoGridAdapter로 캐스트한다. 그리고 data와 함께 adapter.submitList(data)를 호출한다. 새 리스트를 사용할 수 있으면 RecyclerView에 알려준다
+
+```
+val adapter = recyclerView.adapter as PhotoGridAdapter
+adapter.submitList(data)
+```
+
+#### 4) res/layout/fragment_overview.xml를 열어서 RecyclerView에 app:listData 속성을 추가하고 data binding에서 사용하고 있는 viewmodel.properties로 값을 설정한다
+
+```
+app:listData="@{viewModel.properties}"
+```
+
+#### 5) overview/OverviewFragment.kt를 열어서 onCreateView() 안에 setHasOptionsMenu()가 호출되기 직전에 binding.photosGrid의 RecyclerView 어댑터를 새 PhotoGridAdapter 객체로 초기화해라
+
+```
+binding.photosGrid.adapter = PhotoGridAdapter()
+```
