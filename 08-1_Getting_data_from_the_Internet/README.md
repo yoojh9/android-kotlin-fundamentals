@@ -6,7 +6,7 @@ MarsRealEstate 앱에는 두가지의 주요 모듈이 있다
    - overview fragment: RecyclerView로 만들어진 썸네일 속성의 이미지 그리드가 포함되어 있음
    - detail view fragment: 각 property에 대한 정보가 포함되어 있다
 
-<image src="./images/overview.png" width="70%" height="70%"/>
+<image src="./images/overview.png" width="80%" height="80%"/>
 
 앱은 각각의 프래그먼트에 대한 ViewModel을 가지고 있다. 이번 프로젝트에서는 네트워크 서비스에 대한 layer를 만들고 ViewModel이 네트워크 layer와 직접 통신한다. 이는 전에 ViewModel이 Room 데이터베이스와 직접 통신하던 방식과 유사하다
 
@@ -175,3 +175,139 @@ override fun onResponse(call: Call<String>,
 ```
 
 #### 2) 앱을 다시 실행시키면 Mars data가 포함된 JSON 텍스트를 볼 수 있다.
+
+
+<br><br>
+
+## 3. Parse the JSON response with Moshi
+이제 Mars 웹서비스로부터 Json 응답을 얻어올 수 있다. 그러나 우리가 원하는 건 JSON 문자열이 아니라 Kotlin 객체이다. Moshi라는 라이브러리가 있는데 이는 JSON 문자열을 Kotlin 객체로 변환하는 Android JSON 파서이다.
+Retrofit에는 Moshi와 호환되는 converter가 있으므로 Moshi는 우리의 요구사항에 맞는 훌륭한 라이브러리이다.
+
+이번 단계에서는 Retrofit과 함께 Moshi 라이브러리를 사용하여 웹 서비스의 JSON 응답을 유용한 Mars Property kotlin 객체로 parse한다. raw JSON을 표시하는 대신 화성의 데이터 수가 표시 되도록 변경한다.
+
+
+### Step 1: Add Moshi library dependencies
+
+#### 1) build.gradle (Module: app)을 연다
+
+#### 2) dependencies 섹션에서 아래처럼 Moshi 디펜던시를 추가한다. 디펜던시는 Moshi JSON 라이브러리 및 Moshi의 코틀린 지원용 라이브러리가 추가되어야 한다
+
+```
+implementation "com.squareup.moshi:moshi:$version_moshi"
+implementation "com.squareup.moshi:moshi-kotlin:$version_moshi"
+```
+
+#### 3) dependencies 블럭에서 Retrofit scalar converter 라인을 찾는다
+
+```
+implementation "com.squareup.retrofit2:converter-scalars:$version_retrofit"
+```
+
+#### 4) converter-moshi를 사용하는 문장으로 변경한다.
+
+```
+implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
+```
+
+#### 5) Sync Now 버튼을 눌러서 새로운 디펜던시로 프로젝트를 rebuild 한다
+Retrofit scala deendency 제거와 관련된 컴파일 에러를 볼 수 있는데 이는 다음 단계에서 고치자
+
+<br>
+
+### Step 2: Implement the MarsProperty data class
+웹 서비스에서 얻는 JSON 응답의 샘플 항목은 다음과 같다.
+
+```
+[{"price":450000,
+"id":"424906",
+"type":"rent",
+"img_src":"http://mars.jpl.nasa.gov/msl-raw-images/msss/01000/mcam/1000ML0044631300305227E03_DXXX.jpg"},
+...]
+```
+
+Moshi는 JSON 데이타를 parse 하여 Kotlin 객체로 convert한다. 이렇게 하려면 파싱된 결과를 저장하기 위해 Kotlin data class가 있어야 하므로 해당 클래스를 먼저 만들어야 한다.
+
+#### 1) app/java/network/MarsProperty.kt 를 연다
+
+#### 2) MarsProperty 클래스 정의를 아래 코드로 대체한다
+
+```
+data class MarsProperty(
+   val id: String, val img_src: String,
+   val type: String,
+   val price: Double
+)
+```
+
+MarsProperty 클래스의 각 변수는 JSON 객체의 키 name에 해당한다. JSON 유형을 일치시키려면 Double 형인 price를 제외한 모든 type을 String으로 사용한다. Moshi는 JSON을 parse할 때 이름과 키를 매칭시키고 적절한 값으로 데이터 객체를 채운다
+
+
+#### 3) img_src의 키를 아래와 같이 변경한다. com.squareup.moshi.Json을 import 한다
+
+```
+@Json(name = "img_src") val imgSrcUrl: String,
+```
+
+데이터 클래스에서 JSON의 응답의 키 이름과 다른 변수 이름을 사용하려면 @JSON 어노테이션을 이용한다. 이 예제에서 데이터 클래스의 변수 이름은 imageSrcUrl이고 이 변수가 매핑되는 JSON 속성은 img_sr이다.
+
+<br>
+
+### Step 3: Update MarsApiService and OverviewViewModel
+MarsProperty 데이터 클래스를 사용하면 이제 Moshi data를 포함하도록 ViewModel과 network API를 업데이트 할 수 있다
+
+
+#### 1) network/MarsApiService.kt를 연다. ScalarsConverterFactory에 오류가 발생하는 걸 확인할 수 있다. 이 에러는 Step 1에서 Retrofit Dependency가 바꼈기 때문에 발생한다.
+
+#### 2) 파일 상단 Retrofit builder 직전에 다음 코드를 추가하여 Moshi 인스턴스를 생성한다. com.squareup.moshi.Moshi과 com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory를 import한다
+
+```
+private val moshi = Moshi.Builder()
+   .add(KotlinJsonAdapterFactory())
+   .build()
+```
+
+#### 3) Retrofit builder가 ScalarConverterFactory 대신에 MoshiConverterFactory 사용하도록 변경하고 create()에 moshi 인스턴스를 전달하도록 변경한다. 
+
+```
+private val retrofit = Retrofit.Builder()
+   .addConverterFactory(MoshiConverterFactory.create(moshi))
+   .baseUrl(BASE_URL)
+   .build()
+```
+
+#### 4) MarsApiService 인터페이스를 Retrofit에서 Call<String>을 반환하는 대신 MarsProperty 개체의 목록을 반환하도록 수정한다
+
+```
+interface MarsApiService {
+   @GET("realestate")
+   fun getProperties():
+      Call<List<MarsProperty>>
+}
+```
+
+#### 5) OverviewViewModel.kt 파일을 열어서 getProperties().enqueue() 메소드 안의 Callback<String>을 Callback<List<MarsProperty>>로 변경한다.
+
+```
+MarsApi.retrofitService.getProperties().enqueue( 
+   object: Callback<List<MarsProperty>> {
+```
+
+#### 6) onFailure()에서 Call<String>을 Call<List<MarsProperty>>로 변경한다
+
+```
+override fun onFailure(call: Call<List<MarsProperty>>, t: Throwable) {
+```
+
+#### 7) onResponse()의 인자 2개도 같은 방식으로 변경한다.
+
+```
+override fun onResponse(call: Call<List<MarsProperty>>, 
+   response: Response<List<MarsProperty>>) {
+```
+
+#### 8) onResponse()의 본문에서 존재하던 _response.value 할당 문을 아래와 같이 변경한다.
+
+```
+_response.value = 
+   "Success: ${response.body()?.size} Mars properties retrieved"
+```
