@@ -151,11 +151,11 @@ Glide는 이미지를 표시하는 동안 placeholder image나 이미지 로드 
 
 #### 1) res/drawable/ic_broken_image.xml을 열고 preview 탭을 클릭한다. 오류 이미지의 경우 내장 아이콘 라이브러리에서 사용 가능한 깨진 이미지 아이콘을 사용하고 있다. 이 벡터 drawble은 android:tint 속성을 사용하여 아이콘을 회색으로 표시한다
 
-<image src="./images/broken_image.png" width="70%" height="70%"/>
+<image src="./images/broken_image.png" width="40%" height="40%"/>
 
 #### 2) res/drawable/loading_animation.xml을 연다. 이 drawable은 animation으로 <animate-rotate> 태그로 선언되어 있다. 애니메이션은 중심점을 기준으로 이미지 drawble인 loading_img.xml을 회전시킨다
 
-<image src="./images/loading_image.png" width="70%" height="70%"/>
+<image src="./images/loading_image.png" width="40%" height="40%"/>
 
 #### 3) BindingAdapter.kt 파일로 돌아와서 bindImage() 함수 안에 load()와 into()사이에 apply()를 호출하도록 Glide.with() 메소드를 수정한다. 
 이 코드는 이미지가 loading 되는 동안 placeholder loading image를 설정한다. 또한 이미지 로딩이 실패했을 때 broken_image drawable을 설정하여 에러 이미지를 표시한다. 
