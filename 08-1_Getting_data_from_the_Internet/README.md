@@ -311,3 +311,149 @@ override fun onResponse(call: Call<List<MarsProperty>>,
 _response.value = 
    "Success: ${response.body()?.size} Mars properties retrieved"
 ```
+
+<br><br>
+
+## 4. Use coroutines with Retrofit
+Retrofit API 서비스는 실행 중이지만 구현해야 하는 두 개의 콜백 메소드가 있는 콜백을 사용해야 한다. 하나는 success이고 다른 하나는 failure를 다룬다. failure의 결과는 exception을 보고한다.
+콜백을 사용하는 대신 예외 처리와 함께 코루틴을 사용한다면 코드가 더 효율적이고 읽기 쉽게 보인다. 편리하게도 Retrofit coroutine을 통합하는 라이브러리가 있다
+
+이번 단계에서는 코루틴을 사용하도록 network service와 ViewModel을 변경한다
+
+<br>
+
+### Step 1: Add coroutine dependencies
+
+#### 1) build.gradle(Module: app)을 연다
+
+#### 2) dependencies 부분에 core Kotlin coroutine 라이브러리 및 Retrofit coroutine 라이브러리를 추가한다.
+
+```
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_kotlin_coroutines"
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_kotlin_coroutines"
+implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$version_retrofit_coroutines_adapter"
+
+```
+
+<br>
+
+### Step 2: Update MarsApiService and OverviewViewModel
+
+#### 1) MarsApiService.kt 에서 Retrofit builder가 CoroutineCallAdapterFactory를 사용하도록 변경한다. 전체 빌더의 모습은 아래와 같다
+
+```
+private val retrofit = Retrofit.Builder()
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addCallAdapterFactory(CoroutineCallAdapterFactory())
+        .baseUrl(BASE_URL)
+        .build()
+```
+
+CallAdapter는 Retrofit이 default Call 클래스 이외의 것을 리턴하는 API를 생성하는 기능을 추가한다. 이 경우 CoroutineCallAdapterFactory를 사용하면 getProperties()가 반환하는 Call 객체를 Deferred 객체로 대체할 수 있다.
+
+
+#### 2) getProperties()에서 Call<List<MarsProperty>>를 Deferred<List<MarseProperty>>로 변경한다. kotlinx.coroutines.Deferred를 import한다
+
+```
+@GET("realestate")
+fun getProperties():
+   Deferred<List<MarsProperty>>
+```
+
+Deferred 인터페이스는 결과값을 리턴하는 코루틴 작업을 정의한다 (Deferred는 Job을 상속함). Deferred 인터페이스는 await() 메소드를 포함하고 있고, await() 메소드는 값이 준비 될 때까지 blocking 없이 대기한 다음 해당 값이 준비 될 때 반환한다.
+
+
+#### 3) OverviewViewModel.kt를 열어서 init 블럭에 코루틴 job을 추가한다
+
+```
+private var viewModelJob = Job()
+```
+
+#### 4) Main dispatcher를 사용하는 새로운 job에 대해 coroutine scope를 생성한다
+
+```
+private val coroutineScope = CoroutineScope(
+   viewModelJob + Dispatchers.Main )
+```
+
+Dispatchers.Main 디스패처는 작업에 UI 쓰레드를 사용한다. Retrofit은 background 쓰레드에서 모든 작업을 수행하므로 scope에 다른 쓰레드를 사용할 필요가 없다. 이것을 결과를 얻을 때 MutableLiveData의 값을 쉽게 업데이트 하게 해준다.
+
+
+#### 5) getMarsRealEstateProperties() 내에 모든 코드를 지운다. enqueue(), onFailure(), onResponse() 콜백 대신에 코루틴을 사용한다
+
+#### 6) getMarsRealEstateProperties()에서 코루틴을 시작한다.
+
+```
+coroutineScope.launch { 
+
+}
+```
+
+네트워크 작업에 대해 Retrofit이 반환하는 Deferred 객체를 사용하려면 코루틴 내부에 있어야 하므로 여기서 생성한 코루틴을 시작한다. 여전히 메인 스레드에서 코드를 실행하고 있지만 코루티이 동시성을 관리하게 된다
+
+#### 7) launch 블럭 내에서 retrofitService 객체의 getProperties()를 호출한다
+MarsApi 서비스로부터 getProperties()를 호출하면 background thread에서 network 호출을 생성하고 시작하여 각 작업에 대해 Deferred 객체를 반환한다.
+
+```
+var getPropertiesDeferred = MarsApi.retrofitService.getProperties()
+```
+
+#### 8) launch 블럭 내에서 try / catch 블럭을 추가하여 exception을 handle 할 수 있다
+
+```
+try {
+
+} catch (e: Exception) {
+  
+}
+```
+
+#### 9) try {} 블럭 안에 Deferred 객체의 await()를 호출한다
+
+```
+var listResult = getPropertiesDeferred.await()
+``` 
+
+Deferred 객체의 await()를 호출하면 값이 준비 되었을 때 네트워크 호출의 결과값을 반환해준다. await() 메소드는 non-blocking 이므로, Mars API 서비스는 현재 스레드(UI 스레드)를 blocking 하지 않고 네트워크로부터 데이터를 얻어온다. 작업이 완료되면 중단된 지점부터 코드가 계속 실행 된다.
+
+#### 10) try {} 블럭 안에 await() 메소드 이후에 successful message로 response message를 변경한다
+
+```
+_response.value = 
+   "Success: ${listResult.size} Mars properties retrieved"
+```
+
+#### 11) catch { } 블럭 안에 failure 응답을 처리한다
+
+```
+_response.value = "Failure: ${e.message}"
+```
+
+#### 12) 완성된 getMarsRealEstateProperties() 메소드는 아래와 같다
+
+```
+private fun getMarsRealEstateProperties() {
+   coroutineScope.launch {
+       var getPropertiesDeferred = 
+          MarsApi.retrofitService.getProperties()
+       try {          
+           _response.value = 
+              "Success: ${listResult.size} Mars properties retrieved"
+       } catch (e: Exception) {
+           _response.value = "Failure: ${e.message}"
+       }
+   }
+}
+```
+
+#### 13) 클래스의 밑에 onCleared() 콜백을 다음 코드와 함께 추가한다
+
+```
+override fun onCleared() {
+   super.onCleared()
+   viewModelJob.cancel()
+}
+```
+
+ViewModel이 사라지면 이 ViewModel을 사용하고 있던 OverviewFragment도 사라지기 때문에 ViewModel이 파괴되면 데이터 로드를 중단해야 한다. ViewModel이 파괴될 때 로드를 중지하려면 onClear()를 오버라이드 하여 job을 취소해야 한다
+
