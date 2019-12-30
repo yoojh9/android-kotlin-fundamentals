@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='08-2_Displaying_Images_from_the_internet'
