@@ -443,3 +443,69 @@ val viewModelFactory = DetailViewModelFactory(marsProperty, application)
 ```
 
 #### 5) 앱을 실행시키고 Mars property photo를 탭하면 property의 상세 정보를 표시하는 detail fragment로 이동한다. 
+
+<br><br>
+
+## 4. Create a more useful detail page
+MarsProperty는 property type(rent or buy) 및 property price를 가지고 있다. 세부 화면에는 이 값이 모두 포함되어야 하며 rental 타입일 경우에는 월별 가격으로 표시하는 것이 유용하다
+
+#### 1) res/values/strings.xml를 연다. 가격에는 property type에 따라 display_price_monthly_rental 리소스 또는 the display_price 리소스를 사용한다
+
+```
+<string name="type_rent">Rent</string>
+<string name="type_sale">Sale</string>
+<string name="display_type">For %s</string>
+<string name="display_price_monthly_rental">$%,.0f/month</string>
+<string name="display_price">$%,.0f</string>
+```
+
+#### 2) detail/DetailViewModel.kt를 열어서 클래스 하단에 아래 코드를 추가한다
+
+```
+val displayPropertyPrice = Transformations.map(selectedProperty) {
+   app.applicationContext.getString(
+           when (it.isRental) {
+               true -> R.string.display_price_monthly_rental
+               false -> R.string.display_price
+           }, it.price)
+}
+```
+
+#### 3) 프로젝트의 string resources에 액세스 하기 위해 생성된 R 클래스를 import 한다
+
+```
+import com.example.android.marsrealestate.R
+```
+
+#### 4) displayPropertyPrice transformation 이후에 아래 코드를 추가한다. 이 transformation은 property type의 종류에 따라 여러 문자열 리소스를 연결한다
+
+```
+val displayPropertyType = Transformations.map(selectedProperty) {
+   app.applicationContext.getString(R.string.display_type,
+           app.applicationContext.getString(
+                   when (it.isRental) {
+                       true -> R.string.type_rent
+                       false -> R.string.type_sale
+                   }))
+}
+```
+
+#### 5) res/layout/fragment_detail.xml를 열고 LiveData transformation으로 생성한 새 문자열을 바인딩 한다. 이를 위해서는 property type 텍스트에 viewModel.displayPropertyType를 설정하고 price 텍스트에 viewModel.displayPropertyPrice를 설정한다
+
+```
+<TextView
+   android:id="@+id/property_type_text"
+...
+android:text="@{viewModel.displayPropertyType}"
+...
+   tools:text="To Rent" />
+
+<TextView
+   android:id="@+id/price_value_text"
+...
+android:text="@{viewModel.displayPropertyPrice}"
+...
+   tools:text="$100,000" />
+```
+
+#### 6) 앱을 컴파일하고 실행하면 모든 속성의 데이터가 formatted 된 것을 확인할 수 있다
