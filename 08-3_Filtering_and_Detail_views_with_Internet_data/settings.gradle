@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='08-3_Filtering_and_Detail_views_with_Internet_data'
