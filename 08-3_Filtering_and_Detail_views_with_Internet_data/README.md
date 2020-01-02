@@ -229,3 +229,217 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
 ```
 
 #### 4) 앱을 실행시키고 여러 옵션 메뉴들을 선택해본다
+
+<br><br>
+
+## 3. Create a detail page and set up navigation
+이번 단계에서는 detail fragment를 생성하고 특정 property에 대해 상세 정보를 표시한다. detail fragment는 rental 또는 for-sale 타입에 관계 없이 large image와 가격을 보여준다.
+detail fragment는 사용자가 overview의 grid image를 탭할 때 실행된다. 해당 기능을 만드려면 RecyclerView grid item에 onClick 리스너를 추가해야 하고 새로운 fragment로 navigate 시켜야 한다
+viewModel의 LiveData의 변경을 trigger하여 navigate 할 수 있다. 또한 Navigation의 구성 요소인 safe args 플러그인을 사용하여 선택된 MarsProperty의 정보를 overview에서 detail fragment로 전달할 수 있다
+
+
+### Step 1: Create the detail view model and update detail layout
+이전에 overview의 viewModel과 fragment에 했던 작업처럼 detail fragment의 layout 파일과 view model을 구현해야 한다
+
+#### 1) detail/DetailViewModel.kt를 열어서 DetailViewModel의 생성자 파라미터로 MarsProperty 객체를 받는 것을 확인한다
+
+```
+class DetailViewModel( marsProperty: MarsProperty,
+                     app: Application) : AndroidViewModel(app) {
+}
+```
+
+#### 2) 클래스 정의 내에 detail 뷰에 상세 정보를 표시하기 위해 overview에서 선택된 MarsProperty의 LiveData를 추가한다.
+MutableLiveData를 작성하는 일반적인 패턴에 따라 MarsProperty 자체의 값은 MutableLiveData로 가지고 있고, immutable public LiveData를 expose 시킨다
+
+```
+private val _selectedProperty = MutableLiveData<MarsProperty>()
+val selectedProperty: LiveData<MarsProperty>
+   get() = _selectedProperty
+```
+
+#### 3) init{}에서 생성자로부터 얻은 MarsProperty 객체를 _selectedProperty의 값으로 할당한다
+
+```
+    init {
+        _selectedProperty.value = marsProperty
+    }
+```
+
+#### 4) res/layout/fragment_detail.xml을 열어서 design 탭을 누른다. 
+이 레이아웃 파일을 DetailFragment의 레이아웃 파일이며 large photo를 위한 ImageView와 property type(rental, buy)을 나타내는 TextView, 그리고 price를 위한 TextView가 있다.
+ConstraintLayout은 ScrollView로 Wrapping되어 있으므로 화면에 표시하기 너무 커지면 자동으로 스크롤이 생성된다. (ex. 사용자가 가로로 볼 때)
+
+#### 5) Text 탭으로 돌아가서 layout 상단 <ScrollView> 요소 바로 앞에 <data> 태그를 추가하여 layout과 detail view model을 연결시킨다
+
+```
+<data>
+   <variable
+       name="viewModel"
+       type="com.example.android.marsrealestate.detail.DetailViewModel" />
+</data>
+```
+
+#### 6) ImageView 요소에 app:imageUrl 속성을 추가하고 viewModel의 selected property에 있는 imgSrcUrl를 할당한다
+어댑터가 app:imageUrl 속성을 사용하는지 계속 watch하고 있으므로 Glide를 사용하여 이미지를 로드하는 바인딩 어댑터도 여기에서 자동으로 사용된다
+
+```
+app:imageUrl="@{viewModel.selectedProperty.imgSrcUrl}"
+```
+
+<br>
+
+### Step 2: Define navigation in the overview view model
+사용자가 overview에서 사진을 탭하면 클릭한 항목에 대한 세부 정보를 나타내는 fragment로 이동해야 한다
+
+#### 1) overview/OverviewViewModel.kt를 열어서 MutableLiveData 타입으로 _navigateToSelectedProperty 프로퍼티를 만들고 immutable LiveData 타입으로 expose 시킨다
+LiveData가 non-null로 바뀌면 navigation이 trigger 된다
+
+```
+private val _navigateToSelectedProperty = MutableLiveData<MarsProperty>()
+val navigateToSelectedProperty: LiveData<MarsProperty>
+   get() = _navigateToSelectedProperty
+``` 
+
+#### 2) 클래스 끝에 displayPropertyDetails()를 추가하여 _navigateToSelectedProperty.value에 선택된 MarsProperty 객체를 할당한다
+
+```
+fun displayPropertyDetails(marsProperty: MarsProperty) {
+   _navigateToSelectedProperty.value = marsProperty
+}
+```
+
+#### 3) displayPropertyDetailsComplete() 메소드를 추가하여 _navigateToSelectedProperty에 null을 할당한다. navigation이 이미 완료됐고, navigation을 다시 trigger 하지 않기 위해 이 작업이 필요하다
+
+```
+fun displayPropertyDetailsComplete() {
+   _navigateToSelectedProperty.value = null
+}
+``` 
+
+<br>
+
+### Step 3: Set up the click listeners in the grid adapter and fragment
+
+#### 1) overview/PhotoGridAdapter.kt 파일을 열고 클래스 하단에 OnClickListener를 이름으로 하는 커스텀 클래스를 만든다. OnClickListner는 marsProperty를 파라미터로 갖는 람다식을 생성자 파라미터로 가지고 있다. 클래스 내부에서 onClick() 함수를 정의하여 람다식 파라미터를 값으로 전달한다
+
+```
+class OnClickListener(val clickListener: (marsProperty:MarsProperty) -> Unit) {
+     fun onClick(marsProperty:MarsProperty) = clickListener(marsProperty)
+}
+```    
+
+#### 2) PhotoGridAdapter에서 스크롤을 올려 클래스의 생성자에 private 프로퍼티로 OnClickListener를 추가한다 
+
+```
+class PhotoGridAdapter( private val onClickListener: OnClickListener ) :
+       ListAdapter<MarsProperty,              
+           PhotoGridAdapter.MarsPropertyViewHolder>(DiffCallback) {
+```
+
+#### 3) onBindviewHolder() 메소드의 그리드 item에 onClickListener를 추가하여 사진을 클릭 가능하게 만든다. getItem() 및 bind() 호출 사이에 클릭 리스너를 정의한다.
+
+```
+override fun onBindViewHolder(holder: MarsPropertyViewHolder, position: Int) {
+   val marsProperty = getItem(position)
+   holder.itemView.setOnClickListener {
+       onClickListener.onClick(marsProperty)
+   }
+   holder.bind(marsProperty)
+}
+```
+
+#### 4) overview/OverviewFragment.kt를 열고 onCreateView()에 binding.photosGrid.adapter의 프로퍼티를 초기화 하는 라인을 아래와 같이 변경한다
+이 코드는 PhotoGridAdatper 생성자에 PhotoGridAdapter.onClickListener 객체를 추가하고 전달된 MarsProperty 객체와 함께 viewModel.displayPropertyDetails()를 호출한다.
+이것은 view model의 navigation을 위한 LiveData를 트리거한다.
+
+```
+binding.photosGrid.adapter = PhotoGridAdapter(PhotoGridAdapter.OnClickListener {
+   viewModel.displayPropertyDetails(it)
+})
+```
+
+<br>
+
+### Step 4: Modify the navigation graph and make MarsProperty parcelable
+현재 PhotoGridAdapter의 클릭 리스터가 탭을 처리하고 view model로부터 navigation을 트리거하는 방법을 가지고 있다. 그러나 아직 DetailFragment에 MarsProperty 객체는 전달하지 않고 있다
+이를 위해 navigation 컴포넌트에서 safe args를 사용해야 한다
+
+#### 1) res/navigation/nav_graph.xml을 열어서 Text 탭을 눌러 navigation graph 코드를 살펴본다
+
+#### 2) detail_fragment의 \<fragment\> 요소에 아래와 같이 \<argument\> 요소를 추가한다
+
+```
+<argument
+   android:name="selectedProperty"
+   app:argType="com.example.android.marsrealestate.network.MarsProperty"
+   />
+
+```
+
+#### 3) 컴파일 하면 아래와 같은 에러가 발생한다
+```
+Caused by: java.lang.IllegalArgumentException: com.example.android.marsrealestate.network.MarsProperty is not Serializable or Parcelable.
+```
+
+#### 4) 위의 에러는 MarsProperty가 Parcelable이 아니기 때문에 발생한다. Parcelable 인터페이스는 객체를 serialized하게 만들어준다. 그래서 객체의 데이터가 fragment나 activity간에 전달되게 해준다.
+이 예제에서는 MarsProperty 객체를 detail fragment로 Safe Args를 통해서 전달하는데, MarsProperty는 반드시 Parcelable 인터페이스를 구현해야 한다.
+좋은 소식은 코틀린이 이 인터페이스를 구현하는데 손쉬운 방법을 제공한다는 것이다.
+
+#### 5) network/MarsProperty.kt를 열어서 @Parcelize 어노테이션을 클래스 선언 위에 추가한다.
+@Parcelize 어노테이션은 kotlin android extension을 사용하여 이 클래스에서 Parcelable 인터페이스의 메소드를 자동으로 구현한다.
+
+```
+@Parcelize
+data class MarsProperty (
+```
+
+#### 6) MarsProperty가 Parcelable을 상속받도록 변경한다. 
+```
+@Parcelize
+data class MarsProperty (
+       val id: String,
+       @Json(name = "img_src") val imgSrcUrl: String,
+       val type: String,
+       val price: Double) : Parcelable {
+```
+
+<br>
+
+### Step 5: Connect the fragments
+
+#### 1) overview/OverviewFragment.kt를 열고 onCreateView() 내에서 photo grid adapter를 초기화 하는 라인 아래에 아래와 같이 overview view model의 navigatedToSelectedProperty를 observe 하는 코드를 추가한다
+observer는 MarsProperty(lambda에서는 it)이 null이 아닌 경우에만 findNavController()로 navigation을 제어한다. 
+또한 displayPropertyDetailsComplete()를 호출하여 view model의 LiveData를 null로 설정한다. 이는 OverviewFragment로 다시 돌아올 때 실수로 navigation을 다시 trigger 하지 않도록 해준다
+```
+viewModel.navigateToSelectedProperty.observe(this, Observer {
+   if ( null != it ) {   
+      this.findNavController().navigate(
+              OverviewFragmentDirections.actionShowDetail(it))             
+      viewModel.displayPropertyDetailsComplete()
+   }
+})
+```
+
+#### 2) detail/DetailFragment.kt를 열고 onCreateView() 내부의 setLifecycleOwner() 아래에 다음 코드를 넣는다.
+이 코드는 Safe Args에서 선택된 MarsProperty 객체를 가져온다. 코틀린의 not-null 연산자 '!!'를 사용한다. 하지만 selectProperty가 없을 경우 null pointer exception이 발생하므로 production 환경에서는 어떤식으로든 에러를 처리해야 한다.
+
+```
+val marsProperty = DetailFragmentArgs.fromBundle(arguments!!).selectedProperty
+```
+
+#### 3) 다음 라인에 DetailViewModel의 인스턴스를 얻기 위해 DetailViewModelFactory의 객체를 생성한다
+
+```
+val viewModelFactory = DetailViewModelFactory(marsProperty, application)
+
+```
+
+#### 4) 마지막으로 factory로 부터 DetailViewModel의 인스턴스를 얻어오고 viewModel에 연결시킨다.
+
+```
+      binding.viewModel = ViewModelProviders.of(
+                this, viewModelFactory).get(DetailViewModel::class.java)
+```
+
+#### 5) 앱을 실행시키고 Mars property photo를 탭하면 property의 상세 정보를 표시하는 detail fragment로 이동한다. 
