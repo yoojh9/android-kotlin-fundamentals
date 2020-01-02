@@ -114,3 +114,118 @@ android:layout_height="match_parent"
 
 
 #### 7) 앱을 실행시켜서 달러 아이콘 이미지가 나오는지 확인한다
+
+<br><br>
+
+## 2. Filter the results
+
+이번 단계에서는 프래그먼트에 옵션 메뉴를 추가하여 사용자가 rental, for-sale, 또는 all 정렬 조건으로 아이템을 볼 수 있도록 만든다.
+
+Mars 웹서비스에는 api에 query parameter 또는 option(filter)으로 rental 타입이나 buy 타입의 항목만 가져올 수 있다. 
+
+```
+https://android-kotlin-fun-mars-server.appspot.com/realestate?filter=buy
+```
+
+MarsApiService를 수정하여 retrofit을 사용하여 request에 query 옵션을 추가한다. 
+
+
+### Step 1: Update the Mars API service
+
+#### 1) network/MarsApiService.kt를 열고 MarsApiFilter 라는 이름의 enum 클래스를 추가한다.
+
+```
+enum class MarsApiFilter(val value: String) {
+   SHOW_RENT("rent"),
+   SHOW_BUY("buy"),
+   SHOW_ALL("all") }
+```
+
+#### 2) getProperties()를 수정하여 filter를 이름으로 하는 string query parameter를 추가한다. 
+@Query 어노테이션은 getProperties() 메소드에 웹 서비스 request에 filter option을 추가하라고 알려준다.
+getProperties()가 호출될 때마다 request url에 ?filter=type를 추가하여 response를 전달받는다.
+
+```
+fun getProperties(@Query("filter") type: String):  
+```
+
+<br>
+
+### Step 2: Update the overview view model
+
+OverviewModel의 getMarsRealEstateProperties() 메소드에서 MarsApiService의 getProperties()를 호출하므로 호출 코드에도 filter 인자를 추가해아 한다
+
+
+#### 1) overview/OverviewViewModel.kt 열면 이 전 단계의 수정 사항으로 인해 에러를 확인할 수 있다. MarsApiFilter (이 전 단계에서 만들었던 enum class) getMarsRealEstateProperties() 메소드의 인자로 사용한다
+
+```
+private fun getMarsRealEstateProperties(filter: MarsApiFilter) {
+```
+
+#### 2) Retrofit Service에서 getProperties() 호출 부분을 수정하여 filter query를 String으로 전달한다
+
+```
+var getPropertiesDeferred = MarsApi.retrofitService.getProperties(filter.value)
+```
+
+#### 3) init 블럭에서 앱이 처음에 로드 될 때 모든 type의 화성 자산이 보이도록 getMarsRealEstateProperties()에 인자의 초기값으로 MarsApiFilter.SHOW_ALL을 전달한다
+
+```
+init {
+   getMarsRealEstateProperties(MarsApiFilter.SHOW_ALL)
+}
+```
+
+#### 4) 클래스 마지막에 MarsApiFilter 인자로 getMarsRealEstateProperties()를 호출하는 updateFilter() 메소드를 추가한다
+
+```
+fun updateFilter(filter: MarsApiFilter) {
+   getMarsRealEstateProperties(filter)
+}
+```
+
+<br>
+
+### Step 3: Connect the fragment to the options menu
+마지막 단계는 overflow 메뉴를 프래그먼트에 연결하여 사용자가 옵션 메뉴를 선택할 때 viewModel의 updateFilter()를 호출하도록 만든다
+
+#### 1) res/menu/overflow_menu.xml를 열면 아래와 같이 옵션 메뉴가 만들어져 있다
+
+```
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/show_all_menu"
+        android:title="@string/show_all" />
+    <item
+        android:id="@+id/show_rent_menu"
+        android:title="@string/show_rent" />
+    <item
+        android:id="@+id/show_buy_menu"
+        android:title="@string/show_buy" />
+</menu>
+```
+
+#### 2) overview/OverviewFragment.kt를 열고 클래스 마지막에 menu 아이템 선택을 처리하는 onOptionsItemSelected() 메소드를 구현한다
+
+```
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+} 
+```
+
+#### 3) onOptionsItemSelected()에서 적절한 filter 값으로 view model에 있는 updateFilter() 메소드를 호출한다. 
+when{} 블럭을 사용하여 메뉴에 맞게 MarsApiFilter 값을 인자로 전달하고, 마지막에 메뉴 항목을 처리했으므로 true를 리턴한다. 
+
+```
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+   viewModel.updateFilter(
+           when (item.itemId) {
+               R.id.show_rent_menu -> MarsApiFilter.SHOW_RENT
+               R.id.show_buy_menu -> MarsApiFilter.SHOW_BUY
+               else -> MarsApiFilter.SHOW_ALL
+           }
+   )
+   return true
+}
+```
+
+#### 4) 앱을 실행시키고 여러 옵션 메뉴들을 선택해본다
