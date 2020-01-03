@@ -246,3 +246,179 @@ WM-WorkerWrapper 로그는 WorkManager 라이브러리에서 표시되는 로그
 D/RefreshDataWorker: Work request for sync is run
 I/WM-WorkerWrapper: Worker result SUCCESS for Work [...]
 ```
+
+<br>
+
+### Step 3: (Optional) Schedule the WorkRequest for a minimum interval
+이번 단계에서는 time interval을 1일에서 15분으로 줄인다. 
+
+#### 1) DevByteApplication 클래스의 setupRecurringWork() 메소드에서 현재 repeatingRequest 변수를 주석 처리하고, 주기적 반복 간격이 15분인 새로운 work request를 추가한다
+
+```
+// val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+//        .build()
+val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(15, TimeUnit.MINUTES)
+       .build()
+```
+
+#### 2) Logcat 창을 열어서 \'RefreshDataWorker\'를 필터로 로그를 확인한다
+
+#### 3) 앱을 실행시킨다. WorkManager는 반복 작업을 즉시 스케줄링한다. work request는 15분마다 한번씩 실행된다.
+앱을 실행하거나 닫아도 work manager는 계속 실행되어야 한다.
+interval이 가끔 15분보다 적거나 15분보다 많은 것을 확인한다. (정확한 타이밍은 OS 배터리의 최적화에 달렸다)
+
+
+```
+12:44:40 D/RefreshDataWorker: Work request for sync is run
+12:44:40 I/WM-WorkerWrapper: Worker result SUCCESS for Work 
+12:59:24 D/RefreshDataWorker: Work request for sync is run
+12:59:24 I/WM-WorkerWrapper: Worker result SUCCESS for Work 
+13:15:03 D/RefreshDataWorker: Work request for sync is run
+13:15:03 I/WM-WorkerWrapper: Worker result SUCCESS for Work 
+```
+
+이제 worker를 생성하고 WorkManager로 work request를 스케줄링 했다. 그러나 아직 제약 조건을 지정하지 않았다. 
+배터리가 부족하거나 절전 상태이거나 네트워크에 연결되어 있지 않은 경우에도 WorkManager는 하루에 한번 작업을 예약한다. 
+이는 장치 배터리 및 성능에 영향을 미치며 user experience가 저하될 수 있다.
+다음 작업에서는 제약 조건을 추가하여 이 문제를 해결해보자.
+
+<br><br>
+
+## 4. Add constraints
+이전 단계에서 work request를 에약하기 위해 WorkManager를 사용했다. 이번 단계에서는 work 실행 시기에 대한 기준을 추가한다
+
+WorkRequest를 정의할 때 worker 실행 시기에 대한 제한 조건을 지정할 수 있다.
+예를 들어 장치가 유휴 상태이거나 장치가 연결되어 있고 Wi-Fi에 연결되어 있을 때만 작업을 실행하도록 지정할 수 있다. 또한 작업 재시도를 위한 backoff 정책을 지정할 수도 있다. 
+
+**PeriodicWorkRequest and constraints**
+작업 반복을 위한 WorkRequest(ex.PeriodicWorkRequest)는 취소 될 때 까지 여러 번 실행된다. 첫번째 실행은 즉시 또는 주어진 제약 조건이 충족되는 즉시 발생한다.
+다음 실행은 interval 간격 동안 발생한다. 실행은 지연될 수도 있다. 예를 들어 장치가 Doze 모드에있을 때 WorkManager는 OS 배터리 최적화가 적용되므로 실행이 지연 될 수 있다.
+
+<br>
+
+### Step 1: Add a Constraints object and set one constraint
+이번 단계에서는 Constraints 객체를 만들고 네트워크 유형 제약 조건인 객체에 대해 하나의 제약 조건을 설정한다. 
+
+#### 1) DevByteApplication 클래스의 setupRecurringWork() 메소드 시작 부분에 Constraints 타입의 val 변수를 정의한다. Constraints.Builder() 메소드를 사용해라
+androidx.work.Constraints를 import 한다
+
+```
+val constraints = Constraints.Builder()
+``` 
+
+#### 2) setRequiredNetworkType() 메소드를 사용하여 constraints 오브젝트에 network-type 제약 조건을 추가한다. work request는 와이파이 환경에서만 실행되게 하기 위해 UNMETERED enum을 사용한다.
+
+```
+.setRequiredNetworkType(NetworkType.UNMETERED)
+```
+
+#### 3) builder에서 제한 조건을 생성하려면 build() 메소드를 사용한다
+
+```
+val constraints = Constraints.Builder()
+       .setRequiredNetworkType(NetworkType.UNMETERED)
+       .build()
+``` 
+
+이제 새로 생성된 Constraints 객체를 work request에 설정하면 된다
+
+#### 4) DevByteApplication 클래스의 setupRecurringWork() 메소드 내에서 Constraints 객체를 periodic work request에 설정한다. constraints를 설정하려면 build() 메소드 호출 위에 setConstraints() 메소드를 추가한다.
+
+```
+   val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(15, TimeUnit.MINUTES)
+           .setConstraints(constraints)
+           .build()
+```
+
+<br>
+
+### Step 2: Run the app and notice the logs
+이 단계에서는 앱을 실행하고 제한된(constrained) 작업 요청(work reqeust)이 백그라운드에서 시간 interval 마다 실행되고 있음을 알 수 있다
+
+#### 1) 장치 또는 에뮬레이터에서 앱을 제거하여 이전에 예약된 작업을 취소한다.
+
+#### 2) Wi-Fi를 끄면 제약 조건이 어떻게 작동하는지 확인할 수 있다
+현재 코드는 하나의 제약 조건만 설정하여 work request가 와이파이 네트워크에서만 실행되어야 한다. 따라서 와이파이를 끄면 이 제약조건이 충족되지 않는다.
+
+#### 3) 앱을 실행하고 Logcat 창을 확인해보자. WorkManager는 백그라운드 작업을 즉시 예약한다. 하지만 네트워크 제약 조건이 충족되지 않았으므로 작업이 실행되지는 않는다
+
+```
+11:31:44 D/DevByteApplication: Periodic Work request for sync is scheduled
+```
+
+#### 4) 장치 또는 애뮬레이터에서 와이파이를 켜고 Logcat 창을 본다. 이제 네트워크 제약 조건이 충족되는 한 예약된 백그라운드 작업이 약 15분마다 실행된다.
+
+```
+11:31:44 D/DevByteApplication: Periodic Work request for sync is scheduled
+11:31:47 D/RefreshDataWorker: Work request for sync is run
+11:31:47 I/WM-WorkerWrapper: Worker result SUCCESS for Work [...]
+11:46:45 D/RefreshDataWorker: Work request for sync is run
+11:46:45 I/WM-WorkerWrapper: Worker result SUCCESS for Work [...] 
+12:03:05 D/RefreshDataWorker: Work request for sync is run
+12:03:05 I/WM-WorkerWrapper: Worker result SUCCESS for Work [...] 
+```
+
+<br>
+
+### Step 3: Add more constraints
+이번 단계에서는 아래의 제약조건을 PeriodicWorkRequest에 추가한다.
+
+  - 배터리가 부족하지 않을 때
+  - 디바이스가 충전 중 일때
+  - 장치 유휴(API 레벨 23 (Android M) 이상에서만 사용 가능)
+  
+DevByteApplication 클래스에 아래 작업들을 추가해보자₩
+
+#### 1) DevByteApplication 클래스의 setupRecurringWork() 메소드 내부에서 배터리가 부족하지 않은 경우에만 작업 요청을 실행해야 함을 나타내본다. build() 메소드 호출 전에 constraint 객체에 setRequiresBatteryNotLow() 메소드를 사용하여 제한 조건을 추가한다.
+
+```
+.setRequiresBatteryNotLow(true)
+```
+
+#### 2) 작업 요청을 업데이트 하여 장치가 충전 중일 때만 실행되도록 한다. build() 메소드 호출 전에 setRequiresCharging() 메소드를 사용하여 제약 조건을 추가한다
+
+```
+.setRequiresCharging(true)
+```
+
+#### 3) 장치가 유휴 상태 일 때만 작동하도록 작업 요청을 업데이트 한다. setRequiresDeviceIdle()를 사용하여 constraint를 추가한다. 이 제한 조건은 사용자가 디바이스를 적극적으로 사용하지 않는 경우에만 작업 요청을 실행한다.
+이 기능은 Android 6.0 (Marshmallow) 이상에서만 사용할 수 있으므로 SDK 버전 M 이상에 대한 조건을 추가한다.
+
+```
+.apply {
+   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+       setRequiresDeviceIdle(true)
+   }
+}
+```
+
+완성된 constraints 객체는 아래와 같다
+
+```
+val constraints = Constraints.Builder()
+   .setRequiredNetworkType(NetworkType.UNMETERED)
+   .setRequiresBatteryNotLow(true)
+   .setRequiresCharging(true)
+   .apply {
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+           setRequiresDeviceIdle(true)
+       }
+   }
+   .build()
+```
+
+#### 4) setupRecurringWork() 메소드 내에서 요청 간격을 하루에 한 번으로 다시 변경한다.
+
+```
+val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+       .setConstraints(constraints)
+       .build()
+```
+
+#### 5) 이전에 예약 된 작업 요청을 제거하려면 장치 또는 에뮬레이터에서 DevBytes 앱을 제거한다.
+
+#### 6) 앱을 실행하면 WorkManager가 즉시 작업 요청을 예약한다. 모든 제한 조건이 충족되면 작업 요청이 하루에 한 번 실행된다
+
+#### 7) 이 작업 요청은 앱이 실행되고 있지 않더라도 앱이 설치되어있는 한 백그라운드에서 실행된다. 따라서 휴대 전화에서 앱을 제거해야 한다.
+
+WorkManager는 작업을 예약하고 실행하여 시스템 리소스를 최적화 한다. 사용자와 배터리는 매우 행복하다.
