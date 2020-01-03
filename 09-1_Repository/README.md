@@ -191,3 +191,154 @@ repository를 구현하려면 다음 작업에서 만드는 VideosRepository 클
 
 <br><br>
 
+## 4. Create a repository
+이 태스크에서는 이전 단계에서 구현한 오프라인 캐시를 관리하기 위한 저장소를 생성한다. Room 데이터베이스에는 오프라인 캐시를 관리하기 위한 로직이 없고 단지 데이터를 삽입하고 검색하는 메소드만 있다. repository에는 네트워크 결과를 가져오고 데이터베이스를 최신 상태로 유지하는 로직이 있다.
+
+<br>
+
+### Step 1: Add a repository
+
+#### 1) repository/VideosRepository.kt에서 VideosRepository 클래스를 생성한다. Dao 메소드에 액세스 하기 위해 클래스의 생성자 매개 변수로 VideosDatabase 객체를 전달한다
+
+```
+class VideosRepository(private val database: VideosDatabase) {
+}
+```
+
+#### 2) VideoRepository 클래스 내부에 인자와 리턴값이 없는 refreshVideos() 메소드를 추가한다. 이 메소드는 offline cache를 갱신하는데 사용되는 APIㅣ다
+
+#### 3) refreshVideo() 메소드를 suspend function으로 만든다. refreshVideo()는 데이터베이스 작업을 수행하므로 코루틴에서 호출해야한다
+
+**Note:** 안드로이드의 데이터베이스는 파일 시스템 또는 디스크에 저장되므로, 데이터를 저장하려면 disk I/O를 수행해야 한다. 디스크 I/O 또는 디스크 읽기 및 쓰기 작업은 느리고 작업이 완료될 때 까지 항상 현재 스레드를 block 한다. 이 때문에 disk I/O는 I/O dispatcher에서 실행해야 한다. 이 dispatcher는 withContext(Dispatcher.IO){}를 사용하여 blocking I/O 작업을 스레드 공유 풀에 떠넘긴다
+
+#### 4) refreshVideos() 메소드 안에서 network와 database 작업을 수행하기 위해 coroutine의 context를 Dispather.IO로 변경한다.
+
+```
+suspend fun refreshVideos() {
+   withContext(Dispatchers.IO) {
+   }
+}
+```
+
+#### 5) withContext 블럭에서 Retrofit Service 인스턴스인 DevByteNetwork를 사용하여 network로부터 DevByte video playlist 데이터를 가져온다. playlist 데이터가 available 될 때까지 suspend 하기 위해 await() 함수를 사용한다.
+
+```
+val playlist = DevByteNetwork.devbytes.getPlaylist().await()
+```
+
+#### 6) refreshVideos() 안에서 network로부터 playlist 데이터를 가져온 후에 playlist 데이터를 Room database에 저장한다
+playlist를 저장하기 위해 VideosDatabase object인 database를 사용한다. 네트워크로부터 얻은 playlist를 넘겨서 insertAll() DAO 메소드를 호출한다. asDatabaseModel() 확장함수를 사용하여 playlist를 database 객체로 변환한다.
+
+```
+database.videoDao.insertAll(playlist.asDatabaseModel())
+``` 
+
+#### 7) 완성된 refreshVideos() 메소드는 아래와 같다
+
+```
+suspend fun refreshVideos() {
+   withContext(Dispatchers.IO) {
+       Timber.d("refresh videos is called");
+       val playlist = DevByteNetwork.devbytes.getPlaylist().await()
+       database.videoDao.insertAll(playlist.asDatabaseModel())
+   }
+}
+```
+
+<br>
+
+### Step 2: Retrieve data from the database
+이번 단계에서는 database에 있는 video playlist를 읽기 위해 LiveData 객체를 만든다. LiveData 객체는 데이터베이스가 변경되면 자동으로 update 된다. attached된 fragment 또는 activity는 새 값으로 refresh된다.
+
+#### 1) VideosRepository 클래스에서 DevByteVideo 객체 리스트를 가지고 있는 videos라는 LiveData 객체를 선언한다
+
+#### 2) videos 객체를 database.videoDao를 사용하여 초기화한다. getVideos()라는 DAO 메소드를 호출한다. getVideos() 메소드는 DevByteVideo 객체가 아닌 database objects를 리턴하는 메소드이므로 안드로이드 스튜디오는 \'type mismatch\' 에러를 발생시킨다.
+
+```
+val videos: LiveData<List<DevByteVideo>> = database.videoDao.getVideos()
+```
+
+#### 3) 에러를 고치기 위해 Transformation.map을 사용하여 database objects의 리스트를 domain objects의 리스트로 변경한다. 변환함수로는 asDomainModel()을 사용한다.
+Transformations.map 메소드는 LiveData 객체를 다른 LiveData 객체로 변환하는데 사용하는 conversion function이다. 이 transformation은 activity 또는 fragment가 반환된 LiveData 속성을 관찰하는 경우에만 연산된다.
+
+```
+val videos: LiveData<List<DevByteVideo>> = Transformations.map(database.videoDao.getVideos()) {
+   it.asDomainModel()
+}
+```
+
+<br><br>
+
+## 5. Integrate the repository using a refresh strategy
+이번 단계에서는 간단한 refresh 전략을 사용하여 repository를 ViewModel과 통합한다. 네트워크로부터 데이터를 직접 가져오는게 아니라 Room database로부터 video playlist를 가져와서 표시한다. 
+
+database refresh는 네트워크의 데이터와 동기화 되도록 로컬 데이터베이스를 업데이트하거나 새로 고치는 프로세스이다. 이 샘플 앱의 경우에는 간단한 refresh 전략을 사용한다. 샘플 앱은 repository에서 데이터를 요청하는 모듈이 local data를 refresh하는 역할을 한다. 
+
+실제 상용 앱에서는 refresh 전략은 더 복잡해야한다. 예를 들어, 코드가 백그라운드에서 자동으로 데이터를 refresh 하거나 (대역폭을 고려하여), 사용자가 다음에 가장 많이 사용할 데이터를 캐시할 수 있다
+
+ 
+#### 1) viewmodels/DevByteViewModel.kt 파일을 열어서 DevByteViewModel 클래스 안에 private 멤버 변수로 videosRepository 타입의 videosRepository라는 변수를 생성한다. 싱글톤 VideoDatabase 객체를 전다하여 변수를 인스턴스화 한다
+
+```
+private val videosRepository = VideosRepository(getDatabase(application))
+```
+
+#### 2) DevByteViewModel 클래스에서 refreshDataFromNetwork() 메소드를 refreshDataFromRepository() 메소드로 대체한다
+예전 메소드 refreshDataFromNetwork()는 Retrofit 라이브러리를 사용하여 네트워크로터 video playlist 데이터를 가져온다. 새로운 메소드는 respository에서 video playlist를 로드한다.
+
+```
+/**
+* Refresh data from the repository. Use a coroutine launch to run in a
+* background thread.
+*/
+private fun refreshDataFromRepository() {
+   viewModelScope.launch {
+       try {
+           videosRepository.refreshVideos()
+           _eventNetworkError.value = false
+           _isNetworkErrorShown.value = false
+
+       } catch (networkError: IOException) {
+           // Show a Toast error message and hide the progress bar.
+           if(playlist.value!!.isEmpty())
+               _eventNetworkError.value = true
+       }
+   }
+}
+```
+
+#### 3) DevByteViewModel 클래스의 init 블록에서 refreshDataFromNetwork() 메소드 호출을 refreshDataFromRepository()로 변경한다. 이 메소드는 network로부터 직접 가져오는 것이 아니라 repository로부터 video playlist를 가지고 온다
+
+```
+init {
+   refreshDataFromRepository()
+}
+```
+
+#### 4) DevByteViewModel 클래스에서 _playlist 프로퍼티와 backing property인 playlist를 삭제한다
+
+```
+// 삭제할 코드
+private val _playlist = MutableLiveData<List<Video>>()
+...
+val playlist: LiveData<List<Video>>
+   get() = _playlist
+```
+
+#### 5) DevByteViewModel 클래스에서 videosRepository 객체를 인스턴스화 한 이후에 repository로 부터 얻은 video list LiveData를 val playlist 변수에 할당한다.
+
+```
+val playlist = videosRepository.videos
+```
+
+#### 6) 앱을 실행한다. 앱은 이전과 같이 실행되지만 이제 DevBytes playlist를 network에서 가져오고 Room database에 저장한다. playlist는 network에서 직접 가져오는게 아니라 Room database로부터 가져와서 화면에 표시한다.
+
+#### 7) 차이점을 알아보기 위해 비행기 모드를 디바이스에서 활성화한다 
+
+#### 8) 앱을 다시 실행한다. \'Network Error\' 토스트 메세지가 뜨지 않는 것을 확인할 수 있다. 대신 playlist를 offline cache에서 가져오고 화면에 나타낸다
+
+#### 9) 디바이스에서 비행기 모드를 끈다
+
+#### 10) 앱을 종료하고 다시 실행한다. 앱은 background에서 network request를 실행하는 동안, offline cache로부터 playlist를 로드한다. 
+
+만약 network로부터 새로운 데이터가 
