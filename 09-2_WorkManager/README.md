@@ -240,6 +240,7 @@ override fun onCreate() {
 
 #### 9) 앱을 실행시킨다. WorkManager는 반복 작업을 즉시 예약한다.
 Logcat 창에서 work request가 스케줄 되고 성공적으로 실행됨을 나타내는 로그 문장을 확인할 수 있다
+WM-WorkerWrapper 로그는 WorkManager 라이브러리에서 표시되는 로그이므로 로그 메시지를 변경할 수는 없다.
 
 ```
 D/RefreshDataWorker: Work request for sync is run
