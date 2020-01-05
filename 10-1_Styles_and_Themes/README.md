@@ -5,7 +5,7 @@ Android는 앱의 모든 뷰 모양을 제어 할 수있는 풍부한 스타일�
 아래 그림은 각 스타일링 방법의 우선 순위를 요약 한 것이다. 피라미드 다이어그램은 시스템에서 스타일링 방법이 아래에서 위로 적용되는 순서를 보여준다. 
 예를 들어 텍스트의 크기를 theme에서 설정하고 이후에 view 속성에서 다르게 텍스트의 사이즈를 정의했다면 뷰 속성은 테마 스타일의 텍스트 사이즈 값으로 재정의 된다.
 
-<image src="./images/styles.png" width="70%" height="70%"/>
+<image src="./images/styles.png" width="50%" height="50%"/>
 
 <br>
 
@@ -209,3 +209,66 @@ Android에서는 앱이 런타임에 다운로드 가능한 글꼴 API를 사용
 
 #### 4) title TextView의 fontFamily 속성을 제거한다
 
+<br><br>
+
+## 4. Use styles
+테마는 기본 글꼴 및 기본 색상과 같은 일반적인 테마를 앱에 적용하는 데 유용하다. Attribute는 특정 뷰에 스타일을 적용하고 각 화면에 고유한 margins, padding, constraints와 같은 레이아웃 정보를 추가하는데 유용하다
+스타일 계층 피마리드 다이어그램을 확인하면 중간에 style이 있는 것을 확인할 수 있다. 스타일은 재사용 할 수있는 속성의 '그룹'으로, 선택한 뷰에 적용 할 수 있다. 이번 단계에서는 title과 subtitle에 스타일을 적용한다
+
+### Step 1: Create a style
+
+#### 1) res/values/styles.xml를 연다
+
+#### 2) <resources> 태그 안에 아래와 같이 새로운 <style> 태그를 정의한다
+
+```
+<style name="TextAppearance.Title" parent="TextAppearance.MaterialComponents.Headline6">
+</style>
+```
+
+스타일의 이름을 정할 때에는 시맨틱으로 정의하는 것이 좋다. 스타일이 영향을 주는 속성이 아니라 스타일이 사용될 대상을 기준으로 스타일 이름을 정의한다. 예를 들어 스타일을 LargeFontInGrey와 같은 이름이 아닌 Title과 같은 명칭을 사용한다.
+이 스타일은 앱의 어느곳에서든 title로 사용된다. 일반적으로 TextAppearance 스타일은 TextAppearance.Name이라고 하며 이 경우에는 TextAppearance.Title로 지정했다.
+
+테마에 parent과 있는 것처럼 style에도 parent가 있다. 그러나 이번에는 테마를 확장하는 것 대신 'TextAppearance.MaterialComponents.Headline6'이라는 스타일을 확장한다.
+이 스타일은 MaterialComponents 테마의 기본 텍스트 스타일이므로, 이 스타일을 확장하면 처음부터 시작하는 대신 기본 스타일을 수정할 수 있다.
+
+
+#### 3) 새로운 style에 item 두가지를 정의한다. 첫번쨰 item에는 textSize를 24sp로 설정하고 두번째 item에는 전에 했던 것처럼 textColor를 dark gray로 설정한다
+
+```
+ <item name="android:textSize">24sp</item>
+ <item name="android:textColor">#555555</item>
+```
+
+#### 4) TextAppearance.Subtitle이라는 이름의 새로운 style도 정의한다
+
+#### 5) TextAppearance.Title과의 유일한 차이점은 텍스트 크기이므로 이 스타일을 TextAppearance.Title의 자식으로 만든다.
+
+#### 6) Subtitle 스타일 내부에 text size를 18sp로 설정한다.
+
+```
+<style name="TextAppearance.Subtitle" parent="TextAppearance.Title" >
+   <item name="android:textSize">18sp</item>
+</style>
+```
+
+<br>
+
+### Step 2: Apply the style that you created
+
+#### 1) home_fragment.xml에서 TextAppearance.Title 스타일을 title TextView에 추가한다. textSize 및 textColor 속성을 삭제한다
+textAppearance 속성을 정의한 Style을 TextAppearance로 적용하여 테마에서 설정한 글꼴을 재정의한다.
+
+```
+<TextView
+       android:id="@+id/title"
+       android:textAppearance="@style/TextAppearance.Title"₩
+```
+
+#### 2) subtitle textview에 TextAppearance.Subtitle 스타일을 추가하고 textSize와 textColor 속성을 지운다.
+
+```
+<TextView
+       android:id="@+id/subtitle"
+       android:textAppearance="@style/TextAppearance.Subtitle"
+```
