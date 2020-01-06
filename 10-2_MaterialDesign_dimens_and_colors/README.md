@@ -52,7 +52,7 @@ androidx.core.widget.NestedScrollView
 
 #### 6) 앱을 실행시키면 왼쪽 상단 코너 쪽에 둥근 버튼이 생긴 것을 볼 수 있다
 
-<image src="./images/fab2.png" width="70%" height="70%"/>
+<image src="./images/fab2.png" width="40%" height="40%"/>
 
 
 #### 7) 스크롤을 해보면 버튼이 같은 위치에 떠있는 것을 확인할 수 있다
@@ -147,7 +147,7 @@ import androidx.lifecycle.Observer
 
 #### 8) 앱을 실행시키고 FAB를 눌러서 GDG list로 이동하는지 확인한다. 실제 기기에서 앱을 실행중인 경우 위치 권한을 요청한다. 에뮬레이터에서 앱을 실행중인 경우 다음 메시지와 함께 빈 페이지가 표시 될 수 있다.
 
-<image src="./images/fab3.png" width="70%" height="70%"/>
+<image src="./images/fab3.png" width="50%" height="50%"/>
 
 이 메세지가 에뮬레이터에서 보이면 인터넷에 연결되어 있고 위치 설정이 켜져있는지 확인해라.
 
@@ -185,5 +185,11 @@ import androidx.lifecycle.Observer
 #### 6) 앱을 실행시켜서 차이점을 살펴보자. 아래 스크린샷은 Material Style이 title에 적용되고 Title style을 오버라이드 할 때의 차이점을 보여준다
  - Material Style: style="attr/textAppearanceHeadline5"
  - Text Appearance: android:textAppearance="?attr/textAppearanceHeadline5"
- 
- <image src="./images/material_style.png"/> <image src="./images/text_appearance.png"/>
+
+**Material Style** 
+<image src="./images/material_style.png" height="70%" width="70%"/>
+
+<br>
+
+**Text Appearance**
+<image src="./images/text_appearance.png" height="70%" width="70%"/>
