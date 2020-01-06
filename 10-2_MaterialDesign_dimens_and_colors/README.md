@@ -186,10 +186,43 @@ import androidx.lifecycle.Observer
  - Material Style: style="attr/textAppearanceHeadline5"
  - Text Appearance: android:textAppearance="?attr/textAppearanceHeadline5"
 
+<br>
+
 **Material Style** 
+
 <image src="./images/material_style.png" height="50%" width="50%"/>
 
 <br>
 
 **Text Appearance**
+
 <image src="./images/text_appearance.png" height="50%" width="50%"/>
+
+<br><br>
+
+### Step 2: Change the style in the Material theme
+textAppearanceHeadline6은 subtitle에 좋은 material이지만 기본 크기는 타이틀 스타일로 적용된 18sp가 아닌 20sp이다. 각각의 subtitle 뷰에 사이즈를 재정의 하는 대신에 Material theme을 수정하고 default size를 재정의 할 수 있다
+
+#### 1) styles.xml을 연다
+
+#### 2) Title과 Subtitle 스타일을 지운다. 지금 이미 Title 대신에 textAppearanceHeadline5를 사용하고 있고 Subtitle 역시 필요 없다
+
+#### 3) CustomHeadline6을 textSize 18sp로 정의한다. 명시적으로 오버라이드 하지 않은 나머지 속성들을 상속받기 위해, parent 값으로 TextAppearance.MaterialComponents.Headline6를 설정한다. 
+
+```
+<style name="TextAppearance.CustomHeadline6" parent="TextAppearance.MaterialComponents.Headline6">
+   <item name="android:textSize">18sp</item>
+</style>
+```
+
+#### 4) style 안에서 item 항목에 textAppearanceHeadline6를 커스텀 함으로써 textAppearanceHeadline6 theme의 기본값인 textAppearanceHeadline6를 재정의한다. 
+
+```
+<item name="textAppearanceHeadline6">@style/TextAppearance.CustomHeadline6</item>
+```
+
+#### 5) home_fragment.xml의 subtitle 뷰에 textAppearanceHeadline6를 적용한다. 
+
+```
+android:textAppearance="?attr/textAppearanceHeadline6"
+```
