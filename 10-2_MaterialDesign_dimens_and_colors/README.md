@@ -337,7 +337,7 @@ layout_constraintGuide_begin="16dp"는 Material 명세를 따르지만 app:layou
 
 #### 7) 앱을 실행시켜서 텍스트의 왼쪽와 오른쪽 간격이 동일한 것을 확인한다. 
 
-<image src="./images/dimension.png width="70%" height="70%"/>
+<image src="./images/dimension.png" width="70%" height="70%"/>
 
 
                
