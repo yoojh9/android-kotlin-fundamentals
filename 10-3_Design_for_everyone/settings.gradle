@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name='10-3_Design_for_everyone'
