@@ -175,7 +175,7 @@ import androidx.lifecycle.Observer
 
 #### 4) preview를 확인하면 title의 폰트가 변경된 것을 볼 수 있다. 아래의 스타일 우선순의 피라미드 다이어그랢에 표시된 것처럼 뷰에서 설정한 스타일이 테마에서 설정한 스타일을 재정의하기 때문에 발생한다
 
-<image src="./images/diagram.png" width="70%" height="70%"/>
+<image src="./images/diagram.png" width="50%" height="50%"/>
 
 피라미드 다이어그램에서 TextApperance는 theme의 아래에 있다. TextAppearance는 텍스트 스타일을 적용시킬 수 있는 모든 view의 속성이다. 스타일과 같지 않으며 텍스트를 표시하는 방법에 대해서만 정의할 수 있다.
 머터리얼 디자인 컴포넌트의 모든 텍스트 스타일은 textAppearance를 사용할 수 있다. 그렇게 하면 정의된 테마 속성이 우선한다.
@@ -187,9 +187,9 @@ import androidx.lifecycle.Observer
  - Text Appearance: android:textAppearance="?attr/textAppearanceHeadline5"
 
 **Material Style** 
-<image src="./images/material_style.png" height="70%" width="70%"/>
+<image src="./images/material_style.png" height="50%" width="50%"/>
 
 <br>
 
 **Text Appearance**
-<image src="./images/text_appearance.png" height="70%" width="70%"/>
+<image src="./images/text_appearance.png" height="50%" width="50%"/>
