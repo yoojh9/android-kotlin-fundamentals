@@ -226,3 +226,47 @@ textAppearanceHeadline6은 subtitle에 좋은 material이지만 기본 크기는
 ```
 android:textAppearance="?attr/textAppearanceHeadline6"
 ```
+
+<br><br>
+
+## 3. Change the toolbar theme
+떄때로 화면의 전부가 아닌 일부를 다른 테마로 변경하고 싶을 수 있다. 예를 들어 툴바에 dark Material components theme을 사용하도록 할 수 있다. 테마 오버레이를 사용하여 이 작업을 수행한다.
+테마는 전체 앱의 global 테마를 설정하는 데 사용한다. ThemeOverlay는 특정 뷰, 특히 toolbar와 같은 테마를 오버라이드 하는데 사용된다.
+
+Theme overlay는 케이크 위에 아이싱 하는 것과 같이 기존 테마를 오버레이 하도록 설계된 'thin theme'이다. Theme overlay는 앱의 하위 섹션을 변경하기를 원할 때 사용하기에 유용하다. 예를 들어 toolbar를 어둡게 만들고 나머지 화면 영역은 light theme를 유지하고자 할 때 사용한다.
+테마 오버레이를 뷰에 적용하고 오버레이는 해당 뷰 및 모든 하위 뷰에 적용된다.
+
+<br>
+
+### Step 1: Use theme overlays
+MaterialComponents의 테마에는 밝은 화면에 어두운 툴바에 대한 옵션이 없다. 이 단계에서는 단지 toolbar의 theme만 변경한다. MaterialComponents에서 사용할 수있는 Dark 테마를 툴바에 오버레이로 적용하여 툴바를 어둡게 만든다
+
+#### 1) activity_main.xml을 열고 (androidx.appcompat.widget.Toolbar)로 정의된 Toolbar를 찾는다. Toolbar는 Material Design의 일부이며 activity가 기본적으로 사용하는 app bar보다 더 많은 커스터마이징을 허용한다
+
+#### 2) toolbar와 toolbar의 childern 뷰를 dark theme으로 변경하기 위해 Toolbar의 테마를 Dark.ActionBar 테마로 변경한다. 
+
+```
+<androidx.appcompat.widget.Toolbar
+    android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+```
+
+#### 3) Toolbar의 background를 colorPrimaryDark로 변경한다
+
+```
+android:background="?attr/colorPrimaryDark"
+```
+
+변경된 배경색으로 인해 텍스트가 눈에 잘 띄지 않는다. 새 이미지를 만들거나 새 이미지를 만들지 않고 대비를 높이려면 ImageView에서 색조를 설정할 수 있다. 이로 인해 전체 ImageView가 지정된 색상으로 'tint'된다.
+ColorOnPrimary 속성은 primary color 위에 그려질 때 텍스트 또는 아이콘에 대한 접근성 가이드라인을 충족시키는 색상이다. 
+
+<image src="./images/toolbar_theme1.png" width="70%" height="70%"/>
+
+#### 4) Toolbar 내부의 ImageView 안에서 tint를 colorOnPrimary로 설정한다. drawabale은 이미지와 GDG Finder text를 모두 포함하고 있으므로 밝게 표시된다
+
+```
+android:tint="?attr/colorOnPrimary"
+```
+
+#### 5) 앱을 실행시켜 header가 dark theme으로 변경된 것을 확인한다. 또한 tint 속성은 "GDG Finder"라는 텍스트와 아이콘을 포함한 로고 이미지를 밝게 변경한다.
+
+<image src="./images/toolbar_theme2.png" width="70%" height="70%"/>

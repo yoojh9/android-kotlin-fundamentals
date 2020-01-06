@@ -27,6 +27,8 @@
 
             <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
+                    android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+                    android:background="?attr/colorPrimaryDark"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize">
                 <ImageView
@@ -34,6 +36,7 @@
                         android:layout_width="150dp"
                         android:layout_height="match_parent"
                         app:srcCompat="@drawable/logo"
+                        android:tint="?attr/colorOnPrimary"
                         android:contentDescription="@string/app_name"/>
             </androidx.appcompat.widget.Toolbar>
 
