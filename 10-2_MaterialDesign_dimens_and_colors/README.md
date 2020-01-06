@@ -270,3 +270,74 @@ android:tint="?attr/colorOnPrimary"
 #### 5) 앱을 실행시켜 header가 dark theme으로 변경된 것을 확인한다. 또한 tint 속성은 "GDG Finder"라는 텍스트와 아이콘을 포함한 로고 이미지를 밝게 변경한다.
 
 <image src="./images/toolbar_theme2.png" width="70%" height="70%"/>
+
+<br><br>
+
+## 4. Use dimensions
+전문적으로 보이는 앱은 동일한 룩앤필을 갖는다. 이런 앱들은 모든 화면에 같은 컬러들과 비슷한 레이아웃들을 가지고 있다. 이를 통해 앱이 좋게 보여질 뿐만 아니라 사용자가 화면을 더 쉽게 이해하고 상호작용 할 수 있다
+
+Dimens, 또는 dimension은 재사용 가능한 측정 값을 지정할 수 있다. dp를 사용하여 marin, height, padding을 지정하고 sp를 사용하여 폰트의 사이즈를 설정한다
+
+이번 단계에서는 화면의 오른쪽과 왼쪽에 일관된 마진을 적용하는데 사용할 dimen을 정의해보자
+
+### Step 1: Examine your code
+
+#### 1) home_fragment.xml을 연다
+
+#### 2) Design 탭을 눌러서 blueprint가 활성화 되어있는지 살펴본다
+
+#### 3) Component Tree 창에서 start_guideline과 end_guideline을 선택한다. 
+
+#### 4) start_guideline과 end_guideline의 값이 16, 26인 것을 확인한다
+
+#### 5) Text 탭으로 전환한다
+
+#### 6) ConstraintLayout 하단에 두가지의 Guidelines이 정의되어 있는 것을 확인한다. Guidelines은 컨텐츠의 가장자리를 정의하는 화면에서 수직 또는 수평의 선을 정의할 수 있다. 전체 화면 이미지를 제외한 모든 것이 가이드라인 안에 배치된다
+
+```
+<androidx.constraintlayout.widget.Guideline
+   android:id="@+id/start_guideline"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:orientation="vertical"
+   app:layout_constraintGuide_begin="16dp" />
+
+<androidx.constraintlayout.widget.Guideline
+   android:id="@+id/end_guideline"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:orientation="vertical"
+   app:layout_constraintGuide_end="26dp" />
+```
+
+layout_constraintGuide_begin="16dp"는 Material 명세를 따르지만 app:layout_constraintGuide_end="26dp"은 16dp가 되어야 한다.
+여기서는 수동으로 값을 고치지만 이러한 margin에 대해 dimension을 만든 다음 앱 전체에서 일관되게 적용하는 것이 좋다
+
+<br>
+
+### Step 2: Create a dimension
+
+#### 1) home_fragment.xml에서 app:layout_constraintGuide_begin="16dp"의 16dp에 커서를 놓는다
+
+#### 2) Alt + Enter (Option + Enter for mac)을 이용하여 intention menu를 열고 Extract dimension resource를 선택한다
+
+#### 3) dimension의 Resource Name은 spacing_normal로 설정한다. 나머지는 그대로 둔 채 OK를 클릭한다
+
+#### 4) layout_constraintGuide_end도 spacing_normal dimension을 적용한다
+
+```
+<androidx.constraintlayout.widget.Guideline
+       android:id="@+id/end_grid"
+       app:layout_constraintGuide_end="@dimen/spacing_normal"
+```
+
+#### 5) 안드로이드 스튜디오에서 **Replace All** 창을 연다 (Cmd+Shift+R on the Mac or Ctrl+Shift+R on Windows)
+
+#### 6) 16dp를 검색하고 dimens.xml의 항목을 제외한 모든 항목을 @dimen/spacing_normal로 바꾼다
+
+#### 7) 앱을 실행시켜서 텍스트의 왼쪽와 오른쪽 간격이 동일한 것을 확인한다. 
+
+<image src="./images/dimension.png width="70%" height="70%"/>
+
+
+               

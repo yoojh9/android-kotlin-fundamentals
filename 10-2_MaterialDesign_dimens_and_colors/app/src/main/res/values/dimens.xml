@@ -16,4 +16,5 @@
 
 <resources>
 
+    <dimen name="spacing_margin">16dp</dimen>
 </resources>
