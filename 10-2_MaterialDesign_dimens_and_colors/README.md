@@ -340,4 +340,81 @@ layout_constraintGuide_begin="16dp"는 Material 명세를 따르지만 app:layou
 <image src="./images/dimension.png" width="70%" height="70%"/>
 
 
-               
+<br><br>
+
+## 5. Use colors
+color resource와 Material Theme을 사용하면 앱 전체에 일관적인 색깔을 적용할 수 있다. 최상의 색상과 색상 조합을 고르는 것은 어려울 수 있지만 도움이 되는 도구가 있따
+
+첫번쨰 유용한 툴은 [Color Tool](https://material.io/resources/color/)이다. tool에서 앱의 full Material color scheme을 얻으려면 기본 메인 color 2가지를 고르고 tool이 나머지 color를 적절하게 만든다.
+
+이 단계에서는 Material color scheme을 생성하고 앱에 적용시켜보자
+
+<br>
+
+### Step 1: Create a Material color scheme
+
+#### 1) [https://material.io/tools/color/](https://material.io/tools/color/)를 연다. 이 도구를 사용하여 UI의 색상 조합을 탐색할 수 있다.
+
+#### 2) **Primary**를 선택하고 color를 클릭한다.
+
+#### 3) **Secondary**를 선택하고 color를 클릭한다
+
+#### 4) tool에서 만들어진 것과 다른 텍스트 color를 원할 경우 **Text**를 클릭해서 color를 선택한다
+
+#### 6) **ACCESSIBILITY** 탭을 클릭하면 리포트를 얻을 수 있다. 이 보고서는 현재 선택된 색상이 얼마나 읽기 쉬운지에 대한 정보를 제공한다
+
+<image src="./images/color_tool.png" width="70%" height="70%"/>
+
+
+#### 7) 아래와 같이 삼각형 느낌표 아이콘을 찾아보자
+
+<image src="./images/exclamation.png" width="70%" height="70%"/>
+
+**Note:** 이 도구는 다양한 형태의 시력 손상을 지닌 사람에게 얼마나 잘 보이는지에 대해 평가를 제공한다. contrast(대비)가 향상되면 텍스트를 보다 쉽게 읽을 수 있다.
+
+
+#### 8) 도구에서 **CUSTOM** 탭으로 전환하고 다음 두가지 컬러를 입력한다
+ - Primary: #669df6
+ - Secondary: #a142f4
+ 
+ Primary color는 GDG 로고에서 사용된 색상을 기반으로 하는 파란색이다. secondary color는 홈 화면 이미지에서 풍선 색깔이다. 
+ 
+#### 9) 오른쪽 상단에서 EXPORT 와 ANDROID를 선택한다. 
+
+#### 10) colors.xml이 다운로드 된다
+
+<br>
+
+### Step 2: Apply the Material color scheme to your app
+
+#### 1) 텍스트 에디터에서 colors.xml을 연다
+
+#### 2) 안드로이드 스튜디오에서 values/color.xml을 연다
+
+#### 3) values/colors.xml의 리소스를 다운로드 한 colors.xml 파일의 내용으로 변경한다
+
+#### 4) style.xml을 연다
+
+#### 5) AppTheme에서 에러가 나는 colorPrimary, colorPrimaryDark, colorAccent를 지운다
+
+#### 6) AppTheme에서 새로운 color 6개 속성을 정의한다.
+
+```
+<item name="colorPrimary">@color/primaryColor</item>
+<item name="colorPrimaryDark">@color/primaryDarkColor</item>
+<item name="colorPrimaryVariant">@color/primaryLightColor</item>
+<item name="colorOnPrimary">@color/primaryTextColor</item>
+<item name="colorSecondary">@color/secondaryColor</item>
+<item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
+<item name="colorOnSecondary">@color/secondaryTextColor</item>
+```
+
+#### 7) 그러나 colorPrimaryDark 위에 표시될 때 로고 tint("GDG Finder" 텍스트를 포함)가 두드러질 정도로 colorOnPrimary가 충분히 밝지 않다
+
+#### 8) activity_main.xml에서 Toolbar를 찾고 ImageView의 tint를 colorOnSecondary로 변경한다
+
+#### 9) 앱을 실행시킨다
+
+**ColorOnPrimary:** primary color 위에 그려지는 텍스트 및 아이콘에 대한 접근성 가이드라인을 통과한 색상이다
+**colorOnSecondary:** Secondary color 위에 그려지는 텍스트 및 아이콘에 대한 접근성 가이드라인을 통과한 색상이다
+
