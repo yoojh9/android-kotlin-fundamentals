@@ -9,7 +9,7 @@ WorkManager는 Android Jetpack의 Android Architecture Components 중의 하나�
 WorkManager는 백그라운드 작업을 실행하는 동안 호환성 문제와 배터리 및 시스템 상태에 대한 모범 사례를 처리한다. WorkManager는 API level 14까지의 호환성을 제공한다. WorkManager는 장치 API 레벨에 따라 백그라운드 작업을 스케줄하는 적절한 방법을 선택한다.
 JobScheduler (API 23 이상) 또는 AlarmManager와 BroadcastReceiver의 조합을 사용할 수 있다.
 
-<image src="./images/workmanager.png" width="70%" height="70%"/>
+<image src="./images/workmanger.png" width="70%" height="70%"/>
 
 WorkManager를 사용하면 백그라운드 작업 실행 시기에 대한 기준을 설정할 수도 있다. 예를 들어 배터리 상태, 네트워크 상태 또는 충전 상태가 특정 기준을 충족한 경우에만 작업을 실행할 수도 있다.
 
