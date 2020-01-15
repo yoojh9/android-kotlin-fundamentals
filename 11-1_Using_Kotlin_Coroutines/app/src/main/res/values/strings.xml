@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">11-1_Using_Kotlin_Coroutines</string>
+    <string name="click_to_start">Click to start</string>
+</resources>
