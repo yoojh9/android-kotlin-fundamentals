@@ -391,3 +391,111 @@ Room과 Retrofit은 모두 custom dispatcher를 사용하고 Dispatchers.IO를 �
 
 
 ### Using Room and Retrofit
+이제 Room과 Retrofit은 suspend function 기능을 지원하므로 repository에서 사용할 수 있다. TitleRepository.kt를 열고 suspending function을 사용하여 blocking version과 비교했을 때 로직이 얼마나 단순해졌는지 확인해라
+
+```
+suspend fun refreshTitle() {
+   try {
+       // Make network request using a blocking call
+       val result = network.fetchNextTitle()
+       titleDao.insertTitle(Title(result))
+   } catch (cause: Throwable) {
+       // If anything throws an exception, inform the caller
+       throw TitleRefreshError("Unable to refresh title", cause)
+   }
+}
+```
+
+suspend 및 resume에 의존하면 코드가 훨씬 짧아진다. Retrofit을 사용하면 Call 대신 String 또는 User 객체와 같은 반환 타입을 사용할 수 있다. suspend 기능 내에서 Retrofit은 백그라운드 스레드에서 네트워크를 실행하고 호출이 완료되면 코루틴을 재개할 수 있기 때문에 안전하다.
+Room과 Retrofit 모두 main-safe suspending function을 제공하기 때문에 Dispatchers.Main에서 비동기 작업을 진행할 수 있다. 
+main-safe suspending function을 호출하면 withContext는 필요하지 않다. suspend function은 main-safe하다. 이 떄문에 Dispatchers.Main과 같은 어느 dispatcher에서라도 호출할 수 있다.
+
+
+<br><br>
+
+## 7. Using coroutines in higher order functions
+이 단계에서는 코루틴을 사용하는 고차함수를 작성하는 방법을 알려준다. 
+
+Before
+
+```
+// MainViewModel.kt
+
+fun refreshTitle() {
+   viewModelScope.launch {
+       try {
+           _spinner.value = true
+           // this is the only part that changes between sources
+           repository.refreshTitle() 
+       } catch (error: TitleRefreshError) {
+           _snackBar.value = error.message
+       } finally {
+           _spinner.value = false
+       }
+   }
+}
+```
+
+**Using coroutines in higher order functions**
+Add this code to MainViewModel.kt
+
+```
+private fun launchDataLoad(block: suspend () -> Unit): Job {
+   return viewModelScope.launch {
+       try {
+           _spinner.value = true
+           block()
+       } catch (error: TitleRefreshError) {
+           _snackBar.value = error.message
+       } finally {
+           _spinner.value = false
+       }
+   }
+}
+
+fun refreshTitle() {
+   launchDataLoad {
+       repository.refreshTitle()
+   }
+}
+
+```
+
+suspend lambda는 suspend functions을 호출할 수 있다
+
+```
+// suspend lambda
+
+block: suspend () -> Unit
+```
+
+<br><br>
+
+## 8. Using coroutines with WorkManager
+
+### 1) What is WorkManager
+지연 가능한 백그라운드 작업을 위해 안드로이드는 여러가지 옵션이 있다. 이 예제에서는 WorkManager를 코루틴과 통합하는 방법을 보여준다. WorkManager는 지연 가능한 백그라운드 작업을 위한 유연하고 간단한 라이브러리이다.
+WorkManager는 Android Jetpack의 일부이며 백그라운드 작업을 위한 아키텍처 구성 요소이다. 
+
+WorkManager의 좋은 사용법은 다음과 같다
+ - 로그 업로
+ - 이미지에 필터 적용 및 이미지 저장
+ - 로컬 데이터를 네트워크와 주기적으로 동기화
+ 
+
+### 2) Using coroutines with WorkManager
+WorkManager는 다양한 사용 사례에 대해 기본 ListenableWorker 클래스의 다양한 구현을 제공한다. 가장 간단한 Worker 클래스를 사용하면 WorkManager에서 동기 작업을 실행할 수 있다.
+
+```
+override suspend fun doWork(): Result {
+   val database = getDatabase(applicationContext)
+   val repository = TitleRepository(network, database.titleDao)
+
+   return try {
+       repository.refreshTitle()
+       Result.success()
+   } catch (error: TitleRefreshError) {
+       Result.failure()
+   }
+}
+```
