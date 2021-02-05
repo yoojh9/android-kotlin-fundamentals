@@ -174,9 +174,9 @@
     
     ##### 1) navigation.xml에서 gameFragment와 gameOverFragment를 연결하는 action을 선택한다.
     ##### 2) Attributes 창에서 **Pop To**를 gameFragment로 설정하고, **inclusive** 체크박스를 선택한다.
- 
-    
-        <img src="./images/pop_behavior_1.png"  width="50%" height="50%"/>
+
+
+ <img src="./images/pop_behavior_1.png"  width="50%" height="50%"/>
       
     
     - 이 속성은 navigation component에 백 스택에서 GameFragment를 포함한 fragment를 제거하도록 지시한다.
