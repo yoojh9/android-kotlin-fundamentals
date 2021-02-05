@@ -187,6 +187,7 @@
     ##### 4) **Pop To**에 gameFragment를 설정하고 **inclusive** 체크박스를 선택한다.
 
 
+<br><br>
 
  ### Step 2: Add more navigation actions and add onClick handlers
   - 사용자가 **Next Match** 또는 **Try Again** 버튼을 눌렀을 경우 GameFragment 화면으로 연결시킨다.
