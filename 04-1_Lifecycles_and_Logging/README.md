@@ -87,8 +87,8 @@
   - 이번 단계에서는 Application을 만든다. Application은 global 어플리케이션의 상태를 포함하는 기본 클래스이다
   - 또한 운영 체제가 앱과 상호 작용하기 위해 사용하는 주요 객체이다
   - 따로 지정하지 않으면 Android에서 사용하는 기본 Application 클래스가 제공되므로 앱을 만들기 위해 특별한 작업을 수행할 필요 없이 항상 앱에 대해 생성된 Application 객체가 있다
-  - 전체 앱에서 이 로깅 라이브러리를 사용하고 다른 모든 것이 설정되기 전에 라이브러리를 한번 초기화해야 하므로 Timber는 Application 클래스를 사용한다
-  - (액티비티 코드는 Application 클래스에 넣지 않는다.)
+  - Timber는 전체 앱에서 이 로깅 라이브러리를 사용하기 때문에 다른 모든 것이 설정되기 전에 라이브러리를 한 번 초기화 해야 한다. 이와 같은 경우에는 Application 클래스를 하위 클래스로 만들고 custom하여 구현한다.
+  - 액티비티 코드는 Application 클래스에 넣지 않도록 주의한다.
   
   - Application 클래스를 만들고 나면 Android manifest에 클래스를 지정해야 된다
     
@@ -204,7 +204,7 @@
   
   ##### 3. 백 버튼을 누르면 onPause(), onStop(), onDestroy()가 차례로 호출된다.
    - 이 경우 백 버튼을 사용하면 activity(앱)이 완전히 종료된다.
-   - onDestroy() 메소드는 activity가 완전히 종료될 수 있으 가비지 컬렉터에 의해 수집될 수 있음을 의미한다
+   - onDestroy() 메소드는 activity가 완전히 종료될 수 있고 가비지 컬렉터에 의해 수집될 수 있음을 의미한다
    - 액티비티는 코드에서 finish()를 호출하거나 사용자가 앱을 끌 경우 완전히 종료된다.
    - 또한 앱이 오랫동안 화면에 표시되지 않을 경우 android 시스템에서 activity를 자체적으로 종료할 수도 있다. 안드로이드에서는 배터리를 보호하고 다른 앱에서 앱 리소스를 사용할 수 있도록 이 작업을 수행한다.
    
@@ -308,8 +308,8 @@
 
 ## 3. Explore the fragment lifecycle
  - onAttach(): fragment과 activity와 연관될 때 호출된다
- - onCreate(): activity의 onCreate()와 유사하게 fragment의 onCreate()는 fragment 생성자를 초기화하게 위해 사용된다(레이아웃 제외)
- - onCreateView(): fragment layou이 inflate 될 때 호출된다
+ - onCreate(): activity의 onCreate()와 유사하게 fragment의 onCreate()는 fragment 생성자를 초기화하기 위해 사용된다(레이아웃 제외)
+ - onCreateView(): fragment layout이 inflate 될 때 호출된다
  - onActivityCreated(): 액티비티의 onCreate()가 완료될 때 호출된다. 프래그먼트는 이 메소드가 호출될 때 까지 activity에 접근할 수 없다
  - onStart(): 프래그먼트가 visible 될 때 호출된다 (activity의 onStart()와 병행)
  - onResume(): 프래그먼트가 focus를 얻을 때 호출된다(activity의 onResume()과 병행)
