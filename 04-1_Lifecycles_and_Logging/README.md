@@ -94,32 +94,32 @@
     
     ##### 1. ClickerApplication 이라는 새로운 클래스를 만든다.
     
-        ```
+
          package com.example.android.lifecycles
          
          class ClickerApplication {
          }
          
-        ```
+
     
     ##### 2. ClickerApplication을 Application의 하위 클래스로 변경한다
     
-        ```
+
          class ClickerApplication : Application() {
          
          }
-        ```
+
     
     ##### 3. onCreate() 메소드를 오버라이드 한다
     
-        ```
+
          class ClickerApplication : Application() {
             
             override fun onCreate() {
                 super.onCreate()
             }
          }
-        ```
+
     
     ##### 4. onCreate() 메소드 안에서 Timber 라이브러리를 초기화한다.
      - Timber 라이브러리를 Application에서 초기화하면 activity에서 Timber 라이브러리를 사용할 수 있다
@@ -136,11 +136,11 @@
         ```
     
     ##### 5. AndroidManifest.xml을 열어서 \<application\> 요소에 ClickerApplication 클래스를 추가한다.
-        ```
+
         <application
            android:name=".ClickerApplication"
         ...
-        ```
+
  
  <br>
     
