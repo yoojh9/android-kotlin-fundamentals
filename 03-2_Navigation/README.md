@@ -331,12 +331,13 @@
    ```
    
    ##### 3) onOptionsItemSelected() 메소드를 오버라이드 하고 메뉴 아이템을 탭 했을 때 적절한 행동을 취하도록 작성한다
+
+   이 경우에는 선택한 menu item의 id와 같은 id를 가진 Fragment로 navigate 된다.
    
    ```
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return NavigationUI.onNavDestinationSelected(item!!,
-            view!!.findNavController())
-            || super.onOptiosItemSelected(item)
+            view!!.findNavController()) || super.onOptiosItemSelected(item)
     }
    ```
    
@@ -349,7 +350,7 @@
  
  - 핸드폰 사이즈의 디바이스에서는 navigation drawer는 사용하지 않을 때 가려져 있다. 사용자의 action에 따라 navigation drawwer를 나타나게 하는 두가지 방식이 있다.
     - 사용자가 왼쪽에서 오른쪽으로 스와이프 했을 때 나타난다
-    - app bar 내의 drawer icon을 탭 했을 때 나타난다. drawer icon은 nav drawer buggon 또는 hamburger icon으로 불린다.
+    - app bar 내의 drawer icon을 탭 했을 때 나타난다. drawer icon은 nav drawer button 또는 hamburger icon으로 불린다.
  
  - 이번 예제에서는 navigation drawer에 'about' 메뉴와 'rules' 메뉴를 추가한다.
 
@@ -361,9 +362,11 @@
     // app-level gradle build file에 Material libarary dependency 추가
     dependencies {
         ...
-        implementation "com.google.android.material:material:$supportlibVersion"
+        implementation "com.google.android.material:material:$version"
         ...
     }
+
+
  ```
  
  ### Step 2: Make sure the destination fragments have IDs
@@ -380,7 +383,10 @@
   ##### 3) 첫번째 메뉴는 id: ruleFragment, title: @string/rules, icon: @drawable/rules로 설정한다
   
   ##### 4) 두번째 메뉴는 id: abountFragment, title: @string/abount, icon: @drawable/about_android_trivia로 설정한다
-  
+
+  menu item의 ID를 대상 Fragment ID와 같은 ID를 사용하면 따로 onClick 리스너를 구현하는 코드가 없어도 동작함.
+
+
   ##### 5) activity_main.xml 에서 DrawerLayout 안에 drawer를 추가한
  
   ```
@@ -433,7 +439,11 @@
   ```
     private lateinit var drawerLayout: DrawerLayout
   ```
-  
+
+  kotlin은 'null safety' 언어이다. null safety 방법 중 하나는 lateinit 변경자를 통한 방법이며,
+  lateinit은 null 참조를 전달하는 대신 변수의 초기화를 delay 시켜준다.
+  위 경우에는 drawerLayout이 lateinit으로 선언되어 있는데, 이는 nullable을 피가헤 해주고, onCreate() 메소드 안에서 초기화 된다.
+
   ##### 2) onCreate() 메소드에서 binding 변수가 초기화 된 후 drawerLayout을 초기화 시키는 코드를 추가한다.
   
   ```
@@ -448,7 +458,7 @@
     NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout)
   ```
  
-  ##### 4) onSupportNavigateUp() 메소드에서 NavController.navigateUp() 코드 대신  NavigationUI.navigationUp()을 리턴하는 코드로 변경한다.
+  ##### 4) onSupportNavigateUp() 메소드에서 NavController.navigateUp() 코드 대신  NavigationUI.navigateUp()을 리턴하는 코드로 변경한다.
     
    - navigationUp()은 navigation controller와 drawer layout을 전달한다.
     

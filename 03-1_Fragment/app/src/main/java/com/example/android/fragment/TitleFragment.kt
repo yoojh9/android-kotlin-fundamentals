@@ -11,14 +11,9 @@ import com.example.android.fragment.databinding.FragmentTitleBinding
 
 class TitleFragment : Fragment() {
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate<FragmentTitleBinding>(inflater, R.layout.fragment_title, container, false)
-        return binding.root
+        return binding.root // whice contains the inflated view
     }
-
 
 }
