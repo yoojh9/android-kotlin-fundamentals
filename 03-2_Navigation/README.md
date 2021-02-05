@@ -99,7 +99,7 @@
  
   - navigation.xml 파일을 열고 New Destination 버튼을 클릭한 후 fragment_game_over와 fragment_game_won 을 추가한다
 
- <img src="./images/conditional_navigation.png"  width="60%" height="60%">
+  <img src="./images/conditional_navigation.png"  width="60%" height="60%">
  
  <br>
  
