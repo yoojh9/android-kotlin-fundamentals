@@ -25,7 +25,7 @@
   #### Step 1: Add Safe Args to the project
   
    ##### 1) 프로젝트 레벨 build.gradle 파일을 열어서 navigation-safe-args-gradle-plugin 디펜던시를 추가한다
-   navigationVersion은 File > Project Structure > Variable에서 확인 가
+    navigationVersion은 File > Project Structure > Variable에서 확인 가능
    
         // project-level build.gradle
         dependencies {
