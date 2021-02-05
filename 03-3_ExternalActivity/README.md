@@ -1,23 +1,23 @@
 # 03-3. ExternalActivity
 
 ## 1. Set up and use the Safe Args plugin
- - 사용자가 앱 내에서 데이터를 공유하려면 액티비티에 있는 파라미터를 다른 액티비티로 전달해야 한다
- - 이런 트랜잭션에서 버그를 예방하고 type-safe를 유지하려면 Gradle 플러그인인 Safe Args를 사용해라.
- - 플러그인은 NavDirection 클래스를 생성하는데 이 클래스를 코드에 추가한다
- 
+ - 사용자가 앱 내에서 데이터를 공유하려면 하나의 Fragment에서 다른 Fragment로 parameter를 전달해야 한다.
+ - 이러한 트랜잭션 안에서 버그를 예방하고 형식을 안전하게 유지하려면 Gradle 플러그인인 Safe Args를 사용해라.
+ - 플러그인은 NavDirection 클래스를 생성하는데 이 클래스를 코드에 추가한다.
+ - 이번 실습에서는 NavDirection 클래스를 사용하여 fragment 간에 argument를 전달한다.
 
  ### Why you need the Safe Args plugin
   - 앱은 종종 프래그먼트끼리 데이터를 주고 받기를 원한다. 데이터를 전달하는 방법 중 하나는 Bundle 객체를 사용하는 것인데, 안드로이드 Bundle은 key-value 저장소이다
   - 키-밸류 저장소는 고유키(문자열)를 사용하여 해당 키와 연관된 값을 가져오는 데이터 구조이다
   - Bundle을 사용하여 fragmentA에서 fragmentB로 데이터를 전달할 수 있는데, fragmentA에서 key-value 쌍의 데이터를 저장한 Bundle을 만들면 fragmentB에서 Bundle 객체로부터 key-value 데이터를 얻을 수 있다
-  - 그러나 Bundle은 코드가 컴파일 되더라도 앱이 실행 될  오류가 발생할 가능성이 있다
+  - 그러나 Bundle은 코드가 컴파일 되더라도 앱이 실행 될 때 오류가 발생할 가능성이 있다
   
   - 발생할 수 있는 오류는 아래와 같다
-    - **type mis-match error** : 만약 A 프래그먼트가 string으로 보내고 B 프래그먼트가 bundle에서 integer로 요청할 경우, 해당 요청은 default 값으로 0를 리턴한다. 0가 유효한 값이므로 앱이 컴파일 될 때는 mis-match type 문제가 발생하지 않지만 앱이 실행될 때 오류로 인하여 앱이 잘못 작동되거나 중단될 수 있다
+    - **type mis-match error** : 만약 A 프래그먼트가 string으로 보내고 B 프래그먼트가 bundle에서 integer로 요청할 경우, 해당 요청은 default 값으로 0를 리턴한다. 0이 유효한 값이므로 앱이 컴파일 될 때는 mis-match type 문제가 발생하지 않지만 앱이 실행될 때 오류로 인하여 앱이 잘못 작동되거나 중단될 수 있다
     - **Missing key errors**: B 프래그먼트에서 bundle에 저장되어 있지 않은 argument를 요청할 경우 null을 리턴해준다. 앱을 컴파일 할 때 오류가 발생하지 않더라도 사용자가 앱을 실행할 때 문제가 발생할 수 있다
    
   - 당연한 이야기지만 productio에 배포하기 전에 에러를 잡기 위해 컴파일 시점에서 에러를 발견하고 싶을 것이다.
-  - 이를 위해 안드로이드 Navigation Architecture Component애는 **Safe Args* 기능이 있다
+  - 이를 위해 안드로이드 Navigation Architecture Component애는 **Safe Args** 기능이 있다
   - Safe Args는 컴파일 시점에서 에러를 발견하는 코드나 클래스를 생성해주는 Gradle plugin이다
   
   <br>
@@ -25,7 +25,7 @@
   #### Step 1: Add Safe Args to the project
   
    ##### 1) 프로젝트 레벨 build.gradle 파일을 열어서 navigation-safe-args-gradle-plugin 디펜던시를 추가한다
-   
+   navigationVersion은 File > Project Structure > Variable에서 확인 가
    
         // project-level build.gradle
         dependencies {
@@ -50,7 +50,7 @@
   <br>
    
   #### Step 2: Add a NavDirection class to the game fragment
-   
+   이 단계에서는 GameFragmentDirections 클래스를 gameFragment에 추가한다. 나중에 이 코드를 사용하여 GameFragment와 game-state fragments(GameWonFragment, GameOverFragment)간에 인수를 전달한다.
  
    ##### 1) GameFragment.kt를 열어서 onCreateView() 메소드 내에 NavController.navigate() 메소드의 파라미터를 변경한다.
    
@@ -112,7 +112,7 @@
    ##### 2) GameWonFragment.kt에서 Bundle 객체로부터 argument들을 추출한다. 
    
    ```
-    val args = GameWonFragmentArgs.fromBundle(arguments!!)
+    val args = GameWonFragmentArgs.fromBundle(requireArguments())
     Toast.makeText(context, "NumCorrect: ${args.numCorrect}, NumQuestions: ${args.numQuestions}", Toast.LENGTH_LONG).show()
    ```
    
@@ -137,23 +137,21 @@
 
 ## 3. Add an implicit intent and a "share" menu item
  - 게임 결과를 전달하기 위해 암시적 인텐트를 사용하여 sharing 기능을 추가할 수 있다
- - GameWonFragment 클래스 내에 options menu를 공유 기능 메뉴로 구현할 수 있다
+ - GameWonFragment 클래스 내에 options menu를 공유 기능 메뉴로 구현해본다.
  
  <br>
  
  ### Implicit intents
   - 지금까지는 네비게이션 구성 요소를 사용하여 activity 내 fragment 간의 이동을 구현했다
-  
   - 안드로이드는 intent를 사용하여 다른 앱에서 제공하는 activity로 이동을 허용한다.
-  
   - 이번 예제에서는 사용자가 게임 플레이 결과를 공유할 수 있는 기능을 추가한다.
-  
   - **Intent**는 android component간 커뮤니케이션을 위해 사용되는 메세지 객체이다.
-  
-  - **implicit intent**는 어떤 앱이나 액티비티가 작업을 처리할지 몰라도 activity를 시작할 수 있다. 예를 들어 사진앱의 경우 다수의 android app이 같은 implicit intent를 처리할 수 있다. 안드로이드는 사용자에게 chooser를 보여주며, 사용자는 요청을 처리할 앱을 선택한다
-  
-  - 각각의 implicit intent는 수행할 작업의 유형을 설명하 ACTION을 가지고 있어야 된다. 보통 action에는 ACTION_VIEW, ACTION_EDIT, ACTION_DIAL 등이 있다.
-  
+  - Intent는 explicit와 implicit라는 두 가지 타입이 있다. explitcit intent를 사용하여 정확한 target에 메세지를 전달할 수 있고, implicit intent를 사용하여 작업을 처리할 앱이나 activity를 알지 못해도 activity를 시작할 수 있다.
+  - implicit intent의 대표적인 예로는 카메라 앱이 있다.
+  - 예를 들어 사진앱의 경우 다수의 앱이 같은 implicit intent를 처리할 수 있다. 안드로이드는 사용자에게 chooser를 보여주며, 사용자는 요청을 처리할 앱을 선택한다
+  - 각각의 implicit intent는 수행할 작업의 유형을 설명하는 ACTION을 가지고 있어야 된다. 보통 action에는 ACTION_VIEW, ACTION_EDIT, ACTION_DIAL 등이 있다.
+  - Intent의 action은 앱의 navigation graph에서 사용하는 action과 전혀 관련이 없다.
+
   <br>
   
   #### Step 1: Add an options menu to the Congratulations Screen
@@ -169,10 +167,11 @@
    - 여러 앱이 ACTION_SEND 인텐트를 처리할 수 있으므로 chooser가 사용자에게 띄어질 것이다.
    
    ##### 1. GameWonFragment의 onCreateView()에서 ACTION_SEND 인텐트로 공유할 메세제를 전달할 수 있다.
+   ACTION_SEND 인텐트를 통해 사용자가 공유하려는 메세지를 전달할 수 있고, 데이터의 유형은 setType() 메소드로 지정된다. 실제 전달할 데이터는 EXTRA_TEXT에 지정된다.
    ```
         // Creating our Share Intent
         private fun getShareIntent(): Intent {
-            val args = GameWonFragmentArgs.fromBundle(arguments!!)
+            val args = GameWonFragmentArgs.fromBundle(requireArguments())
             val shareIntent = Intent(Intent.ACTION_SEND)
     
             shareIntent.setType("text/plain")
@@ -200,16 +199,14 @@
    - resolveActivity()가 null 이면 shareIntent가 resolve 되지 않은 것이므로, sharing menu를 invisible 시킨다
    
    ```
-       // Showing the Share Menu Item Dynamically
-       override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-          super.onCreateOptionsMenu(menu, inflater)
-          inflater?.inflate(R.menu.winner_menu, menu)
-          // check if the activity resolves
-          if (null == getShareIntent().resolveActivity(activity!!.packageManager)) {
-              // hide the menu item if it doesn't resolve
-              menu?.findItem(R.id.share)?.setVisible(false)
-          }
-       }
+        // Showing the Share Menu Item Dynamically
+        override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+               super.onCreateOptionsMenu(menu, inflater)
+               inflater.inflate(R.menu.winner_menu, menu)
+               if(getShareIntent().resolveActivity(requireActivity().packageManager)==null){
+                    menu.findItem(R.id.share).isVisible = false
+               }
+        }
    ``` 
    
    ##### 4. menu item을 처리하기 위해 onOptionsItemSelected() 메소드를 오버라이드 한다. share menu가 눌릴 경우 shareSuccess()를 호출하는 메소드를 추가한다

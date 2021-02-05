@@ -52,7 +52,7 @@
             app:popUpTo="@+id/titleFragment"
             app:popUpToInclusive="false" />
         <argument
-            android:name="numQuestions"
+            android:name="numQuestion"
             app:argType="integer" />
         <argument
             android:name="numCorrect"

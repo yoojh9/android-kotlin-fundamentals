@@ -23,8 +23,8 @@ class GameWonFragment : Fragment() {
                 .navigate(GameWonFragmentDirections.actionGameWonFragmentToGameFragment())
         }
 
-        val args = GameWonFragmentArgs.fromBundle(arguments!!)
-        Toast.makeText(context, "NumCorrect: ${args.numCorrect}, NumQuestions: ${args.numQuestions}", Toast.LENGTH_LONG).show()
+        val args = GameWonFragmentArgs.fromBundle(requireArguments())
+        Toast.makeText(context, "NumCorrect: ${args.numCorrect}, NumQuestions: ${args.numQuestion}", Toast.LENGTH_LONG).show()
 
         setHasOptionsMenu(true)
 
@@ -33,12 +33,10 @@ class GameWonFragment : Fragment() {
 
 
     private fun getShareIntent(): Intent {
-        val args = GameWonFragmentArgs.fromBundle(arguments!!)
+        val args = GameWonFragmentArgs.fromBundle(requireArguments())
         val shareIntent = Intent(Intent.ACTION_SEND)
-
         shareIntent.setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, getString(R.string.share_success_text, args.numCorrect, args.numQuestions))
-
+            .putExtra(Intent.EXTRA_TEXT, getString(R.string.share_success_text, args.numCorrect, args.numQuestion))
         return shareIntent
     }
 
@@ -49,21 +47,16 @@ class GameWonFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.winner_menu, menu)
-
-        // check if the activity resolves
-        if (getShareIntent().resolveActivity(activity!!.packageManager) == null) {
-            // hide the menu item if it doesn't resolve
-            menu?.findItem(R.id.share)?.setVisible(false)
+        inflater.inflate(R.menu.winner_menu, menu)
+        if(getShareIntent().resolveActivity(requireActivity().packageManager)==null){
+            menu.findItem(R.id.share).isVisible = false
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item!!.itemId){
+        when(item.itemId){
             R.id.share -> shareSuccess()
         }
-
         return super.onOptionsItemSelected(item)
     }
-
 }
