@@ -182,7 +182,8 @@
     - 이 속성은 navigation component에 백 스택에서 GameFragment를 포함한 fragment를 제거하도록 지시한다.
     - 이 동작은 **Pop To** 필드에 titleFragment를 설정하고 **Inclusive** 체크박스를 해제하는 것과 같다
     
-    
+    <br>
+
     ##### 3) gameFragment와 gameWonFragment를 연결하는 action을 선택한다
     ##### 4) **Pop To**에 gameFragment를 설정하고 **inclusive** 체크박스를 선택한다.
  
