@@ -115,8 +115,7 @@
   - recent screen을 사용하여 앱으로 돌아가면 액티비티가 다시 시작되고 activity는 onCreate()을 시작으로 전체 lifecycle 콜백이 시작된다
  
  ##### 5) score는 다시 '0'으로 초기화 되어 있다
- 
- 
+
  - 안드로이드에서는 액티비티에서 벗어날 때 마다 일부 뷰의 상태 값을 가져와서 bundle에 저장한다
  - 자동으로 저장되는 데이터의 예로는 EditText의 텍스트 영역과 activity의 백스택이 있다
  - 그러나 안드로이드 OS는 모든 데이터를 알지 못하므로 개발자 스스로 데이터를 번들에 저장해야 된다
@@ -166,7 +165,7 @@
   
  ##### 4) onSaveInstanceState() 메소드의 outState 파라미터의 타입이 Bundle인 것을 확인한다
   - 번들은 키가 항상 문자열인 key-value 쌍의 모음이다
-  - int 및 boolean과 같은 기본 값을 번들에 넣을 수 있다
+  - int 및 boolean과 같은 primitive 값을 번들에 넣을 수 있다
   - 시스템이 번들을 RAM에 보관하므로 번들의 데이터를 작게 유지하는 것이 가장 좋다
   - 번들의 크기는 제한되어 있지만 크기는 장치마다 다르다. 일반적으로 100k 미만으로 저장해야 하는데 초과할 경우 TransactionTooLargeException 오류로 앱이 종료될 수 있다
   
