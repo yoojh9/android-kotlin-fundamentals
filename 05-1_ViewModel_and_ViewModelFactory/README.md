@@ -170,10 +170,10 @@
    - GameFragment에 있는 데이터 필드와 메소드를 GameViewModel로 옮긴다
    
    ##### 1) word, score, wordList 데이터 필드를 옮기고 word, score는 private으로 하지 않는다.
-   
+
    - binding 데이터인 GameFragmentBinding은 뷰에 대한 참조가 포함되어 있으므로 GameViewModel 클래스로 옮기지 않는다
    - binding 변수는 레이아웃을 inflate 시키고 클릭 리스너를 설정하며 화면에 데이터를 표시하는 데 사용된다. (즉 fragment 책임)
-   
+
    <br>
    
    ##### 2) resetList()와 nextWord() 메소드를 이동시킨다. 이 메소드들은 화면에 어떤 단어를 보여줘야 하는지 결정한다
@@ -186,9 +186,9 @@
    - onSkip()과 onCorrect()는 GameFragment의 click handler로, 데이터를 처리하고 UI를 업데이트 시키는 코드가 포함되어 있다.
    - UI를 업데이트 하는 코드는 fragment 내에서 유지되어야 하지만 데이터를 처리하는 코드는 viewModel로 이동해야 한다
    
-   ##### 1) onSkip()과 onCorrect() 메소드를 GameFragment로부터 GameViewModel로 복사한다
+   ##### 4) onSkip()과 onCorrect() 메소드를 GameFragment로부터 GameViewModel로 복사한다
    
-   ##### 2) GameFragment에서 GameViewModel의 onSkip()과 onCorrect() 메소드를 참조해야 하므로 메소드가 private이 아닌 것을 확인한다.
+   ##### 5) GameFragment에서 GameViewModel의 onSkip()과 onCorrect() 메소드를 참조해야 하므로 메소드가 private이 아닌 것을 확인한다.
 
    GameViewModel 클래스의 코드는 다음과 같다.
 
@@ -423,7 +423,7 @@
   
   <br><br>
   
- ## 4. Use a ViewModelFactory
+ ## 5. Use a ViewModelFactory
   - 사용자가 게임을 끝내면 ScoreFragment에서 viewModel에 있는 score 값을 보여주는 작업을 진행해보자
   - [팩토리 메소드 패턴](https://en.wikipedia.org/wiki/Factory_method_pattern)을 사용하여 ViewModel이 초기화 되는 중에 score 값을 전달한다
   - 팩토리 메소드 패턴은 팩토리 메소드를 이용하여 오브젝트를 생성하는 [creational design pattern](https://en.wikipedia.org/wiki/Creational_pattern)이다
@@ -513,7 +513,7 @@
   
   ##### 11) 앱을 실행시키고 End Game을 누르면 score fragment에 최종 점수가 뜨는 것을 확인할 수 있다.
 
-  <img src="./images/result.png"  width="70%" height="70%"/>
+  <img src="./images/result.png"  width="30%" height="30%"/>
    
     
   ##### 12) optional: ScoreViewModel의 키워드로 Logcat에서 ScoreViewModel 로그를 검색해보자.
