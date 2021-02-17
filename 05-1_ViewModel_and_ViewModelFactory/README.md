@@ -100,7 +100,7 @@
   - ViewModel 클래스를 사용하여 ViewModel 인스턴스를 만들면 그 객체는 프래그먼트가 re-create 될 때 마다 다시 생성된다. 대신에 [ViewModelProvider](https://developer.android.com/reference/android/arch/lifecycle/ViewModelProvider)를 사용하여 인스턴스를 생성해라
   - viewModel 객체를 생성하기 위해 ViewModel을 직접 인스턴스화 하기보다는 **viewModelProvider**를 사용해라
 
-  <img src="./images/viewModelProvider.png"  width="70%" height="70%"/>
+  <img src="./images/viewModelProvider.png"  width="50%" height="50%"/>
 
 
 
@@ -521,4 +521,3 @@
   ```
 
   **Note**: 이 앱에서는 viewModel.score 변수에 직접 할당할 수 있으므로 ScoreViewModel에 대한 ViewModelFactory를 추가할 필요는 없다. 그러나 때로 viewModel이 초기화 될 때 바로 데이터가 필요할 수도 있다
-  
