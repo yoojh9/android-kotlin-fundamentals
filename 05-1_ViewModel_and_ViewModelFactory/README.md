@@ -170,8 +170,10 @@
    - GameFragment에 있는 데이터 필드와 메소드를 GameViewModel로 옮긴다
    
    ##### 1) word, score, wordList 데이터 필드를 옮기고 word, score는 private으로 하지 않는다.
-    - binding 데이터인 GameFragmentBinding은 뷰에 대한 참조가 포함되어 있으므로 GameViewModel 클래스로 옮기지 않는다
-    - binding 변수는 레이아웃을 inflate 시키고 클릭 리스너를 설정하며 화면에 데이터를 표시하는 데 사용된다. (즉 fragment 책임)
+   
+   - binding 데이터인 GameFragmentBinding은 뷰에 대한 참조가 포함되어 있으므로 GameViewModel 클래스로 옮기지 않는다
+   - binding 변수는 레이아웃을 inflate 시키고 클릭 리스너를 설정하며 화면에 데이터를 표시하는 데 사용된다. (즉 fragment 책임)
+   
    <br>
    
    ##### 2) resetList()와 nextWord() 메소드를 이동시킨다. 이 메소드들은 화면에 어떤 단어를 보여줘야 하는지 결정한다
