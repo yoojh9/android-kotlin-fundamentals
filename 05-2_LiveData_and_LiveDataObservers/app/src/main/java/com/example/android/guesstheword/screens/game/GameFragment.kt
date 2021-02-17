@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2019 Google Inc.
  *
@@ -25,7 +26,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
@@ -35,33 +36,36 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
  */
 class GameFragment : Fragment() {
 
-    private lateinit var viewModel: GameViewModel
-
     private lateinit var binding: GameFragmentBinding
+
+    private lateinit var viewModel: GameViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
+            inflater,
+            R.layout.game_fragment,
+            container,
+            false
         )
+        Log.i("GameFragment", "Called ViewModelProvider.get")
 
-        Log.i("GameFragment", "Called ViewModelProviders.of")
-        viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
+        // Get the viewModel
+        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
-        viewModel.score.observe(this, Observer { newScore ->
+        /** Setting up LiveData observation relationship **/
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
             binding.scoreText.text = newScore.toString()
         })
 
-        viewModel.word.observe(this, Observer { newWord ->
+        /** Setting up LiveData observation relationship **/
+        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
             binding.wordText.text = newWord
         })
 
-        viewModel.eventGameFinish.observe(this, Observer<Boolean> { hasFinished ->
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer<Boolean> { hasFinished ->
             if(hasFinished) gameFinished()
         })
 
@@ -70,40 +74,29 @@ class GameFragment : Fragment() {
         binding.endGameButton.setOnClickListener { onEndGame() }
 
         return binding.root
-
     }
 
-
     /** Methods for buttons presses **/
-    // GameViewModel로 이동
+
     private fun onSkip() {
         viewModel.onSkip()
     }
-
     private fun onCorrect() {
         viewModel.onCorrect()
     }
 
-    private fun onEndGame(){
+    private fun onEndGame() {
         gameFinished()
     }
 
-    /** Methods for updating the UI **/
-
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word.value
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.value.toString()
-    }
-
-    private fun gameFinished(){
+    /**
+     * Called when the game is finished
+     */
+    private fun gameFinished() {
         Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
         val action = GameFragmentDirections.actionGameToScore()
         action.score = viewModel.score.value?:0
         NavHostFragment.findNavController(this).navigate(action)
-
         viewModel.onGameFinishComplete()
     }
 }
