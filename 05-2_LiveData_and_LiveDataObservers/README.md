@@ -145,7 +145,7 @@
   
   <br>
   
-  ### 2) 방금 만든 observer는 LiveData 객체가 보유한 데이터가 변경될 때 이벤트를 받는다.
+  #### 2) 방금 만든 observer는 LiveData 객체가 보유한 데이터가 변경될 때 이벤트를 받는다.
    - observer 내에서 newScore 값으로 TextView를 업데이트 하는 코드를 추가한다
    
   ```
@@ -157,7 +157,7 @@
   
   <br>
   
-  ### 3) current word LiveData에 Observer 객체를 연결한다. 2)번과 동일하게 진행한다.
+  #### 3) current word LiveData에 Observer 객체를 연결한다. 2)번과 동일하게 진행한다.
   
   ```
     /** Setting up LiveData observation relationship **/
@@ -170,7 +170,7 @@
   
   <br>
   
-  ### 4) GameFragment에서 updateWordText()와 updateScoreText() 메소드를 지운다. LiveData observer 메소드에 의해 자동으로 업데이트 되므로 더이상 필요하지 않다
+  #### 4) GameFragment에서 updateWordText()와 updateScoreText() 메소드를 지운다. LiveData observer 메소드에 의해 자동으로 업데이트 되므로 더이상 필요하지 않다
   
   <br><br>
   
