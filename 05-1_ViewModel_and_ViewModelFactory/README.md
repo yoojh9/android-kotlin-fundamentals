@@ -15,7 +15,7 @@
   - UI controller에는 어떤 텍스트를 표시할지 결정하는 로직과 같은 의사 결정 논리 코드를 넣지 않는다
   
   - GuessTheWord 앱에는 UI controller로 3가지 프래그먼트가 있다. (GameFragment, ScoreFragment, TitleFragment)
-  - '관심사의 분리' 디자인 패턴에 따르면 GameFragment는 화면에 game 요소를 그리고 사용자가 버튼을 누를 때는 아는 것만 책임 진다
+  - '관심사의 분리' 디자인 패턴에 따르면 GameFragment는 화면에 game 요소를 그리거나 사용자가 버튼을 누를 때를 아는 것만 책임 진다
   - 사용자가 버튼을 누르면 이 정보가 GameViewModel로 전달된다.
  
  <br>
@@ -30,7 +30,7 @@
  <br>
  
  ### 3) ViewModelFactory
-  - ViewModelFactory 생성자는 매개변수를 사용하거나 사용하지 않고 viewModel 객체를 인스턴스화 시킨다
+  - ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고, viewModel 개체를 인스턴스화한다.
  
    <img src="./images/viewModelFactory.png"  width="70%" height="70%"/>
   
@@ -38,22 +38,22 @@
 
 ## 2. Create the GameViewModel
  - ViewModel 클래스는 UI 관련 데이터를 저장하고 관리하도록 설계되었다
- - 이 앱에서는 각 ViewModel은 하나의 프래그먼트오 관련되어있다
- - 이번 단계에서는 앱에 GameFragment를 위한 첫번쨰 viewModel인 GameViewModel을 추가하고, viewModel의 lifecycle을 인지한다
- 
+ - 이 앱에서는 각 ViewModel은 하나의 프래그먼트와 관련되어있다
+ - 이번 단계에서는 앱에 GameFragment를 위한 첫번째 viewModel인 GameViewModel을 추가하고, viewModel의 lifecycle을 인지한다.
+
  <br>
  
  ### Step 1: Add the GameViewModel class
   ##### 1) build.gradle(module:app) 파일을 열어서 dependenies 블록에 viewModel 디펜던시를 추가한다. 
   ```
   //ViewModel
-  implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
   ```
   
   ##### 2) screens/game 폴더 안에 GameViewModel 클래스를 추가한다
   
-  ##### 3) GameViewModel은 ViewModel을 상속받도록 만든다
-  
+  ##### 3) GameViewModel 클래스를 추상 클래스 ViewModel을 상속받도록 만든다
+
   ##### 4) ViewModel의 lifecycle을 이해하기 쉽게 init 블록에 log를 찍어본다.
   
   ```
@@ -66,8 +66,8 @@
  
  <br>
  
- ### Step 2: Add the GameViewModel class
-  - 액티비티가 종료되거나 fragment가 detach 될 때 관련된 viewModel은 destroy된다
+ ### Step 2: Override onCleared() and add logging
+  - 관련 액티비티가 종료되거나 fragment가 detach 될 때 관련된 viewModel은 destroy된다
   - viewModel이 destroy 되기 바로 직전에 onCleared() 콜백이 호출되고 리소스를 정리한다
   
   ##### 1) GameViewModel 클래스에서 onCleared() 메소드를 오버라이드 한다
@@ -84,7 +84,7 @@
  <br>
  
  ### Step 3: GameViewModel과 GameFragment 연결
-  - viewModel은 UI controller와 연결이 필요한데 두개를 연결시키기 위해 UI controller에서 viewModel 레퍼런스를 생성해야 한다
+  - viewModel은 UI controller와 연결이 필요한데 두개를 연결시키기 위해 UI controller에서 ViewModel 레퍼런스를 생성해야 한다
   - 이번 단계에서는 UI controller인 GameFragment에 GameViewModel 레퍼런스를 생성하는 코드를 추가한다
   
   - GameFragment에 클래스 변수로 GameViewModel 타입의 필드를 추가한다
@@ -98,42 +98,55 @@
  ### Step 4: Initialize the ViewModel
   - 화면 회전 등의 configuration 변화 중에 fragment와 같은 UI controller는 re-create 되지만 ViewModel 인스턴스는 살아남는다.
   - ViewModel 클래스를 사용하여 ViewModel 인스턴스를 만들면 그 객체는 프래그먼트가 re-create 될 때 마다 다시 생성된다. 대신에 [ViewModelProvider](https://developer.android.com/reference/android/arch/lifecycle/ViewModelProvider)를 사용하여 인스턴스를 생성해라
-  
+  - viewModel 객체를 생성하기 위해 ViewModel을 직접 인스턴스화 하기보다는 **viewModelProvider**를 사용해라
+
+  <img src="./images/viewModelProvider.png"  width="70%" height="70%"/>
+
+
+
   - **ViewModelProvider** 동작 방법
     - ViewModelProvider는 ViewModel 객체가 이미 존재하면 존재하는 ViewModel 객체를 리턴하고. 존재하지 않을 경우에 새로 생성한다
     - ViewModelProvider는 지정된 범위(activity, fragment)와 관련하여 viewModel 인스턴스를 생성한다
     - 범위(scope)가 활성 상태일 경우 생성된 viewModel은 유지된다. 예를 들어 scope가 fragment일 경우 해당 viewModel은 fragment가 detach 될 때 까지 유지된다
   
-  - ViewModelProvider를 생성하는 [ViewModelProviders.of()](https://developer.android.com/reference/android/arch/lifecycle/ViewModelProviders.html#of) 메소드를 사용하여 ViewModel을 초기화한다
+  - ViewModel을 초기화하려면 viewModelProvider를 생성하는 [ViewModelProviders.get()](https://developer.android.com/reference/android/arch/lifecycle/ViewModelProviders.html#of) 메소드를 사용한다.
   
-  ##### 1) GameFragment 클래스에서 viewModel 변수를 초기화한다. 아래 코드를 onCreateView() 메소드에 binding 변수 정의 이후에 추가한다. ViewModelProviders.of() 메소드를 사용해서 연결된 GameFragment의 context와 GameViewModel 클래스를 전달해라
+  ##### 1) GameFragment 클래스에서 viewModel 변수를 초기화한다. 아래 코드를 onCreateView() 메소드에 binding 변수 정의 이후에 추가한다. ViewModelProviders.get() 메소드를 사용해서 연결된 GameFragment의 context와 GameViewModel 클래스를 전달해라
   
   ```
-  Log.i("GameFragment", "Called ViewModelProviders.of")
-  viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
+  Log.i("GameFragment", "Called ViewModelProvider.get")
+  viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+  ```
+  
+  <br>
+
+  ##### 2) 앱을 실행시키고 Logcat 패널을 열어 'Game' 키워드로 검색해본다. Play 버튼을 누르면 game screen이 열린다.
+  Logcat을 살펴보면 GameFragment의 onCreateView()에서 GameViewModel을 생성하는 ViewModelProvider.get()을 호출하는 것을 알 수 있다.
+  GameFragment와 GameViewModel에서 추가한 log를 Logcat에서 확인할 수 있다.
+
+  ```
+  2021-02-17 10:45:19.451 32270-32270/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:45:19.454 32270-32270/com.example.android.guesstheword I/GameViewModel: GameViewModel created!
+  ```
+
+  ##### 3) 디바이스나 에뮬레이터에서 화면 회전을 몇번 반복한다. GameFragment는 destroyed 되고 re-create 되므로 ViewModelProviders.get() 메소드는 여러번 호출된다. GameViewModel은 한번 생성이 되면, 호출할 때마다 destroy하고 re-create 하지 않는다
+  ```
+  2021-02-17 10:45:19.451 32270-32270/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:45:19.454 32270-32270/com.example.android.guesstheword I/GameViewModel: GameViewModel created!
+  2021-02-17 10:47:54.978 32270-32270/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:48:12.694 32270-32270/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+
   ```
   
   <br>
   
-  ##### 2) 디바이스나 에뮬레이터에서 화면 회전을 몇번 반복한다. GameFragment는 destroyed 되고 re-create 되므로 ViewModelProviders.of() 메소드는 여러번 호출되지만 GameViewModel은 한번 생성되고 호출할 때마다 destroy하고 re-create 하지 않는다
+  ##### 4) 앱을 종료하거나 game fragment에서 나가면 GameFragment는 destroy 된다. 연결된 GameViewModel도 destroy 되며 onCleared() 콜백이 호출된다
   ```
-  2019-12-18 15:30:23.180 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:23.182 11918-11918/com.example.android.guesstheword I/GameViewModel: GameViewModel created!
-  2019-12-18 15:30:29.300 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:35.629 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:40.917 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  ```
-  
-  <br>
-  
-  ##### 3) 앱을 종료하거나 game fragment에서 나가면 GameFragment는 destroy 된다. 연결된 GameViewModel도 destroy 되며 onCleared() 콜백이 호출된다
-  ```
-  2019-12-18 15:30:23.180 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:23.182 11918-11918/com.example.android.guesstheword I/GameViewModel: GameViewModel created!
-  2019-12-18 15:30:29.300 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:35.629 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:30:40.917 11918-11918/com.example.android.guesstheword I/GameFragment: Called ViewModelProviders.of
-  2019-12-18 15:32:43.633 11918-11918/com.example.android.guesstheword I/GameViewModel: GameViewModel destroyed!
+  2021-02-17 10:50:54.113 32460-32460/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:50:54.118 32460-32460/com.example.android.guesstheword I/GameViewModel: GameViewModel created!
+  2021-02-17 10:51:12.514 32460-32460/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:51:17.421 32460-32460/com.example.android.guesstheword I/GameFragment: Called ViewModelProvider.get
+  2021-02-17 10:51:25.631 32460-32460/com.example.android.guesstheword I/GameViewModel: GameViewModel destroyed!
   ```
 
 <br><br>
@@ -147,31 +160,174 @@
   
   - 비교를 위해 viewModel을 추가하기 전과 viewModel을 추가한 후 앱에서 데이터를 처리하는 방법은 다음과 같다
     - ViewModel 추가 전: screen 회전과 같은 configuration 변화가 발생하면 game fragment는 destroy 되고 re-create 된다. 데이터는 잃게된다
-    - viewModel 추가 이후에는 game fragment의 UI 데이터는 viewModel로 옮겨졌다. 프래그먼트가 표시해야 할 데이터는 모두 viewModel이다. 앱에서 configuration 변화가 발생하면 viewModel은 살아남고 데이터도 유지된다.
+    - viewModel 추가 후: game fragment의 UI 데이터는 viewModel로 옮겨졌다. 프래그먼트가 표시해야 할 데이터는 모두 viewModel이다. 앱에서 configuration 변화가 발생하면 viewModel은 살아남고 데이터도 유지된다.
     
   <br>
+
+  이번 실습에서는 app의 UI data와 data를 처리하는 메소드를 GameViewModel 클래스로 옮긴다. 이렇게 하면 configuration 변경 중에 데이터가 유지된다.
   
   ### Step 1: Move data fields and data processing to the ViewModel
    - GameFragment에 있는 데이터 필드와 메소드를 GameViewModel로 옮긴다
    
    ##### 1) word, score, wordList 데이터 필드를 옮기고 word, score는 private으로 하지 않는다.
     - binding 데이터인 GameFragmentBinding은 뷰에 대한 참조가 포함되어 있으므로 GameViewModel 클래스로 옮기지 않는다
-    - binding 변수는 레이아웃을 inflate 시키고 클릭 리스너를 설정하며 화면에 데이터를 표시하는 데 사용된 (즉 fragment 책임)
+    - binding 변수는 레이아웃을 inflate 시키고 클릭 리스너를 설정하며 화면에 데이터를 표시하는 데 사용된다. (즉 fragment 책임)
    <br>
    
    ##### 2) resetList()와 nextWord() 메소드를 이동시킨다. 이 메소드들은 화면에 어떤 단어를 보여줘야 하는지 결정한다
    
-   ##### 3) resetList()와 nextWord() 메소드를 onCreateView() 안에서  GameViewModel init 블록으로 이동시킨다
+   ##### 3) resetList()와 nextWord() 메소드 호출을 GameFragment의 onCreateView()에서 GameViewModel init 블록으로 이동시킨다.
+   이 메소드 호출은 init 블럭에 있어야 한다. 그 이유는 fragment가 create될 때마다 word list를 reset하는게 아니라 viewModel이 create 될 때 word list를 reset 하기 때문이다.
    
   <br>
   
-   - onSkip()과 onCorrect()는 데이터를 처리하고 UI를 업데이트 시키는 코드를 포함되어있는 GameFragment의 클릭 핸들러이다.
-   - UI를 업데이트 하는 코드는 fragment로 유지되어야 하지만 데이터를 처리하는 코드는 viewModel로 이동해야 한다
+   - onSkip()과 onCorrect()는 GameFragment의 click handler로, 데이터를 처리하고 UI를 업데이트 시키는 코드가 포함되어 있다.
+   - UI를 업데이트 하는 코드는 fragment 내에서 유지되어야 하지만 데이터를 처리하는 코드는 viewModel로 이동해야 한다
    
    ##### 1) onSkip()과 onCorrect() 메소드를 GameFragment로부터 GameViewModel로 복사한다
    
-   ##### 2) GameFragment에서 GameViewModel의 onSkip()과 onCorrect() 메소드를 참조해야 하므로 메소드 private이 아닌 것을 확인한다.
-   
+   ##### 2) GameFragment에서 GameViewModel의 onSkip()과 onCorrect() 메소드를 참조해야 하므로 메소드가 private이 아닌 것을 확인한다.
+
+   GameViewModel 클래스의 코드는 다음과 같다.
+
+   ```
+    class GameViewModel : ViewModel() {
+       // The current word
+       var word = ""
+       // The current score
+       var score = 0
+       // The list of words - the front of the list is the next word to guess
+       private lateinit var wordList: MutableList<String>
+
+       /**
+        * Resets the list of words and randomizes the order
+        */
+       private fun resetList() {
+           wordList = mutableListOf(
+                   "queen",
+                   "hospital",
+                   "basketball",
+                   "cat",
+                   "change",
+                   "snail",
+                   "soup",
+                   "calendar",
+                   "sad",
+                   "desk",
+                   "guitar",
+                   "home",
+                   "railway",
+                   "zebra",
+                   "jelly",
+                   "car",
+                   "crow",
+                   "trade",
+                   "bag",
+                   "roll",
+                   "bubble"
+           )
+           wordList.shuffle()
+       }
+
+       init {
+           resetList()
+           nextWord()
+           Log.i("GameViewModel", "GameViewModel created!")
+       }
+       /**
+        * Moves to the next word in the list
+        */
+       private fun nextWord() {
+           if (!wordList.isEmpty()) {
+               //Select and remove a word from the list
+               word = wordList.removeAt(0)
+           }
+           updateWordText()
+           updateScoreText()
+       }
+     /** Methods for buttons presses **/
+       fun onSkip() {
+           score--
+           nextWord()
+       }
+
+       fun onCorrect() {
+           score++
+           nextWord()
+       }
+
+       override fun onCleared() {
+           super.onCleared()
+           Log.i("GameViewModel", "GameViewModel destroyed!")
+       }
+    }
+   ```
+
+   GameFragment 코드는 아래와 같다
+
+
+   ```
+    /**
+    * Fragment where the game is played
+    */
+    class GameFragment : Fragment() {
+
+
+       private lateinit var binding: GameFragmentBinding
+
+
+       private lateinit var viewModel: GameViewModel
+
+
+       override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                 savedInstanceState: Bundle?): View? {
+
+           // Inflate view and obtain an instance of the binding class
+           binding = DataBindingUtil.inflate(
+                   inflater,
+                   R.layout.game_fragment,
+                   container,
+                   false
+           )
+
+           Log.i("GameFragment", "Called ViewModelProvider.get")
+           viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+
+           binding.correctButton.setOnClickListener { onCorrect() }
+           binding.skipButton.setOnClickListener { onSkip() }
+           updateScoreText()
+           updateWordText()
+           return binding.root
+
+       }
+
+
+       /** Methods for button click handlers **/
+
+       private fun onSkip() {
+           score--
+           nextWord()
+       }
+
+       private fun onCorrect() {
+           score++
+           nextWord()
+       }
+
+
+       /** Methods for updating the UI **/
+
+       private fun updateWordText() {
+           binding.wordText.text = word
+       }
+
+       private fun updateScoreText() {
+           binding.scoreText.text = score.toString()
+       }
+    }
+   ```
+
+
   <br>
   
   ### Step 2: Update references to click handlers and data fields in GameFragment
@@ -218,17 +374,19 @@
 <br><br>
 
  ## 4. Implement click listener for the End Game button
-  
+  이번 실습에서는 End Game 버튼의 click listener를 구현한다.
+
   #### 1) GameFragment에 onEndGame() 메소드를 추가한다. onEndGame() 메소드는 End Game 버튼을 탭 할 때 호출된다.
   
   ```
   private fun onEndGame(){
+
   }
   ```
   
   <br>
-  
-  #### 2) binding 변수를 사용하여 End Game 버튼의 클릭 이벤트를 등록한다
+
+  #### 2) GameFragment의 onCreateView() 메소드 내에 Got It, Skip 버튼의 click listenr 바로 아래에 EndGame 버튼의 click listner를 등록한다. 바인딩 변수인 binding을 사용하여 click listner 내에서 onEndGame() 메소드를 호출한다.
   ```
   binding.endGameButton.setOnClickListener { onEndGame() }
   ```
@@ -291,10 +449,11 @@
   
   ##### 4) score 패키지 아래에 ScoreViewModelFactory라는 새로운 클래스를 만든다. 이 클래스는 ScoreViewModel 객체를 인스턴스화 시키는 역할을 한다
   
-  ##### 5) ScoreViewModelFactory클래스는 ViewModelProvider.Factory 클래스를 상속받는다.
+  ##### 5) ScoreViewModelFactory클래스는 ViewModelProvider.Factory 클래스를 상속받는다. 생성자 파라미터로 final score를 추가한다.
   
   ```
   class ScoreViewModelFactory(private val finalScore: Int) : ViewModelProvider.Factory {
+
   }
   ```
   
@@ -333,7 +492,7 @@
   <br>
   
   ##### 9) onCreateView()에 viewModelFactory 초기화하고 난 후 viewModel 객체를 초기화한다. 
-   - ViewModelProvider.of() 메소드를 호출하여 연결된 scoreFragment context와 viewModelFactory를 넘긴다
+   - ViewModelProvider.get() 메소드를 호출하여 연결된 scoreFragment의 context와 viewModelFactory를 넘긴다
    - ViewModelFactory 클래스에 정의된 팩토리 메소드를 이용하여 ScoreViewModel 객체를 생성한다
   
   ```
@@ -343,15 +502,23 @@
   
   <br>
   
-  ##### 10) onCreate()에서 viewModel을 초기화 한 후에 scoreText 뷰의 텍스트를 ScoreViewModel에 있는 final score로 설정한다
+  ##### 10) onCreateView()에서 viewModel을 초기화 한 후에 scoreText 뷰의 텍스트를 ScoreViewModel에 있는 final score로 설정한다
   ```
    binding.scoreText.text = viewModel.score.toString()
   ```
   
   <br>
   
-  ##### 11) 앱을 실행시키고 End Game을 누르면 score fragment에 최종 점수가 뜨는 것을 확인할 수 있다
-   
+  ##### 11) 앱을 실행시키고 End Game을 누르면 score fragment에 최종 점수가 뜨는 것을 확인할 수 있다.
+
+  <img src="./images/result.png"  width="70%" height="70%"/>
    
     
+  ##### 12) optional: ScoreViewModel의 키워드로 Logcat에서 ScoreViewModel 로그를 검색해보자.
+
+  ```
+  2021-02-17 11:47:45.521 622-622/com.example.android.guesstheword I/ScoreViewModel: Final score is 6
+  ```
+
+  **Note**: 이 앱에서는 viewModel.score 변수에 직접 할당할 수 있으므로 ScoreViewModel에 대한 ViewModelFactory를 추가할 필요는 없다. 그러나 때로 viewModel이 초기화 될 때 바로 데이터가 필요할 수도 있다
   
