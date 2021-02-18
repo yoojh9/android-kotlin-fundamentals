@@ -31,7 +31,7 @@
    
    <br>
    
-   ### 3) GameViewModel 클래스의 init 블럭에서 score와 word를 초기화한다.
+   #### 3) GameViewModel 클래스의 init 블럭에서 score와 word를 초기화한다.
    - LiveData 값을 변경하기 위해서는 setValue() 메소드를 사용해야 한다.
    - 코틀린에서는 setValue()를 value 프로퍼티를 사용하여 호출할 수 있다
    
@@ -288,7 +288,7 @@
 
   ##### 1) GameViewModel에서 Boolean 형식의 MutableLiveData 오브젝트를 만들고 이름을 _eventGameFinish로 지정한다. 이 객체는 게임 종료 이벤트를 가진다
   
-  ##### 2) _eventEventFinish() 초기화가 끝나면 eventGameFinish라는 이름의 backing property를 생성하고 초기화한다
+  ##### 2) _eventGameFinish() 초기화가 끝나면 eventGameFinish라는 이름의 backing property를 생성하고 초기화한다
   
   ```
     // Event which triggers the end of the game
