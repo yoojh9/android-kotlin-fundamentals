@@ -2,7 +2,7 @@
 
 ## 1. Add ViewModel data binding
 
- - 이전 단계에서 뷰에 액세스하는 안전한 형식으로 데이터 바인딩을 사용했다.
+ - 이전 단계에서 뷰에 액세스하는 방법으로 type-safe한 데이터 바인딩을 사용했다.
  - 그러나 data binding의 진정한 힘은 이름이 의미하는 대로 데이터를 앱의 뷰 객체에 직접 바인딩하는 것이다
  
  ### current app architecture
@@ -23,7 +23,7 @@
   
   <img src="./images/databinding.png"  width="70%" height="70%"/>
   
-  ViewModel 객체는 앱의 모든 UI 데이터를 보유한다. ViewModel 객체를 데이터 바인딩으로 전달하면 뷰와 ViewModel 객체 간의 일부 통신을 자동화 할 수 있다
+  ViewModel 객체는 앱의 모든 UI 데이터를 보유한다. ViewModel 객체를 데이터 바인딩으로 전달하면 view와 ViewModel 객체 간의 일부 통신을 자동화 할 수 있다
   
   이번 단계에서는 GameViewModel 및 ScoreViewModel 클래스를 해당 xml 레이아웃과 연결하고 클릭벤트를 처리할 리스너 바인딩도 설정한다
   
@@ -31,12 +31,12 @@
  
  ### Step 1: Add data binding for the GameViewModel
  
- Step 1에서는 GameViewModel과 game_fragment.xml을 연결한다
+ Step 1에서는 GameViewModel과 그에 해당하는 layout 파일인 game_fragment.xml을 연결한다
  
  <br>
  
- #### 1) game_fragment.xml에 GameViewModel 타입 data-binding 의변수를 추가한다.
- 
+ #### 1) game_fragment.xml에 GameViewModel 타입 data-binding의 변수를 추가한다.
+
  ```
  <layout ...>
  
@@ -53,6 +53,8 @@
  <br>
  
  #### 2) GameFragment 파일에서 GameViewModel을 data binding에 넘긴다
+ 먼저 viewModel에 binding.gameViewModel 변수를 할당한다. viewModel 초기화 코드 이후에 이 코드를 onCreateView() 메소드 안에 넣는다.
+
  ```
  // Set the viewmodel for databinding - this allows the bound layout access 
  // to all the data in the ViewModel
@@ -63,9 +65,8 @@
  <br><br>
  
  ### Step 2: Use listener bindings for event handling
-  - Listener binding은 onClick(), onZoomIn(), onZoomOut()과 같은 이벤트가 트리거 될 때 실행되는 바인딩 표현식이다
+  - [Listener binding](https://developer.android.com/topic/libraries/data-binding/expressions#listener_bindings)은 onClick(), onZoomIn(), onZoomOut()과 같은 이벤트가 트리거 될 때 실행되는 바인딩 표현식이다
   - Listener binding은 람다 식으로 작성된다
-  
   - 데이터 바인딩은 리스너를 작성하고 뷰에서 리스너를 설정한다 
   - Listener binding은 그래들 플러그인 버전 2.0 이상부터 작용한다
   
@@ -177,12 +178,51 @@
    
   <br><br>
 
+  ### Troubleshooting data-binding error message
+  - 앱에서 데이터 바인딩을 사용할 때 컴파일 프로세스는 데이터 바인딩에 사용되는 중간 클래스를 생성한다.
+  - 앱에서 에러가 발생할 수도 있는데, 이 에러는 안드로이드 스튜디오에서 앱 컴파일 시 감지할 수 없어 code 상 warning이나 빨간색으로 밑줄이 생기지 않는다.
+  - 그러나 컴파일 시 생성된 중간 클래스에서는 에러가 발생한다.
+
+  만약 이런 에러가 발생하면
+   - 안드로이드 스튜디오의 Build 패널을 유심히 살펴보면 data binding에러가 어떤 databinding에서 발생했는지 알 수 있다
+   - 레이아웃 XML 파일에서 데이터 바인딩을 사용하는 onClick 속성의 오류를 확인해보고 람다식이 호출하는 함수가 실제로 존재하는지 살펴본다
+   - \<data\> 영역에서 data-binding 변수의 스펠링을 체크해본다
+
+  예를 들어 아래 리스너에서 onCorrect() 함수의 스펠링이 틀린 것을 확인해볼 수 있다.
+
+  ```
+  android:onClick="@{() -> gameViewModel.onCorrectx()}"
+  ```
+
+  또한 XML 파일에서 <data> 영역 중 gameViewModel의 스펠링 철자 틀림으로 인해 오류가 발생할 수도 있다.
+
+  ```
+    <data>
+       <variable
+           name="gameViewModelx"
+           type="com.example.android.guesstheword.screens.game.GameViewModel" />
+    </data>
+  ```
+
+  안드로이드 스튜디오는 앱을 컴파일 할 때까지 에러를 발견할 수 없으며, 컴파일 중에 아래와 같은 에러 메세지를 확인할 수 있다.
+
+  ```
+    error: cannot find symbol
+    import com.example.android.guesstheword.databinding.GameFragmentBindingImpl"
+
+    symbol:   class GameFragmentBindingImpl
+    location: package com.example.android.guesstheword.databinding
+  ```
+
+<br><br>
+
+
 ## 2. Add LiveData to data binding
   - 데이터 바인딩은 viewModel 객체와 함께 사용되는 LiveData와도 잘 동작한다.
   - 이번 단계에서는 LiveData의 observer 메소드를 사용하지 않고 LiveData를 데이터 바인딩 소스로 사용하여 UI에 데이터 바인딩 변경 사항을 알리도록 수정한다
   
   ### Step 1: Add word LiveData to the game_fragment.xml file
-  Step 1에서는 current word 텍스트 뷰를 viewModel에 있는 LiveData 객체에 직접 바인딩한다.
+  Step 1에서는 word 텍스트 뷰를 viewModel에 있는 LiveData 객체에 직접 바인딩한다.
   
   #### 1) game_fragment.xml 열어서 word_text 텍스트 뷰에 android:text 속성을 추가한다
   
@@ -198,15 +238,15 @@
   
   <br>
   
-  #### 2) GameFragment의 onCreateView()에서 gameViewModel 초기화 코드 이후에 binding 변수의 lifecycle 소유자로 현재 activity를 설정한다
+  #### 2) GameFragment의 onCreateView()에서 gameViewModel 초기화 코드 이후에 binding 변수의 lifecycle owner를 현재 fragment view로 설정한다
   
   - 이는 위의 LiveData 객체의 범위를 정의하여 객체가 game_fragment.xml의 뷰를 자동으로 업데이트 할 수 있도록 한다
   
   ```
-  binding.gameViewModel = ...
-  // Specify the current activity as the lifecycle owner of the binding.
-  // This is used so that the binding can observe LiveData updates
-  binding.lifecycleOwner = this
+    binding.gameViewModel = ...
+    // Specify the fragment view as the lifecycle owner of the binding.
+    // This is used so that the binding can observe LiveData updates
+    binding.lifecycleOwner = viewLifecycleOwner
   ```
   
   <br>
@@ -216,10 +256,10 @@
   - 삭제해야 할 코드는 아래와 같다
   
   ```
-  /** Setting up LiveData observation relationship **/
-  viewModel.word.observe(this, Observer { newWord ->
-     binding.wordText.text = newWord
-  })
+    /** Setting up LiveData observation relationship **/
+    viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+       binding.wordText.text = newWord
+    })
   ```
   
   #### 4) 앱을 실행시켜 게임을 실행한다. UI 컨트롤러 내에 observer 메소드 없이도 current word가 업데이트 되는 것을 확인할 수 있다
@@ -229,7 +269,7 @@
  ### Step 2: Add score LiveData to the score_fragment.xml file
  이번 단계에서는 score fragment의 text view에 LiveData score를 바인딩한다
  
- #### 1) socre_fragment.xml의 socre text view에 android:text 속성을 추가한다. ScoreViewModel.score를 text 속성에 할당한다. score는 integer이므로 String.valueOf()를 써서 string으로 변환한다
+ #### 1) score_fragment.xml의 score text view에 android:text 속성을 추가한다. ScoreViewModel.score를 text 속성에 할당한다. score는 integer이므로 String.valueOf()를 써서 string으로 변환한다
  
  ```
  <TextView
