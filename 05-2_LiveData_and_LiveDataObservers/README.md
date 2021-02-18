@@ -277,7 +277,7 @@
   - 옵저버 패턴은 소프트웨어 디자인 패턴이다. observable("subject" of observation)과 observer 객체 사이에서 커뮤니케이션을 주고 받는다
   - observable은 상태가 변화하면 observer에게 알리는 객체이다
   
-  <img src="./images/observer_pattern.png"  width="70%" height="70%"/>
+  <img src="./images/observer_pattern.png"  width="50%" height="50%"/>
   
   - LiveData의 경우 observable(subject)은 LiveData 객체이며 observer는 UI controller의 메소드이다
   - LiveData로 감싸진(wrapped) 데이터가 변경될 때 마다 상태도 변한다
