@@ -417,4 +417,4 @@
   #### 3) 테스트를 실행하고 SleepDatabaseTest 창에서 모든 테스트가 통과되었는지 확인한다
   
     
-   <image src="./images/test.png"/>
+   <image src="./images/test.png" width="500"/>
