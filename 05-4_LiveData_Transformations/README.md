@@ -3,8 +3,8 @@
 ## 1. Add a Timer
  - 이번 단계에서는 앱에 timer를 추가해본다. 단어 리스트가 비어지면 게임을 종료하는 대신에 timer가 끝나면 게임이 종료되는 방식으로 변경한다.
  - 안드로이드에서는 타이머를 구현하는데 사용되는 [CountDownTimer](https://developer.android.com/reference/android/os/CountDownTimer)라는 클래스를 제공한다 
- - configuration 변화 중에 데이터가 손상되지 않도록 GameViewModel에 타이머를 추가한다
- - 프래그먼트에는 timer 틱에 따라 타이머 text view를 업데이트 하는 코드가 포함되어야 한다
+ - configuration 변화 중에 timer가 손상되지 않도록 GameViewModel에 타이머 관련 로직을 추가한다.
+ - 프래그먼트에는 timer의 틱에 따라 타이머 text view를 업데이트 하는 코드가 포함되어야 한다
  
  GameViewModel 클래스를 아래와 같이 구현한다
  
@@ -68,8 +68,8 @@
  
  #### 5) 모든 tick 또는 모든 interval마다 호출되는 콜백 메소드인 onTick()을 구현해본다
   - 전달받은 millisUntilFinished 파라미터를 사용하여 _currentTimer를 업데이트 한다
-  - millisUntilFinished는 밀리초 단위로 타이머가 완료될 때 까지의 시간이다
-  - millisUntilFinished를 초로 변환하고 _currentTime에 할당한다
+  - millisUntilFinished는 타이머가 완료될 때 까지의 남은 millisecond 시간이다.
+  - millisUntilFinished를 second로 변환하고 _currentTime에 할당한다
   
   ```
   override fun onTick(millisUntilFinished: Long)
@@ -106,7 +106,7 @@
  
  <br>
  
- #### 8) onCleared() 메소드 내에서 메모리 누수를 피하기 위하여 타이머를 취소한다. onCleared () 메소드는 ViewModel이 파괴되기 전에 호출된다
+ #### 8) onCleared() 메소드 내에서 메모리 누수를 피하기 위하여 타이머를 취소한다. onCleared () 메소드는 ViewModel이 destory 되기 전에 호출된다
  
  ```
  override fun onCleared() {
@@ -125,10 +125,10 @@
 ## 2. Add transformation for the LiveData
  - [Transformations.map()](https://developer.android.com/reference/android/arch/lifecycle/Transformations.html#map%28android.arch.lifecycle.LiveData%3CX%3E,%20android.arch.core.util.Function%3CX,%20Y%3E%29) LiveData의 데이터를 조작하고 결과로 LiveData 객체를 반환하는 메소드이다
  - 하지만 이런 변환은 observer가 새로 리턴된 LiveData를 observing하고 있지 않으면 계산되지 않는다
- - 이 메소드는 LiveData와 함수 파라미터를 가진다.
+ - 이 메소드는 LiveData를 함수 파라미터로 가진다.
  - Transformations.map()에 전달된 람다 함수는 main thread에서 실행되므로 장시간 실행되는 작업은 포함하지 않는것이 좋다
  
- 경과 시간 LiveData 객체를 "MM:SS" 형식의 새 문자열 LiveData 객체로 포맷하고, 포맷된 경과 시간을 화면에 표시한다
+ 이번 단계에서는 경과 시간 LiveData 객체를 "MM:SS" 형식의 새 문자열 LiveData 객체로 포맷하고, 포맷된 경과 시간을 화면에 표시한다
  
  game_fragment.xml layout 파일에 이미 timer text view가 포함되어 있다. 지금까지는 timer text view에 표시할 데이터가 없어 텍스트가 표시되지 않았다
  
@@ -136,7 +136,7 @@
  
  #### 2) Transformations.map()을 사용하여 currentTimerString을 정의한다. currentTimer 및 시간 포맷을 변경하는 람다 함수를 전달한다.
   - DateUtils.formatElapsedTime()을 사용하여 람다 함수를 구현할 수 있다
-  - 이 메소드는 밀리 초가 걸리고 "MM : SS"문자열 형식으로 변환된다.
+  - 이 메소드는 seconds를 long 타입으로 받아 "MM : SS"문자열 형식으로 변환한다.
   
   ```
   // The String version of the current time
