@@ -19,7 +19,9 @@
   - **The database package**에는 Room 데이터베이스와 관련된 코드들이 있다
   - **The sleepquality and sleeptracker package**에는 fragment, view model, view model factory가 각각의 스크린마다 존재한다
  
+ 
  #### 3) Util.kt 파일을 살펴보자. sleep-quality 데이터를 표시하는데 필요한 함수들을 포함하고 있다
+ 
  
  #### 4) android Test 폴더 (SleepDatabaseTest.kt)에서 database가 의도한대로 작동는지 테스트 해볼 수 있다
 
@@ -116,13 +118,14 @@
  
  추가로 안드로이드 스튜디오에서 쿼리를 만들 때 컴파일러가 SQL 쿼리에서 구문 오류를 확인한다. 
  
- sleep-tracker 데이터베이스에는 다음 기능이 있어야 한다
-    - **Insert** new nights
-    - **Update** an existing night to update an end time and a quality rating
-    - **Get** a specific night based on its key
-    - **Get all nights**, so you can display them
-    - **Get the most recent night**
-    - **Delete** all entries in the database
+ sleep-tracker 데이터베이스에는 다음 기능이 있어야 한다.
+ 
+  - **Insert** new nights
+  - **Update** an existing night to update an end time and a quality rating
+  - **Get** a specific night based on its key
+  - **Get all nights**, so you can display them
+  - **Get the most recent night**
+  - **Delete** all entries in the database
  
  <br>
  
