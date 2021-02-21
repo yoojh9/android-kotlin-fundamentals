@@ -39,7 +39,7 @@
  Room은 annotated된 클래스를 사용하여 데이터베이스의 테이블을 생성하고 데이터베이스에서 작동하는 쿼리를 생성한다.
  
  
- <image src="./images/room_and_dao.png"/>
+ <image src="./images/room_and_dao.png" width="500"/>
  
  ### Step 1: Create the SleepNight entity
   이 작업에서는 night of sleep을 어노테이션이 달린 data class로 정의한다. 이것은 database entity임을 의미한다. 
