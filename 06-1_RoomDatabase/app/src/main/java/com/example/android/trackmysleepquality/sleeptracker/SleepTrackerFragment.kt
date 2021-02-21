@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2019, The Android Open Source Project
  *
@@ -42,7 +43,7 @@ class SleepTrackerFragment : Fragment() {
 
         // Get a reference to the binding object and inflate the fragment views.
         val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_sleep_tracker, container, false)
+            inflater, R.layout.fragment_sleep_tracker, container, false)
 
         return binding.root
     }
