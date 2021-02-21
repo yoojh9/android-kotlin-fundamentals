@@ -179,7 +179,7 @@
    
    <br>
    
-   #### 7) @Query를 어노테이션으로 하는 clear() 함수를 만든다. 이 함수는 daily_sleep_quality_table의 모든 데이터를 DELETE 하지마 테이블을 지우진 않는다.
+   #### 7) @Query를 어노테이션으로 하는 clear() 함수를 만든다. 이 함수는 daily_sleep_quality_table의 모든 데이터를 DELETE 하지만 테이블을 지우진 않는다.
    @Delete 어노테이션은 하나의 아이템을 삭제한다. @Delete는 특정 항목을 삭제하는 데 유용하지만 테이블에서 모든 아이템을 지우는 데는 효율적이지 않다.
    
    ```
