@@ -21,6 +21,7 @@ import android.provider.SyncStateContract.Helpers.insert
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
 import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.formatNights
@@ -30,16 +31,12 @@ import kotlinx.coroutines.*
  * ViewModel for SleepTrackerFragment.
  */
 class SleepTrackerViewModel(
-        val database: SleepDatabaseDao,
-        application: Application) : AndroidViewModel(application) {
-
-        private var viewModelJob = Job()
-        private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+        val database: SleepDatabaseDao, application: Application) : AndroidViewModel(application) {
         private var tonight = MutableLiveData<SleepNight?>()
 
         private val nights = database.getAllNights()
-        val nightsString = Transformations.map(nights) { nights ->
-                formatNights(nights, application.resources)
+        val nightsString = Transformations.map(nights) {
+                night -> formatNights(night, application.resources)
         }
 
         init {
@@ -47,23 +44,21 @@ class SleepTrackerViewModel(
         }
 
         private fun initializeTonight() {
-                uiScope.launch {
+                viewModelScope.launch {
                         tonight.value = getTonightFromDatabase()
                 }
         }
 
         private suspend fun getTonightFromDatabase(): SleepNight? {
-                return withContext(Dispatchers.IO) {
-                        var night = database.getTonight()
-                        if (night?.endTimeMilli != night?.startTimeMilli) {
-                                night = null
-                        }
-                        night
+                var night = database.getTonight()
+                if (night?.endTimeMilli != night?.startTimeMilli) {
+                        night = null
                 }
+                return night
         }
 
         fun onStartTracking() {
-                uiScope.launch {
+                viewModelScope.launch {
                         val newNight = SleepNight()
                         insert(newNight)
                         tonight.value = getTonightFromDatabase()
@@ -72,13 +67,11 @@ class SleepTrackerViewModel(
         }
 
         private suspend fun insert(newNight: SleepNight){
-                withContext(Dispatchers.IO){
-                        database.insert(newNight)
-                }
+                database.insert(newNight)
         }
 
         fun onStopTracking() {
-                uiScope.launch {
+                viewModelScope.launch {
                         val oldNight = tonight.value ?: return@launch
                         oldNight.endTimeMilli = System.currentTimeMillis()
                         update(oldNight)
@@ -86,28 +79,18 @@ class SleepTrackerViewModel(
         }
 
         private suspend fun update(night: SleepNight) {
-                withContext(Dispatchers.IO) {
-                        database.update(night)
-                }
+                database.update(night)
         }
 
         fun onClear() {
-                uiScope.launch {
+                viewModelScope.launch {
                         clear()
                         tonight.value = null
                 }
         }
 
         suspend fun clear() {
-                withContext(Dispatchers.IO) {
-                        database.clear()
-                }
-        }
-
-
-        override fun onCleared() {
-                super.onCleared()
-                viewModelJob.cancel()
+                database.clear()
         }
 
 }
