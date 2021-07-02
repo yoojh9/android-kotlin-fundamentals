@@ -19,15 +19,13 @@ package com.example.android.trackmysleepquality.sleepquality
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
 import kotlinx.coroutines.*
 
 class SleepQualityViewModel(
     private val sleepNightKey: Long = 0L,
     val database: SleepDatabaseDao) : ViewModel() {
-
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private val _navigateToSleepTracker = MutableLiveData<Boolean?>()
 
@@ -40,19 +38,22 @@ class SleepQualityViewModel(
     }
 
     fun onSetSleepQuality(quality: Int) {
-        uiScope.launch {
+        /*
+       viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val tonight = database.get(sleepNightKey) ?: return@withContext
                 tonight.sleepQuality = quality
                 database.update(tonight)
             }
             _navigateToSleepTracker.value = true
+        }*/
+
+        // ROOM에서는 Dispatchers.IO로 데이터베이스 작업을 진행하므로 따로 설정하지 않아도 됨
+        viewModelScope.launch {
+            val tonight = database.get(sleepNightKey) ?: return@launch
+            tonight.sleepQuality = quality
+            database.update(tonight)
+            _navigateToSleepTracker.value = true
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-
 }
