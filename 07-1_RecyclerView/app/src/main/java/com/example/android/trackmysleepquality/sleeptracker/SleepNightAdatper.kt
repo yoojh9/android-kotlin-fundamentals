@@ -64,12 +64,12 @@ class ViewHolder private constructor(itemView: View) : RecyclerView.ViewHolder(i
         fun from(parent: ViewGroup): ViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater
-                .inflate(R.layout.list_item_sleep_night, parent, false) as TextView
+                .inflate(R.layout.list_item_sleep_night, parent, false)
             return ViewHolder(view)
         }
     }
 
-    // ViewHolder.bind -> bind로 변경 가
+    // ViewHolder.bind -> bind로 변경 가능
     fun bind(item: SleepNight) {
         val res = itemView.context.resources
         sleepLength.text =
