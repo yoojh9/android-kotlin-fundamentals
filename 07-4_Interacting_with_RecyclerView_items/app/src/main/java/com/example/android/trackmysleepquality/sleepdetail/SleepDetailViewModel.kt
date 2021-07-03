@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.android.trackmysleepquality.sleepdetail
 
 import androidx.lifecycle.LiveData
@@ -26,13 +42,6 @@ class SleepDetailViewModel(
      */
     val database = dataSource
 
-    /** Coroutine setup variables */
-
-    /**
-     * viewModelJob allows us to cancel all coroutines started by this ViewModel.
-     */
-    private val viewModelJob = Job()
-
     private val night: LiveData<SleepNight>
 
     fun getNight() = night
@@ -55,16 +64,6 @@ class SleepDetailViewModel(
      */
     val navigateToSleepTracker: LiveData<Boolean?>
         get() = _navigateToSleepTracker
-
-    /**
-     * Cancels all coroutines when the ViewModel is cleared, to cleanup any pending work.
-     *
-     * onCleared() gets called when the ViewModel is destroyed.
-     */
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
 
 
     /**
