@@ -20,31 +20,30 @@ package com.example.android.marsrealestate.overview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.marsrealestate.network.MarsApi
 import com.example.android.marsrealestate.network.MarsProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+
+
 enum class MarsApiStatus { LOADING, ERROR, DONE }
+
 
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
  */
 class OverviewViewModel : ViewModel() {
 
-    private var viewModelJob = Job()
-
-    private val coroutineScope = CoroutineScope(
-        viewModelJob + Dispatchers.Main )
-
+    // The internal MutableLiveData String that stores the most recent response
     private val _status = MutableLiveData<MarsApiStatus>()
 
+    // The external immutable LiveData for the response String
     val status: LiveData<MarsApiStatus>
         get() = _status
 
     private val _properties = MutableLiveData<List<MarsProperty>>()
+
     val properties: LiveData<List<MarsProperty>>
         get() = _properties
 
@@ -59,27 +58,29 @@ class OverviewViewModel : ViewModel() {
      * Sets the value of the status LiveData to the Mars API status.
      */
     private fun getMarsRealEstateProperties() {
-        coroutineScope.launch {
-            var getPropertiesDeferred = MarsApi.retrofitService.getProperties()
-
+        viewModelScope.launch {
+            _status.value = MarsApiStatus.LOADING
             try {
-                _status.value = MarsApiStatus.LOADING
-
-                // Await the completion of our Retrofit request
-                var listResult = getPropertiesDeferred.await()
+                _properties.value = MarsApi.retrofitService.getProperties()
                 _status.value = MarsApiStatus.DONE
-                _properties.value = listResult
-
             } catch (e: Exception) {
                 _status.value = MarsApiStatus.ERROR
                 _properties.value = ArrayList()
             }
-
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
+//        MarsApi.retrofitService.getProperties().enqueue(
+//
+//            object: Callback<List<MarsProperty>> {
+//                override fun onResponse(call: Call<List<MarsProperty>>, response: Response<List<MarsProperty>>) {
+//                    _response.value = "Success: ${response.body()?.size} Mars properties retrieved"
+//                }
+//
+//                override fun onFailure(call: Call<List<MarsProperty>>, t: Throwable) {
+//                    _response.value = "Failure: " + t.message
+//                }
+//
+//
+//            }
+//        )
     }
 }
