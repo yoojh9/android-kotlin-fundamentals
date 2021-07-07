@@ -38,6 +38,7 @@
             android:padding="16dp">
 
             <ImageView
+                app:imageUrl="@{viewModel.selectedProperty.imgSrcUrl}"
                 android:id="@+id/main_photo_image"
                 android:layout_width="0dp"
                 android:layout_height="266dp"
@@ -45,7 +46,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:imageUrl="@{viewModel.selectedProperty.imgSrcUrl}"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
             <TextView

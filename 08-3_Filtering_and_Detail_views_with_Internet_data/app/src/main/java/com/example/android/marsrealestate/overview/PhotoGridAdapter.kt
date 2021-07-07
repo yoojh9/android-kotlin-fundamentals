@@ -1,20 +1,3 @@
-/*
- * Copyright 2019, The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package com.example.android.marsrealestate.overview
 
 import android.view.LayoutInflater
@@ -25,27 +8,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android.marsrealestate.databinding.GridViewItemBinding
 import com.example.android.marsrealestate.network.MarsProperty
 
-
-class PhotoGridAdapter(private val onClickListener: OnClickListener) : ListAdapter<MarsProperty, PhotoGridAdapter.MarsPropertyViewHolder> (DiffCallback) {
+class PhotoGridAdapter(private val onClickListener: OnClickListener) : ListAdapter<MarsProperty,
+        PhotoGridAdapter.MarsPropertyViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): PhotoGridAdapter.MarsPropertyViewHolder {
-        return MarsPropertyViewHolder(GridViewItemBinding.inflate(LayoutInflater.from(parent.context)))
+    ): MarsPropertyViewHolder {
+        return MarsPropertyViewHolder(GridViewItemBinding.inflate(
+            LayoutInflater.from(parent.context)
+        ))
     }
 
-    override fun onBindViewHolder(holder: PhotoGridAdapter.MarsPropertyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MarsPropertyViewHolder, position: Int) {
         val marsProperty = getItem(position)
-        holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
             onClickListener.onClick(marsProperty)
         }
-
         holder.bind(marsProperty)
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<MarsProperty>() {
 
+    companion object DiffCallback : DiffUtil.ItemCallback<MarsProperty>() {
         override fun areItemsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
             return oldItem === newItem
         }
@@ -55,7 +39,7 @@ class PhotoGridAdapter(private val onClickListener: OnClickListener) : ListAdapt
         }
     }
 
-    class MarsPropertyViewHolder(private var binding: GridViewItemBinding): RecyclerView.ViewHolder(binding.root){
+    class MarsPropertyViewHolder(private var binding: GridViewItemBinding): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(marsProperty: MarsProperty) {
             binding.property = marsProperty
@@ -63,8 +47,9 @@ class PhotoGridAdapter(private val onClickListener: OnClickListener) : ListAdapt
         }
     }
 
-    class OnClickListener(val clickListener: (marsProperty : MarsProperty) -> Unit){
+    class OnClickListener(val clickListener: (marsProperty: MarsProperty) -> Unit) {
         fun onClick(marsProperty: MarsProperty) = clickListener(marsProperty)
     }
+
 
 }
