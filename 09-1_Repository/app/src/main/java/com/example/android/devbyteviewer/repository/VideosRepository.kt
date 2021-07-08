@@ -27,17 +27,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class VideosRepository(private val database: VideosDatabase){
+class VideosRepository(private val database: VideosDatabase) {
 
     val videos: LiveData<List<DevByteVideo>> = Transformations.map(database.videoDao.getVideos()){
         it.asDomainModel()
     }
 
-    suspend fun refreshVideos(){
-        withContext(Dispatchers.IO){
+
+    suspend fun refreshVideos() {
+        withContext(Dispatchers.IO) {
             Timber.d("refresh videos is called");
-            val playlists = DevByteNetwork.devbytes.getPlaylist().await()
-            database.videoDao.insertAll(playlists.asDatabaseModel())
+            val playlist = DevByteNetwork.devbytes.getPlaylist()
+            database.videoDao.insertAll(playlist.asDatabaseModel())
         }
     }
 

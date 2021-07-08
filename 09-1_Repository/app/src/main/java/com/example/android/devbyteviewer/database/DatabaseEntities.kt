@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2019 Google Inc.
  *
@@ -25,8 +26,9 @@ import com.example.android.devbyteviewer.domain.DevByteVideo
  * Database entities go in this file. These are responsible for reading and writing from the
  * database.
  */
+
 @Entity
-data class DatabaseVideo constructor(
+data class DatabaseVideo (
     @PrimaryKey
     val url: String,
     val updated: String,
@@ -35,13 +37,14 @@ data class DatabaseVideo constructor(
     val thumbnail: String
 )
 
-fun List<DatabaseVideo>.asDomainModel(): List<DevByteVideo> {
-    return map {
+fun List<DatabaseVideo>.asDomainModel() : List<DevByteVideo> {
+    return this.map {
         DevByteVideo(
             url = it.url,
             title = it.title,
             description = it.description,
             updated = it.updated,
-            thumbnail = it.thumbnail)
+            thumbnail = it.thumbnail
+        )
     }
 }

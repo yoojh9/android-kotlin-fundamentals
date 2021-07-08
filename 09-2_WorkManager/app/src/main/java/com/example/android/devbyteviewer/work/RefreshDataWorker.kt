@@ -11,7 +11,7 @@ import timber.log.Timber
 class RefreshDataWorker(appContext: Context, params: WorkerParameters): CoroutineWorker(appContext, params) {
 
     companion object {
-        const val WORK_NAME = "com.example.android.devbyteviewer.work.RefreshDataWorker"
+        const val WORK_NAME = "com.exmample.android.devbyteviewer.work.RefreshDataWorker"
     }
 
     override suspend fun doWork(): Result {
@@ -21,7 +21,7 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters): Coroutin
         try {
             repository.refreshVideos()
             Timber.d("Work request for sync is run")
-        } catch(e: HttpException){
+        } catch(e: HttpException) {
             return Result.retry()
         }
         return Result.success()
