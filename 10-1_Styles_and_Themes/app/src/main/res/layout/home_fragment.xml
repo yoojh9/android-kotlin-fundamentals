@@ -50,6 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/about_google_developer_groups"
+                android:fontFamily="serif-monospace"
                 android:textAppearance="@style/TextAppearance.Title"
                 app:layout_constraintEnd_toStartOf="@+id/end_guideline"
                 app:layout_constraintStart_toStartOf="@+id/start_guideline"

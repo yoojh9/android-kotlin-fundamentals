@@ -68,10 +68,10 @@ androidx.core.widget.NestedScrollView
 android:layout_gravity="bottom|end"
 ```
 
-#### 2) 화면 가장자리에 여백을 주기 위해 FAB에 layout_margin을 16dp를 준다
+#### 2) 화면 가장자리에 여백을 주기 위해 FAB에 layout_margin을 @dimen/spacing_normal를 준다
 
 ```
-android:layout_margin="16dp"
+android:layout_margin="@dimen/spacing_normal"
 ```
 
 #### 3) 제공된 ic_gdg 아이콘을 FAB의 이미지로 사용한다.
@@ -300,7 +300,7 @@ Dimens, 또는 dimension은 재사용 가능한 측정 값을 지정할 수 있�
    android:layout_width="wrap_content"
    android:layout_height="wrap_content"
    android:orientation="vertical"
-   app:layout_constraintGuide_begin="16dp" />
+   app:layout_constraintGuide_begin="@dimen/spacing_normal" />
 
 <androidx.constraintlayout.widget.Guideline
    android:id="@+id/end_guideline"
@@ -310,14 +310,14 @@ Dimens, 또는 dimension은 재사용 가능한 측정 값을 지정할 수 있�
    app:layout_constraintGuide_end="26dp" />
 ```
 
-layout_constraintGuide_begin="16dp"는 Material 명세를 따르지만 app:layout_constraintGuide_end="26dp"은 16dp가 되어야 한다.
+layout_constraintGuide_begin="@dimen/spacing_normal"는 Material 명세를 따르지만 app:layout_constraintGuide_end="26dp"은 @dimen/spacing_normal가 되어야 한다.
 여기서는 수동으로 값을 고치지만 이러한 margin에 대해 dimension을 만든 다음 앱 전체에서 일관되게 적용하는 것이 좋다
 
 <br>
 
 ### Step 2: Create a dimension
 
-#### 1) home_fragment.xml에서 app:layout_constraintGuide_begin="16dp"의 16dp에 커서를 놓는다
+#### 1) home_fragment.xml에서 app:layout_constraintGuide_begin="@dimen/spacing_normal"의 @dimen/spacing_normal에 커서를 놓는다
 
 #### 2) Alt + Enter (Option + Enter for mac)을 이용하여 intention menu를 열고 Extract dimension resource를 선택한다
 
@@ -333,7 +333,7 @@ layout_constraintGuide_begin="16dp"는 Material 명세를 따르지만 app:layou
 
 #### 5) 안드로이드 스튜디오에서 **Replace All** 창을 연다 (Cmd+Shift+R on the Mac or Ctrl+Shift+R on Windows)
 
-#### 6) 16dp를 검색하고 dimens.xml의 항목을 제외한 모든 항목을 @dimen/spacing_normal로 바꾼다
+#### 6) @dimen/spacing_normal를 검색하고 dimens.xml의 항목을 제외한 모든 항목을 @dimen/spacing_normal로 바꾼다
 
 #### 7) 앱을 실행시켜서 텍스트의 왼쪽와 오른쪽 간격이 동일한 것을 확인한다. 
 
